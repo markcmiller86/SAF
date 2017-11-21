@@ -1,0 +1,147 @@
+###############################################################################################################################
+# This file serves as an example mkdoc configuration file in addition to being the configuration file for the SAF Library
+# Reference Manual. Therefore, use lots of comments! A comment is intruduced by a hash `#' and continues to the end of the line,
+# but comments are not recognized inside arguments. An argument is anything between curly braces and must not contain curly
+# braces itself.  Arguments always appear after keywords that are introduced with a `@' character. The keyword must immediately
+# follow the `@' but otherwise white-space is irrelevant outside arguments.
+###############################################################################################################################
+
+#
+# The document title can be multi-part, with each part normally typeset on its own line.
+#
+@title{SAF File Differencer}
+
+#
+# A document may have zero or more authors.
+#
+@author{Jake S. Jones, (SNL)}
+@author{Eric A. Illescas (SNL)}
+@author{Robb P. Matzke (LLNL)}
+@author{Mark C. Miller (LLNL)}
+
+#
+# Due to personnel changes, the authors of a living document might no longer participate in that document and can be moved
+# to a list of old authors.
+#
+@oldauthor{Matthew J. O'Brien, (LLNL)}
+@oldauthor{Peter K. Espen (SNL)}
+@oldauthor{Ray T. Hitt (SNL)}
+@oldauthor{Larry A. Schoof (SNL)}
+
+#
+# In addition to the authors, we might want to recognize other contributors on the cover page instead of in a separate chapter.
+#
+
+#
+# Documents have zero or more copyright notices. The first and second arguments are required and are the years of the
+# copyright and the copyright holder.  A third optional argument is additional text to appear as part of the copyright notice.
+#
+@copyright{2000-2005}
+          {The Regents of the University of California}
+          {All Rights Reserved. This document has been authored by The Regents of
+           the University of California under Contract No. W-7405-ENG-48 with the
+           U.S.  Government.}
+@copyright{2000-2005}{Sandia National Laboratories}
+
+#
+# Some documents need an official disclaimer to appear near the copyright notices. This can also be used to display an
+# end user license agreement (EULA) such as the GNU General Public License.
+#
+@disclaimer{This document was prepared as an account of work sponsored by an agency
+	    of the United States Government. Neither the United States Government
+	    nor the University of California nor any of their employees makes any
+	    warranty, expressed or implied, or assumes any legal liability or
+	    responsibility for the accuracy, completeness, or usefulness of any
+	    information, apparatus, product, or process disclosed, or represents
+	    that its use would not infringe privately owned rights. Reference herein
+	    to any specific commercial product, process, or service by trade name,
+	    trademark, manufacturer, or otherwise, does not necessarily constitute
+	    or imply its endorsement, recommendation, or favoring by the United
+	    States Government or the University of California.  The views and
+	    opinions of authors expressed herein do not necessarily state or reflect
+	    those of the United States Government or the University of California
+	    and shall not be used for advertising or product endorsement purposes.}
+
+#
+# Chapters will be typeset in the order listed here. Chapters that aren't listed will be typeset in alphabetical
+# order after all chapters that are listed.
+#
+#@corder{Structured Mesh Reader}
+
+
+
+#
+# Sometimes projects use prologue tags that serve the same purpose as one of mkdoc's tags but don't have the name that
+# mkdoc expects.  Rewrite rules can be used in that case, where the first argument is the name used by the project and the
+# second argument is the corresponding mkdoc name.  The special value `__NAME__' can appear as the first argument, which
+# simply means that the object name can be used as a prologue tag (e.g., for a function named `foo', the prologue may contain
+# a tag called `foo' which will be mapped to some other mkdoc tag.
+#
+@rewrite{__NAME__}{Purpose}
+
+#
+# The documentation may contain graphics, and the `figdir' directive tells mkdoc where to look to find the files mentioned in the
+# source code while `navdir' says where to look for graphics used for navigation buttons and backgrounds. Relative names are
+# with respect to the location of the configuration file in which they appear.
+#
+@figdir{../../../../docs/manuals/figures/library}
+@navdir{../../../../tools/Formats/library/}
+
+#
+# If the source code contains variables of the form `$FOO' then mkdoc can substitute values for them before parsing the source
+# file.
+#
+@substitute{SAFDOC}{http://www.engsci.sandia.gov/saf/current}
+
+#
+# The default audience for which to produce output.  This directive can appear more than once and results in broadening
+# the scope of the documentation. Any object that has one of the specified audiences listed in its documentation comment
+# will be included in the output. The special audience `all' means every object is included. See the `-A' command-line
+# switch for details.
+#
+@audience{public}                       # `public' is not the default, rather `all'
+
+#
+# Mkdoc is capable of generating different formats of documentation. The default is HTML.  See the `-f' command-line switch
+# for details.
+#
+# @doctype{html}                        # commented out because it's often specified on the command-line
+
+#
+# This directive tells mkdoc what to document. See the `-d' command-line switch for details.
+#
+@document{-prototypes}
+
+#
+# Certain sections of an object's documentation can be omitted from the final output. For instance, end users probably don't care
+# about modification histories. See the `-E' command-line switch for details.
+#
+@exclude{modifications}
+
+#
+# If source documentation is incomplete then turning on mkdoc's limp-along mode might produce something useful. See the
+# `-l' command-line switch for details.  This directive can take an argument which has the same format as the command-line
+# switch.
+#
+# @limpalong{audience=limpalong}        # commented out because it results in lots of warnings
+
+#
+# Determines the name of the file or directory that will receive the output. One normally doesn't set this in the
+# config file.  See the `-o' command-line switch for details.
+#
+# @output{index}                        # commented out because it's usually specified on the command-line
+
+#
+# Source files can be listed on the command-line or in some other file(s). This directive may appear more than once and
+# specifies one list file per occurrence.
+#
+@sources{/dev/null}
+
+#
+# These have the same meanings as their equivalent command-line switches. A slight bug exists in that if one of these is
+# specified in the config file there is no way to override it from the command-line.
+#
+@singlelevel                            # -1
+# @multipart                            # -m
+# @unsorted                             # -u
+# @verbose                              # -v

@@ -1,0 +1,13 @@
+1. Adding EXODUS Performance Measures to Benchmark
+
+   The SAF 2-D Benchmark is capable of measuring EXODUS database performance as
+   well as SAF database performance. By default, the EXODUS performance compon-
+   ents are NOT installed with the standard SAF library build. To install the 
+   EXODUS performance components, the following environmental variables must be
+   defined prior to executing SAF's configure:
+
+     i. In $CC add: -DHAVE_EXODUS -I(path to EXODUS and NETCDF header files)
+
+    ii. Define $EXODUS_LIB_PATH: -L(path to EXODUS and NETCDF library files)
+
+   iii. Define $EXODUS_LIBS: -l(EXODUS library name) -l(NETCDF library name)

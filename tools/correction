@@ -1,0 +1,171 @@
+#! /usr/bin/perl
+
+# Author: Matthew J. O'Brien <mobrien@llnl.gov>
+#
+# Usage: correction PATTERN [print]
+#     Where PATTERN is a file name glob that describes which files on which to run the program.  If
+#     no glob is specified then `*.o' is used.  Notice that since most shells will expand a file
+#     glob to a list of matching files, it may be necessary to escape the glob with backslashes or
+#     to enclose it in quotes. If `print' is also specified then print all of the macros that it is
+#     correcting.
+#
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Acknowledgements:
+#     Robb P. Matzke              LLNL - Author of various tools
+#     Mark C. Miller              LLNL - Alpha/Beta user; minor debugging/enhancements 
+#     Matthew J. O'Brien          LLNL - Author of various tools
+#     James F. Reus               LLNL - Alpha/Beta user
+
+if(! $ARGV[0]){
+	$ARGV[0]="*.o";
+}
+
+@files=`ls $ARGV[0]`;
+
+$lines_executed=0;
+$total_lines=0;
+$corrected_lines_executed=0;
+$corrected_total_lines=0;
+$p=$ARGV[1];
+#$p=0;
+
+foreach $file (@files){
+
+        $output=`gcov $file`;
+
+        $_=$output;
+        /([0-9.]+)% of (\d+).+ (\/.+[.]c)/;  #match 12.34% of 123 source lines
+        $percent=$1; #what got matched
+        $lines=$2;
+        $filename=$3;
+
+
+        $local_lines_executed=($percent * $lines)/100.0;
+        $lines_executed+=$local_lines_executed;
+        $total_lines+=$lines;
+
+
+
+	$file=~ s/\.o/\.c\.gcov/;
+	$file=~ s/.*\/(.+$)/$1/;
+	open(FILE, $file) or die "can't open $file \n";
+	$lines_overcount=0;
+	$exe_overcount=0;
+	$line_number=0;
+	while($line = <FILE>){
+		$line_number++;
+		$_=$line;
+		if(/^\s+(\d)+\s+[A-Z_]+\(.+(,|and|or|\\|\"|\|\||&&)\s*$/){ #match:   123   MACRO_BLA(.........,
+			if($p){print "$line_number $line";}
+
+			$next = <FILE>;
+			$_=$next;
+			$line_number++;
+
+
+#			while(/^\s{5,}?(######|\d+|\s+).+(,|and|or|\\|\"|\|\||&&)\s*$/){ #match:   123    arg3,arg4,
+			while(/^.+(,|and|or|\\|\"|\|\||&&)\s*$/){ #match:   123    arg3,arg4,
+
+
+				$_=$next;
+				/^(............)/;
+				$head=$1;
+
+				$_=$head;
+				
+
+				if($head =~ /\d+/){
+					$lines_overcount++;
+					$exe_overcount++;
+				}elsif($head =~ /######/){
+					$lines_overcount++;
+				}else{
+					#do nothing, matched spaces at the begining.
+				}
+
+				if($p){print "$line_number $next";}
+				$next = <FILE>;
+				$_=$next;
+				$line_number++;
+	
+
+			}	
+
+
+#			if(/^\s+(######|\d+).+\);\s*$/  ){  #match:    ######     arg7,arg8);
+			if(/^.+\);\s*$/  ){  #match:    ######     arg7,arg8);
+				if($p){ print "$line_number $next";}
+
+
+				$_=$next;
+				/^(............)/;
+				$head=$1;
+
+				$_=$head;
+
+
+
+				if($head =~ /\d+/){
+					$exe_overcount++;
+					$lines_overcount++;
+				}elsif($head =~ /\######/){
+					$lines_overcount++;
+				}else{
+					#do nothing
+				}
+
+			} 
+
+		}#if(begining of MACRO call)
+
+	}#while($line = <FILE>)
+
+
+	$corrected_percent = 100*($local_lines_executed-$exe_overcount)/( $lines-$lines_overcount);
+	
+        print sprintf "%6.2f%s (%6.2f%s) of %4d (%4d) lines executed in %s\n", $percent, "%", $corrected_percent, "%", $lines, 
+	$lines-$lines_overcount, $filename;
+
+#	print sprintf "lines_overcount %3d, exe_overcount %3d\n", $lines_overcount, $exe_overcount;
+
+
+	$corrected_lines_executed+=($local_lines_executed-$exe_overcount);
+	$corrected_total_lines+=( $lines-$lines_overcount);
+
+}#foreach file
+
+	$percent=100* $lines_executed/$total_lines;
+	$corrected_percent = 100* $corrected_lines_executed / $corrected_total_lines;
+
+	print "*************************************************************\n";
+	print sprintf "OVERALL  : %6.2f%s of %5d lines were executed\n", $percent, "%", $total_lines;
+	print sprintf "CORRECTED: %6.2f%s of %5d lines were executed\n", $corrected_percent, "%", $corrected_total_lines;
+

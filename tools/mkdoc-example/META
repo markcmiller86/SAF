@@ -1,0 +1,89 @@
+@title{Sets and Fields (SAF)}
+@title{API Reference Manual}
+@title{for SAF 1.3.4-devel}
+
+@author{Peter K. Espen (SNL)}
+@author{Ray T. Hitt (SNL)}
+@author{Robb P. Matzke (LLNL)}
+@author{Mark C. Miller (LLNL)}
+@author{Matthew J. O'Brien (LLNL)}
+@author{Larry A. Schoof (SNL)}
+
+@oldauthor{William J. Arrighi (LLNL)}
+@oldauthor{James F. Reus (LLNL)}
+
+@acknow{Marty L. Barnaby (SNL) - parallel perf. study/tuning}
+@acknow{David M. Butler (LPS) - Data model design/implementation Spec.}
+@acknow{Albert K. Cheng (NCSA) - Parallel HDF5 support}
+@acknow{Nancy Collins (IBM) - Alpha/Beta user}
+@acknow{Linnea M. Cook (LLNL) - Management advocate}
+@acknow{Michael J. Folk (NCSA) - Management advocate}
+@acknow{Richard M. Hedges (LLNL) - parallel perf. study/tuning}
+@acknow{Shirley R. Jennings (LLNL) - Occasional Release Management}
+@acknow{Wilbur W. Johnson (SNL) - Early Developer}
+@acknow{Quincey A. Koziol (NCSA) - Serial HDF5 Support}
+@acknow{Celeste M. Matarazzo (LLNL) - Management advocate}
+@acknow{Tyce T. Mclarty (LLNL) - parallel perf. study/tuning}
+@acknow{Tom H. Robey (SNL) - Early Developer}
+@acknow{Greg D. Sjaardema (SNL) - Alpha/Beta user}
+@acknow{Reinhard W. Stotzer (SNL) - Early Developer}
+@acknow{Judy Sturtevant (SNL) - parallel perf. study/tuning}
+@acknow{Robert K. Yates (LLNL) - parallel perf. study/tuning}
+
+@copyright{1999}
+          {The Regents of the University of California}
+          {All Rights Reserved. This document has been authored by The Regents of
+           the University of California under Contract No. W-7405-ENG-48 with the
+           U.S.  Government.}
+@copyright{1999}{Sandia National Laboratories}
+
+@disclaimer{This document was prepared as an account of work sponsored by an agency
+	    of the United States Government. Neither the United States Government
+	    nor the University of California nor any of their employees makes any
+	    warranty, expressed or implied, or assumes any legal liability or
+	    responsibility for the accuracy, completeness, or usefulness of any
+	    information, apparatus, product, or process disclosed, or represents
+	    that its use would not infringe privately owned rights. Reference herein
+	    to any specific commercial product, process, or service by trade name,
+	    trademark, manufacturer, or otherwise, does not necessarily constitute
+	    or imply its endorsement, recommendation, or favoring by the United
+	    States Government or the University of California.  The views and
+	    opinions of authors expressed herein do not necessarily state or reflect
+	    those of the United States Government or the University of California
+	    and shall not be used for advertising or product endorsement purposes.}
+
+@rewrite{__NAME__}{Description}
+
+@corder{Introduction}
+@corder{Environment}
+@corder{Error Handling}
+@corder{Object Handles}
+@corder{Library Initialization}
+@corder{Library Properties}
+@corder{Databases}
+@corder{Database Properties}
+@corder{Supplemental Files}
+@corder{Supplemental File Properties}
+@corder{Sets}
+@corder{Collection Categories}
+@corder{Collections}
+@corder{Subset Relations}
+@corder{Topology Relations}
+@corder{Relations}
+@corder{Field Templates}
+@corder{Fields}
+@corder{State Templates}
+@corder{States}
+@corder{Suites}
+@corder{Quantities}
+@corder{Units}
+@corder{Raw Data I/O}
+@corder{Attributes}
+@corder{Miscellaneous Utilities}
+@corder{Version Numbers}
+@corder{C-Automatic Handle Allocation}
+@corder{Datatypes}
+@corder{Notes}
+
+@figdir{../../../docs/manuals/figures/library}
+

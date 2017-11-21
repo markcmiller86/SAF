@@ -1,0 +1,246 @@
+#!/bin/sh
+perl -x -S $0 "$@"
+exit
+# 4 \
+# 5  \
+# 6   \
+# 7    > These lines are here so line numbers reported by perl will be off by exactly 10 (line
+# 8   /  numbers are wrong because of the portable way we're executing this script).
+# 9  /
+#10 /
+#!/usr/bin/perl
+
+# Author: Robb Matzke, LLNL
+#
+# Purpose:
+#     Inserts or updates copyright notices in C sources, Makefiles, perl scripts, shell scripts,
+#     etc.
+#
+# Usage:
+#     The first argument is the name of a file containing the copyright notice and remaining
+#     arguments are the files to update.  If the switch `--search' is present and the name of the
+#     file containing the copyright notice does not have a slash then we search for the copyright
+#     file ancestor directories of the file affected. If the switch `-n' is present then no file
+#     is actually changed.
+#
+#     Here's how I run it:
+#         update_copyright --search COPYRIGHT `find . -type f` 2>&1 |\
+#             egrep -v ' (CVS|RST) metadata|not a text file'
+#
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Acknowledgements:
+#     Robb P. Matzke              LLNL - Author of various tools
+#     Mark C. Miller              LLNL - Alpha/Beta user; minor debugging/enhancements 
+#     Matthew J. O'Brien          LLNL - Author of various tools
+#     James F. Reus               LLNL - Alpha/Beta user
+
+require 5.003;
+use strict;
+use Cwd;
+use File::Basename;
+use Text::Tabs;
+my $Search;
+my $Noop;
+
+sub usage {
+  print STDERR "usage: $0 [--search] [-n] COPYRIGHT FILES...\n";
+  exit 1;
+}
+
+# Reads the copyright for $file and returns its contents.  First look in $file's own directory, then
+# look in the parent, grandparent, etc if $Search is set.
+sub get_copyright {
+  my($copyright,$file) = @_;
+
+  $file = cwd ."/". $file unless $file =~ /^\//; # full name of file
+  my(@dir) = split /\/+/, $file;                 # split into components
+  pop @dir unless -d $file;	             	 # pop off base name
+  @dir = join "/", @dir unless $Search;      	 # combine into one if searching
+
+  while (@dir) {
+    my $copy_file = join "/", @dir, $copyright;
+    next unless -f $copy_file;
+    die "$file: $!\n" unless open COPYRIGHT, $copy_file;
+    my(@copyright) = map {expand $_} <COPYRIGHT>;
+    close COPYRIGHT;
+    die "$copy_file: doesn't begin with \"Copyright(C) YEAR\"\n" 
+      unless $copyright[0] =~ /^\s*Copyright\s*\(C\)\s+\d+/si;
+    return @copyright;
+  } continue {
+    pop @dir;
+  }
+
+  die "$copyright: does not exist\n";
+}
+
+# Parse command-line switches
+while (@ARGV && $ARGV[0] =~ /^-/) {
+  $_ = shift;
+  if ($_ eq '--search') {
+    $Search = 1;
+  } elsif ($_ eq '-n') {
+    $Noop = 1;
+  } else {
+    usage;
+  }
+}
+
+# Suck in the entire copyright notice and make sure it has the required format.  If searching is
+# turned on then delay this until we need it.
+my($copyright_file) = shift || usage;
+my(@copyright) = get_copyright $copyright_file unless $Search;
+
+# Now process each file
+FILE:
+while (@ARGV) {
+  my($file,$found,$pre_copy,$prefix,$post_copy) = shift;
+
+  # Check file signatures. Some files should never be modified.
+  warn("$file: CVS metadata\n"),       next if $file =~ /\/CVS\//;
+  warn("$file: RST metadata\n"),       next if $file =~ /\/\.rst\//;
+  warn("$file: not a regular file\n"), next unless -f $file;
+  warn("$file: not a text file\n"),    next unless -T $file;
+
+  # Get copyright
+  @copyright = get_copyright $copyright_file, $file if $Search;
+
+  # Suck in entire file.  We'll use up the array, but the $orig is for comparison purposes at
+  # the very end (because we only want to write a new file if the copyright notice actually
+  # changes.
+  open SRC, $file or warn("$file: $!\n"), next FILE;
+  my(@orig) = <SRC>;
+  my($orig) = join "", @orig;
+  close SRC;
+
+  # If the entire file is the same as the copyright then this must be the copyright file. We should
+  # skip it.
+  next if $orig eq join "", @copyright;
+
+  # Files that have the string `static copyright notice' in upper case will not have their contents
+  # modified.
+  next FILE if $orig =~ /STATIC\sCOPYRIGHT\sNOTICE/;
+
+  # Discard old copyright notice.
+  while (@orig) {
+    $_ = shift @orig;
+    if (($prefix)=/^(.*)Copyright\s*\(C\)\s+\d+/i) {
+      # We found the beginning of the copyright notice. Now delete lines that contain the same
+      # prefix as the copyright notice.  Allow trailing white space in the prefix to match
+      # end-of-line.
+      ($pre_copy,$post_copy) = ($post_copy,"");
+      $found = $_;
+      my $fixed = expand $prefix;
+      my $prefix_chars = length $fixed;
+      $fixed =~ s/\s+$//;
+
+      # Eat the old copyright notice
+      while (@orig) {
+	$_ = shift @orig;
+	my $test = substr expand($_), 0, $prefix_chars;
+	$test =~ s/\s+$//;
+	next if /\S/ && $fixed eq $test;
+	$post_copy = $_;
+	last;
+      }
+
+      # Rest of file comes after
+      $post_copy .= join "", @orig;
+      @orig = ();
+    } else {
+      $post_copy .= $_;
+    }
+  }
+
+  # Some old SAF files have a copyright notice that has no prefix down the left margin and takes the
+  # form `(c) Copyright'. It's impossible to tell where these end, so we just remove the entire
+  # comment.
+  if (!$found && $orig =~ /^\s*\/\*[^\/]*Copyright\b/si) {
+    $_ = $orig;
+    s/\/\*.*?\*\/[ \t]*\n//s;
+    ($pre_copy,$prefix,$post_copy,$found) = ("/*\n"," * ", " */\n".$_);
+    warn "$file: removed entire first comment.\n";
+    $found = 1;
+  }
+
+  # If no comment existed then create one at the beginning of the file.  The comment format
+  # is determined by looking for certain known comment formats in the file.
+  unless ($found) {
+    my($token,$post) = $orig =~ /(\/\*|^\#+|^dnl\b|\@c\b|<html>|<HTML>)/m;
+    unless ($token) {
+      warn "$file: unable to insert copyright notice (unknown comment style)\n";
+      next FILE;
+    }
+    ($pre_copy,$prefix,$post) = ("/*\n",  " * ",    " */\n"   ) if $token eq "/*";
+    ($pre_copy,$prefix,$post) = ("",      "$token ","\n"      ) if $token =~ /^\#/;
+    ($pre_copy,$prefix,$post) = ("",      "dnl ",   "\n"      ) if $token eq "dnl";
+    ($pre_copy,$prefix,$post) = ("",      "\@c ",   "\n"      ) if $token eq "\@c";
+    ($pre_copy,$prefix,$post) = ("<!--\n","  -- ",  "  --!>\n") if $token =~ /<html>/i;
+
+    if ($post_copy =~ /^\#!/s) {
+      # scripts must keep `#!' at the top
+      my($first,$rest) = split /\n/, $post_copy, 2;
+      $pre_copy = $first . "\n" . $pre_copy;
+      $post_copy = $rest;
+    } elsif ($post_copy =~ /^<!doctype\b/si) {
+      # HTML must keep doctype at the top
+      my($first,$rest) = split /\n/, $post_copy, 2;
+      $pre_copy = $first . "\n" . $pre_copy;
+      $post_copy = $rest;
+    }
+
+    $post_copy = $post . $post_copy;
+  }
+
+  # Warn if there may be more copyright notices
+  warn "$file: possible multiple copyright notices\n"
+    if $pre_copy =~ /\bCopyright\b/i || $post_copy =~ /\bCopyright\b/i;
+
+  # Insert copyright notice
+  my($result) = $pre_copy . (join "", map {$prefix.$_} @copyright) . $post_copy;
+
+  # Save results if the file changed.
+  if ($result ne $orig && !$Noop) {
+    rename $file, "$file~";
+    open SRC, ">$file";
+    print SRC $result;
+    close SRC;
+    chmod((stat "$file~")[2]&07777, $file);
+    print "Updated $file\n";
+  }
+}
+
+
+# Because the first line of this file looks like a Bourne shell script, we must tell XEmacs
+# explicitly that this is really a perl script.
+#
+# Local Variables:
+# mode:perl
+# End:

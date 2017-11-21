@@ -1,0 +1,246 @@
+## This file is machine generated on GNU systems.
+## Only temporary changes may be made here
+
+tarray1.lo: \
+    $(srcdir)/tarray1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tattr1.lo: \
+    $(srcdir)/tattr1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tblob1.lo: \
+    $(srcdir)/tblob1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tblob2.lo: \
+    $(srcdir)/tblob2.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tcopy1.lo: \
+    $(srcdir)/tcopy1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+terr1.lo: \
+    $(srcdir)/terr1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tfile1.lo: \
+    $(srcdir)/tfile1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tfind1.lo: \
+    $(srcdir)/tfind1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+
+tsync1.lo: \
+    $(srcdir)/tsync1.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+

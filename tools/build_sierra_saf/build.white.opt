@@ -1,0 +1,95 @@
+#!/bin/sh 
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+export PATH=/usr/vac/bin:$PATH
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+export DEST=/usr/gapps/sierra/Release/saf/2.0.0
+test $SRC_DIR && export DEST=${SRC_DIR}
+export SOURCE=${DEST}/source
+
+
+export SIERRA_PLATFORM=white
+export SIERRA_OPT_DBG=opt
+export SIERRA_INSTDIR=dp_opt_${SIERRA_PLATFORM}
+
+export CONFDIR=cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+export OPTION=install_$SIERRA_PLATFORM
+export HDF_DIR=${HDF_DIR=/usr/gapps/sierra/Release/hdf5/1.8.0/$OPTION/$SIERRA_OPT_DBG}
+
+
+mkdir $DEST/include > /dev/null 2>&1
+mkdir $DEST/lib  > /dev/null 2>&1
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  > /dev/null 2>&1
+
+export all=1
+if [ $all  ]
+then
+  mkdir $DEST/$CONFDIR  > /dev/null 2>&1
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+fi
+                                                                                            
+export INSTDIR=$DEST/$OPTION/$SIERRA_OPT_DBG
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+export MP_HOSTFILE=`pwd`/hostfile
+export  MP_RMPOOL=2
+export  MP_EUILIB=us
+export  MP_RESD=no
+export  MP_NODES=1
+
+export NPROCS=3
+export RUNSERIAL="MP_PROCS=1 poe"
+export RUNPARALLEL="MP_PROCS=3 poe"
+
+# export CFLAGS="-g -q64 -I/sierra/Release/libz/1.1.3"
+# export MAKE="gmake"
+export CPP="mpcc -E -q64 -xO3"
+export  CFLAGS="-xO3 -q64 "
+export  AR="ar -X64"
+export CXX=newmpCC_r
+export CC=newmpcc
+# export  ARFLAGS="-rcv"
+# export LDFLAGS="-L/sierra/Release/libz/1.1.3/lib/$SIERRA_INSTDIR -lz " # temporary
+
+if [ $all ]
+then
+  $SOURCE/tools/build_saf --prune \
+--compiler="mpcc_r -xO3 -I/sierra/Release/libz/1.1.3" \
+--product=optim \
+--hdf=$HDF_DIR \
+--gen=64 \
+--targets=none \
+--install=$INSTDIR \
+--builddir=$DEST/$CONFDIR/build \
+--prefix=$INSTDIR $SOURCE/src/configure \
+--without-java \
+--without-python |tee $OPTION.configure
+ 
+  cd $DEST/$CONFDIR/build
+  gmake | tee $OPTION.make
+  # gmake check | tee $OPTION.test
+  gmake install
+  cd $DEST/$CONFDIR
+
+else
+  gmake install
+fi
+
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.

@@ -1,0 +1,18 @@
+SUMMARY OF THE SAF CONFIGURATION
+================================
+
+SAF Version:		2.0.3
+Configured on:		Tue Nov 21 11:23:12 PST 2017
+Configured by:		miller86@scratlantis
+Configure mode:		production
+Host system:		x86_64-apple-darwin15.6.0
+Byte sex:		little-endian
+Libraries:		static
+Parallel support:	no
+Installation point:	/Users/miller86/Downloads/saf-2.0.2/src/my_install
+Compiler:		/usr/bin/gcc
+Compiler switches:	-g -O2  -I. -I${srcdir} -I${top_builddir}/include -I${top_srcdir}/safapi/lib -I$(top_builddir)/sslib/lib -I$(top_srcdir)/sslib/lib -I/Users/miller86/silo/hdf5-1.8.14/build_serial/my_install/include 
+Extra libraries:	-L/Users/miller86/silo/hdf5-1.8.14/build_serial/my_install/lib -lhdf5 -lz -lm 
+Archiver:		
+Ranlib:			ranlib
+Optional SAF tools:     

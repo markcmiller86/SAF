@@ -1,0 +1,51 @@
+## This file is machine generated on GNU systems.
+## Only temporary changes may be made here
+
+safinfo.lo: \
+    $(srcdir)/safinfo.c \
+    $(top_srcdir)/safapi/lib/safP.h \
+    $(top_srcdir)/safapi/lib/saf.h \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h \
+    $(top_srcdir)/safapi/lib/SAFlibprops.h \
+    $(top_srcdir)/safapi/lib/SAFdbprops.h \
+    $(top_srcdir)/safapi/lib/SAFdb.h \
+    $(top_srcdir)/safapi/lib/SAFquant.h \
+    $(top_srcdir)/safapi/lib/SAFunit.h \
+    $(top_srcdir)/safapi/lib/SAFrole.h \
+    $(top_srcdir)/safapi/lib/SAFbasis.h \
+    $(top_srcdir)/safapi/lib/SAFalgebraic.h \
+    $(top_srcdir)/safapi/lib/SAFevaluation.h \
+    $(top_srcdir)/safapi/lib/SAFrelrep.h \
+    $(top_srcdir)/safapi/lib/SAFinit.h \
+    $(top_srcdir)/safapi/lib/SAFinfo.h \
+    $(top_srcdir)/safapi/lib/genreg.h \
+    $(top_srcdir)/safapi/lib/libprops.h \
+    $(top_srcdir)/safapi/lib/dbprops.h \
+    $(top_srcdir)/safapi/lib/db.h \
+    $(top_srcdir)/safapi/lib/quant.h \
+    $(top_srcdir)/safapi/lib/hash.h \
+    $(top_srcdir)/safapi/lib/wrapper.h
+

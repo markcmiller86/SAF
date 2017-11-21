@@ -1,0 +1,20 @@
+#!/bin/sh
+
+mpirun=/usr/local/mpich/1.2.5/Linux/serial/64/debug/bin/mpirun
+
+ntasks=1
+while [ $ntasks -le 16 ]; do
+    filebase=`printf "test-%02d" $ntasks`
+    env \
+	SSLIB_DEBUG="file=$filebase-%02d.out" \
+	$mpirun -np $ntasks ./tblob2
+
+#    awk -f - $filebase-*.out <<'EOF'
+#	/total elements in request strides/ { nrecv += $6 }
+#	/total elements in send strides/ { nsend += $6 }
+#	END { if (2856!=nrecv) print "nrecv", nrecv, "should have been 2856!!!!!!!!!!" }
+#	END { if (2856!=nsend) print "nsend", nsend, "should have been 2856!!!!!!!!!!" }
+#EOF
+
+    let ntasks++
+done

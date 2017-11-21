@@ -1,0 +1,80 @@
+#!/bin/csh
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+set path=(/usr/pgi/linux86-64/5.2/bin/ $path)
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+setenv DEST /projects/sierra/Release/hdf5/1.8.0
+if($?SRC_DIR) then
+ setenv DEST ${SRC_DIR}
+endif
+setenv SOURCE ${DEST}/source
+
+
+setenv SIERRA_PLATFORM reds
+setenv SIERRA_OPT_DBG opt
+setenv SIERRA_INSTDIR dp_opt_${SIERRA_PLATFORM}
+
+                                                                                
+setenv CONFDIR cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+setenv OPTION install_$SIERRA_PLATFORM
+
+mkdir $DEST/include >& /dev/null
+mkdir $DEST/lib  >& /dev/null
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  >& /dev/null
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  >& /dev/null
+
+
+mkdir $DEST/$CONFDIR  >& /dev/null
+cd $DEST/$CONFDIR
+rm -rf $DEST/$CONFDIR/*
+
+setenv INSTDIR $DEST/$OPTION/$SIERRA_OPT_DBG
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+setenv HOSTFILE `pwd`/hostfile
+# setenv RUNSERIAL "mpirun -np 1 -machinefile $HOSTFILE"
+setenv RUNPARALLEL "mpirun -np 3 -machinefile $HOSTFILE"
+setenv NPROCS 3
+
+
+
+setenv OS Linux
+setenv AR "/home/dpfelke/bin/ar.sh"
+setenv AR_FLAGS "rcv"
+setenv CPP "pgCC -E "
+setenv TERSE 'no'
+setenv CC pgcc
+setenv CFLAGS "-Utflops -O2 -tp k8-64 -Mmpi -Knoieee -Mnovintr -Mnosecond_underscore"
+# setenv MAKE "gmake -j2"
+
+if (1) then
+
+$SOURCE/configure --enable-production --disable-debug \
+--enable-parallel --disable-serial --enable-static --disable-shared  \
+--prefix=$INSTDIR |tee $OPTION.configure
+
+gmake -j4 |& tee $OPTION.make
+                                                                                            
+# gmake check |& tee $OPTION.test
+
+gmake install
+endif
+
+
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+
+ 
+

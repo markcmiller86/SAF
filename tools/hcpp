@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# A wrapper around various compiler scripts like LAM's `hcc' and IBM's `mpcc_r'.
+# The problem is that these scripts are none too smart and insist on passing
+# link-related command-line switches to the underlying real compiler. Normally
+# this isn't a problem except that when GNU autoconf tries to determine how to
+# run the C preprocessor it decides that a command *doesn't* work if it produces
+# *any* stderr output.  So this script must be used to filter out warning
+# messages about unused link-time command-line switches.
+#
+# Warnings that are suppressed:
+#   Linux LAM/GCC: `linker input file unused'
+#   IBM   mpcc_r:  `1506-173 (W) Option lm is not valid' (`lm' varies)
+#
+# This script should be inovked with the name of the C preprocessor (e.g., `hcc -E')
+
+temp=/tmp/hcpp.$$
+trap "rm -f $temp" EXIT
+
+eval "$@" 2>$temp
+status=$?
+
+egrep -v 'linker input file unused|1506-173 \(W\) Option l[a-zA-Z_0-9]* is not valid' $temp >&2
+exit $status

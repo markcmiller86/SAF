@@ -1,0 +1,5 @@
+./configure \
+CC=/Users/miller86/visit/masonry/mbuild-visit-2.13.0-darwin-x86_64/thirdparty_shared/visit/mpich/3.0.4/darwin-x86_64/bin/mpicc \
+CPPFLAGS="-I/Users/miller86/silo/hdf5-1.8.14/build_parallel/my_install/include -I/Users/miller86/visit/masonry/mbuild-visit-2.13.0-darwin-x86_64/thirdparty_shared/visit/mpich/3.0.4/darwin-x86_64/include" \
+LDFLAGS="-L/Users/miller86/silo/hdf5-1.8.14/build_parallel/my_install/lib -L/Users/miller86/visit/masonry/mbuild-visit-2.13.0-darwin-x86_64/thirdparty_shared/visit/mpich/3.0.4/darwin-x86_64/lib" \
+--prefix=/Users/miller86/Downloads/saf-2.0.2/src/my_install --enable-production --enable-parallel=mpich

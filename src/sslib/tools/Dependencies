@@ -1,0 +1,30 @@
+## This file is machine generated on GNU systems.
+## Only temporary changes may be made here
+
+saf2html.lo: \
+    $(srcdir)/saf2html.c \
+    $(top_srcdir)/sslib/lib/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    $(top_builddir)/sslib/lib/ssvers.h \
+    $(top_srcdir)/sslib/lib/sshdf5.h \
+    $(top_srcdir)/sslib/lib/sserr.h \
+    $(top_srcdir)/sslib/lib/ssobj.h \
+    $(top_srcdir)/sslib/lib/ssprop.h \
+    $(top_srcdir)/sslib/lib/ssval.h \
+    $(top_srcdir)/sslib/lib/ssstring.h \
+    $(top_srcdir)/sslib/lib/ssarray.h \
+    $(top_srcdir)/sslib/lib/sspers.h \
+    $(top_builddir)/sslib/lib/sslinks.h \
+    $(top_builddir)/sslib/lib/ssperstab.h \
+    $(top_srcdir)/sslib/lib/sstable.h \
+    $(top_srcdir)/sslib/lib/ssscope.h \
+    $(top_builddir)/sslib/lib/ssscopetab.h \
+    $(top_srcdir)/sslib/lib/ssblob.h \
+    $(top_builddir)/sslib/lib/ssblobtab.h \
+    $(top_srcdir)/sslib/lib/ssgfile.h \
+    $(top_srcdir)/sslib/lib/ssfile.h \
+    $(top_builddir)/sslib/lib/ssfiletab.h \
+    $(top_srcdir)/sslib/lib/ssattr.h \
+    $(top_builddir)/sslib/lib/ssattrtab.h \
+    $(top_srcdir)/sslib/lib/ssmpi.h
+

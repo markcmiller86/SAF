@@ -1,0 +1,247 @@
+#!/bin/sh
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Authors:
+# 	William J. Arrighi	LLNL
+# 	Peter K. Espen		SNL
+# 	Ray T. Hitt 		SNL
+# 	Robb P. Matzke 		LLNL
+# 	Mark C. Miller 		LLNL
+# 	James F. Reus 		LLNL
+# 	Larry A. Schoof 	SNL
+# 
+# Acknowledgements:
+# 	Marty L. Barnaby	SNL - Red parallel perf. study/tuning
+# 	David M. Butler		LPS - Data model design/implementation Spec.
+# 	Albert K. Cheng		NCSA - Parallel HDF5 support
+# 	Nancy Collins		IBM - Alpha/Beta user
+# 	Linnea M. Cook		LLNL - Management advocate
+# 	Michael J. Folk		NCSA - Management advocate 
+# 	Richard M. Hedges	LLNL - Blue-Pacific parallel perf. study/tuning 
+# 	Quincey A. Koziol	NCSA - Serial HDF5 Support 
+# 	Celeste M. Matarazzo	LLNL - Management advocate
+# 	Tom H. Robey 		SNL - Early developer
+# 	Greg D. Sjaardema	SNL - Alpha/Beta user
+# 	Reinhard W. Stotzer	SNL - Early developer
+# 	Judy Sturtevant		SNL - Red parallel perf. study/tuning 
+# 	Robert K. Yates		LLNL - Blue-Pacific parallel perf. study/tuning
+# 
+
+#
+#   NAME
+#
+#       safcxx
+#
+#   USAGE
+#
+#       safcxx [ option ] ...  file ...
+#
+#   DESCRIPTION
+#
+#       The safcxx script is a front-end script to the native C++ compiler
+#       designed to permit C++ compilation of C source files.  Normally
+#       many C++ compilers will detect C source by the filename extension
+#       and dispatch the ANSI-C compiler to do the work.  This script
+#       avoids this feature by temporarily providing a alternate name
+#       for the file with a .cc extension then apply the C++ compiler to
+#       the file with the .cc name.  Once the compiler completes (either
+#       successfully or through failure) the alternate name is removed.
+#       Note that the exit code returned by the compiler is returned by
+#       this script.
+#
+#   OPTIONS
+#
+#       All options and parameters are passed to the C++ compiler except for
+#       the following:
+#
+#           --realcxx  name     Used to specify the name of the actual C++
+#                               compiler which is to be used.
+#
+#           name.c              A temporary filename of name.cc is established
+#                               and is passed to the actual C++ compiler.
+#
+#   ENVIRONMENT
+#
+#       The name of the real C compiler is supplied through the CXX
+#       environment variable.  If this environment variable is not set
+#       then the name CC will be assumed.  The --realcxx option will
+#       overide the CXX environment variable.
+#
+#   ISSUES
+#
+#       Error/warnings from the compiler will have the wrong name but correct
+#       line numbers.  The alternate name is simply the same name but with
+#       the .c suffix replaced by a .cc suffix.
+#
+#       Due to some problems encountered on certain platforms, -Wl,-rpath -Wl,...
+#       options following the -lm are not passed along. Since we are static
+#       linking at this time this should pose not problem (yet).
+#
+#-------------------------------------------------------------------------------
+
+if [ "X$CXX" = X ]
+then
+   CXX="CC"
+fi
+
+Cmd=$CXX
+Args=
+Csources=
+debugMode=false
+foundPath=false
+
+while [ $# != 0 ]
+do
+   if [ "X$1" != X ]
+   then
+      case "$1" in
+	 --realcxx)
+	      shift
+	      if [ "X$1" = X ]
+	      then
+	         echo "safcxx: missing argument to --realcxx option!"
+	         exit 1
+	      fi
+	      Cmd=$1
+	      ;;
+	 -Wl,-rpath)
+	      foundPath=true
+	      ;;
+	 -Wl,*)
+	      if [ $foundPath != true ]
+	      then
+		 Args="$Args $1"
+	      fi
+	      ;;
+         *.c) Fc="$1"
+              if [ -f "$Fc" ]
+              then
+                 d=`dirname $Fc`
+                 b=`basename $Fc c`
+                 if [ "X$d" = "X." ]
+                 then
+	            Fcc=${b}cc
+                 else
+	            Fcc=${d}/${b}cc
+                 fi
+	         if [ -f $Fcc ]
+	         then
+	            echo "safcxx: have both \"$Fc\" and \"$Fcc\"!"
+	            exit 1
+	         fi
+	         Csources="$Csources $Fc"
+	         Args="$Args $Fcc"
+              else
+	         Args="$Args $Fc"
+              fi
+              ;;
+         *)
+              Args="$Args $1"
+              ;;
+      esac
+   fi
+   shift
+done
+
+CCsources=
+if [ "X$Csources" != X ]
+then
+   if [ $debugMode = true ]
+   then
+      echo "safcxx: renaming C source"
+   fi
+   for Fc in $Csources
+   do
+      d=`dirname $Fc`
+      b=`basename $Fc c`
+      if [ "X$d" = "X." ]
+      then
+         Fcc=${b}cc
+      else
+         Fcc=${d}/${b}cc
+      fi
+      if [ $debugMode = true ]
+      then
+         echo "safcxx: ... ln $Fc $Fcc"
+      fi
+      ln $Fc $Fcc
+      status=$?
+      if [ $status != 0 ]
+      then
+	 echo "safcxx: \"ln $Fc $Fcc\" failed!"
+	 exit 1
+      fi
+      CCsources="$CCsources $Fcc"
+   done
+fi
+
+if [ $debugMode = true ]
+then
+   echo "safcxx: run command"
+   echo "safcxx: ... $Cmd $Args"
+fi
+
+if [ "X$Cmd" != X ]
+then
+   $Cmd $Args
+   realStatus=$?
+   if [ $realStatus != 0 ]
+   then
+      echo "safcxx: error(s) detected"
+   fi
+else
+   echo "safcxx: no compiler!"
+   realStatus=1
+fi
+
+if [ "X$CCsources" != X ]
+then
+   if [ $debugMode = true ]
+   then
+      echo "safcxx: removing CC source"
+   fi
+   for Fcc in $CCsources
+   do
+      if [ $debugMode = true ]
+      then
+         echo "safcxx: ... rm $Fcc"
+      fi
+      rm $Fcc
+      status=$?
+      if [ $status != 0 ]
+      then
+	 echo "safcxx: \"rm $Fcc\" failed!"
+	 exit 1
+      fi
+   done
+fi
+
+exit $realStatus
+

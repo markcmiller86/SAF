@@ -1,0 +1,48 @@
+@title{Sets and Fields (SAF)}
+@title{Examples and Use Cases}
+
+@author{Eric A. Illescas, (SNL)}
+@author{Jake S. Jones, (SNL)}
+@author{Robb P. Matzke (LLNL)}
+
+@oldauthor{Peter K. Espen (SNL)}
+@oldauthor{Mark C. Miller (LLNL)}
+@oldauthor{Larry A. Schoof (SNL)}
+@oldauthor{William J. Arrighi (LLNL)}
+@oldauthor{James F. Reus (LLNL)}
+
+@acknow{Greg D. Sjaardema (SNL) - use case specifications}
+
+@copyright{1999-2005}
+          {The Regents of the University of California}
+          {All Rights Reserved. This document has been authored by The Regents of
+           the University of California under Contract No. W-7405-ENG-48 with the
+           U.S.  Government.}
+@copyright{1999-2005}{Sandia National Laboratories}
+
+@disclaimer{This document was prepared as an account of work sponsored by an agency
+	    of the United States Government. Neither the United States Government
+	    nor the University of California nor any of their employees makes any
+	    warranty, expressed or implied, or assumes any legal liability or
+	    responsibility for the accuracy, completeness, or usefulness of any
+	    information, apparatus, product, or process disclosed, or represents
+	    that its use would not infringe privately owned rights. Reference herein
+	    to any specific commercial product, process, or service by trade name,
+	    trademark, manufacturer, or otherwise, does not necessarily constitute
+	    or imply its endorsement, recommendation, or favoring by the United
+	    States Government or the University of California.  The views and
+	    opinions of authors expressed herein do not necessarily state or reflect
+	    those of the United States Government or the University of California
+	    and shall not be used for advertising or product endorsement purposes.}
+
+@corder{Larry's Use Case}
+@corder{Birth and Death Use Case}
+@corder{Storagew}
+@corder{Triangle Mesh}
+
+@figdir{../../../docs/manuals/figures/example}
+
+@substitute{SAFDOC}{http://www.engsci.sandia.gov/saf/current}
+@audience{public}
+@exclude{modifications}
+@singlelevel

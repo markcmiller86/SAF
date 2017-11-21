@@ -1,0 +1,92 @@
+#!/bin/sh -x
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+export PATH=/usr/pgi/linux86-64/5.2/bin:$PATH
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+export DEST=/projects/sierra/Release/saf/2.0.0
+test $SRC_DIR && export DEST=${SRC_DIR}
+export SOURCE=${DEST}/source
+
+
+export SIERRA_PLATFORM=reds
+export SIERRA_OPT_DBG=dbg
+export SIERRA_INSTDIR=dbg_dp_${SIERRA_PLATFORM}
+
+export CONFDIR=cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+export OPTION=install_$SIERRA_PLATFORM
+export HDF_DIR=${HDF_DIR=/projects/sierra/Release/hdf5/1.8.0}/$OPTION/$SIERRA_OPT_DBG
+
+mkdir $DEST/include > /dev/null 2>&1
+mkdir $DEST/lib  > /dev/null 2>&1
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  > /dev/null 2>&1
+
+export all=1
+if [ $all  ]
+then
+  mkdir $DEST/$CONFDIR  > /dev/null 2>&1
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+fi
+                                                                                            
+export INSTDIR=$DEST/$OPTION/$SIERRA_OPT_DBG
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+export HOSTFILE=`pwd`/hostfile
+export NPROCS=3
+# export RUNSERIAL="mpirun -np 1 -machinefile $HOSTFILE"
+export RUNPARALLEL="mpirun -np ${NPROCS:=3} -machinefile $HOSTFILE"
+
+
+export AR="/home/dpfelke/bin/ar.sh"
+export ARFLAGS="rcv"
+export CPP="pgCC -E "
+export CC=pgcc
+export CFLAGS="-g -Utflops -tp k8-64 -Mmpi  -Knoieee  -Mframe -Mchkfpstk -Mchkstk -Mnosecond_underscore"
+
+# export CFLAGS=-g
+# export MAKE="gmake"
+
+if [ $all ]
+then
+
+# --builddir=$DEST/$CONFDIR/builddir \
+  $SOURCE/tools/build_saf --prune \
+--compiler=pgCC \
+--product=debug \
+--hdf=$HDF_DIR \
+--builddir=$DEST/$CONFDIR/build \
+--targets=none \
+--install=$INSTDIR \
+--prefix=$INSTDIR $SOURCE/src/configure \
+--with-java=/usr/local/java \
+--with-python=/usr/local/python-2.2.2 |tee $OPTION.configure
+ 
+  cd $DEST/$CONFDIR/build
+  gmake | tee $OPTION.make
+  # gmake check | tee $OPTION.test
+  gmake install
+  cd $DEST/$CONFDIR
+
+else
+  # gmake install
+fi
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+
+ 
+

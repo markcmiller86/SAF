@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+use strict;
+my($Arg0) = $0 =~ m(([^/]+)/*$);
+
+# Uses `strace' to determine what MPI tasks are writing to and/or reading from each region of a file in order to determine
+# whether MPP nodes are sharing GPFS pages.
+sub usage {print <<EOF;exit}
+Usage:
+  $Arg0 SWITCHES [--] EXECUTABLE [ARGUMENTS...]
+
+  The SWITCHES are as follows:
+    --mpirun=NAME   Provides the name of the mpirun executable for when its
+                    name isn't MPIRUN or when the right one isn't found by
+                    consulting the PATH environment variable.
+
+    --ntasks=N      Specifies the number of MPI tasks in MPI_COMM_WORLD.
+
+    --file=NAME     The name of the file which is to be analyzed. This must be
+                    the exact name that appears in the open() call.
+
+  The remaining arguments are the name of the executable (defaults to a.out)
+  and its command-line arguments.
+
+Caveats:
+  This only works with MPICH and using the ch_shmem device.
+EOF
+
+# Parse command-line arguments
+my($mpirun,$ntasks,$exe,$filename) = ("mpirun",1,"a.out");
+while (@ARGV && $ARGV[0]=~/^-/) {
+  my $arg = shift;
+  if ($arg =~ /^--mpirun(=(.+))?$/) {
+    $mpirun = $2 || shift || die "value required for --mpirun";
+  } elsif ($arg =~ /^--ntasks(=(\d+))?$/) {
+    $ntasks = $2 || shift || die "value required for --ntasks";
+  } elsif ($arg =~ /^--file(=(.+))?$/) {
+    $filename = $2 || shift || die "value required for --file";
+  } elsif ($arg eq '--help') {
+    usage;
+  } elsif ($arg eq '--') {
+    last;
+  } else {
+    die "unknown switch: $arg";
+  }
+}
+$exe = shift if @ARGV;
+
+# Build the command argument vector
+my $tmpdir = "trace-io.$$";
+mkdir $tmpdir or die "cannot create directory $tmpdir: $!";
+my $trace="all";
+my @cmd = ("strace", "-f", "-ff", "-o", "$tmpdir/strace", "-i", "-etrace=$trace",
+	   "-s", length($filename)+10, $mpirun, "-np", $ntasks, $exe, @ARGV);
+
+# Run the command as a child process and the parent will read its stderr to get the TASK:PID mapping.
+pipe STRACE_STDERR_RD, STRACE_STDERR_WR;
+my $pid = fork;
+die "fork failed: $!" unless defined $pid;
+if (!$pid) {
+  # Child adjusts file handles
+  open STDERR, ">&STRACE_STDERR_WR";
+  close STRACE_STDERR_RD;
+  close STRACE_STDERR_WR;
+  # And runs command
+  $ENV{SSLIB_DEBUG} = "pause=5;" . $ENV{SSLIB_DEBUG};
+  exec @cmd;
+  die "cannot exec $cmd[0]";
+} else {
+  # Parent closes uneeded files
+  close STRACE_STDERR_WR;
+}
+
+# Parent reads the child's stderr to find SSlib's TASK:PID mapping.
+my @pid;
+while (<STRACE_STDERR_RD>) {
+  $pid[$1]=$2 if /^SSLIB: MPI task (\d+), PID (\d+) is pausing for /;
+  print STDERR;
+}
+close STRACE_STDERR_RD;
+print "************* CHILD EXITS *******************\n";
+
+# Make sure all tasks created a trace file and clean up the extra traces
+die "SSlib didn't report TASK:PID mapping on stderr" unless @pid;
+for (my $task=0; $task<@pid; $task++) {
+  die "no trace file for task $task pid $pid[$task]" unless -r "$tmpdir/strace.$pid[$task]";
+}
+opendir TMPDIR, $tmpdir or die "cannot open directory $tmpdir: $!";
+while ($_ = readdir TMPDIR) {
+  unlink "$tmpdir/$_" if $_ eq 'strace' || (/^strace.(\d+)$/ && !grep {$1==$_} @pid);
+}
+closedir TMPDIR;
+
+# Process each trace file
+my($fnum,$offset);
+for (my $task=0; $task<@pid; $task++) {
+  my $pid = $pid[$task];
+  open STRACE, "$tmpdir/strace.$pid" or die "cannot read $tmpdir/strace.$pid: $!";
+  while (<STRACE>) {
+    chomp;
+
+    # Parse the strace line
+    my($pc,$name,$args,$ret,@args) = /^\[([0-9a-f]+)\]\s+(\w+)\((.*)\)\s+=\s+([-?\d]+)/;
+    die "not parsable: $_\n" unless defined $ret;
+    while (length $args) {
+      if ($args =~ /^\"( (?:[^\\]|\\.)* )\" (?:\.{3})?, \s+ (.*)/x) {
+	push @args, $1;
+	$args = $2;
+      } elsif ($args =~ /^(.*?),\s+(.*)/) {
+	push @args, $1;
+	$args = $2;
+      } else {
+	push @args, $args;
+	$args = "";
+      }
+    }
+
+    # Do something based on the line
+    if ($name eq 'open') {
+      if ($ret>=0 && $args[0] eq $filename) {
+	die "multiple opens for $filename" if defined $fnum;
+	$fnum = $ret;
+        print "OPENED \"$args[0]\" on task $task pid $pid as file $ret\n";
+      } elsif (defined($fnum) && $ret eq $fnum) {
+	die "missed close for $filename";
+      }
+    } elsif ($name eq 'close') {
+      if (defined($fnum) && $args[0]==$fnum) {
+	print "CLOSED\n";
+	$fnum = undef;
+      }
+    } elsif ($name eq 'lseek') {
+      if (defined($fnum) && $args[0]==$fnum && $ret>=0) {
+	$offset = $ret;
+      }
+    } elsif ($name eq '_llseek') {
+      if (defined($fnum) && $args[0]==$fnum && $ret>=0) {
+	($offset) = $args[2] =~ /(\d+)/;
+      }
+    } elsif ($name eq 'write') {
+      if (defined($fnum) && $args[0]==$fnum && $ret>=0) {
+	print "WRITE at $offset for $ret bytes\n";
+	$offset += $ret;
+      }
+    } elsif ($name eq 'read') {
+      if (defined($fnum) && $args[0]==$fnum && $ret>=0) {
+	print "READ at $offset for $ret bytes\n";
+	$offset += $ret;
+      }
+    }
+  }
+  close STRACE;
+}
+

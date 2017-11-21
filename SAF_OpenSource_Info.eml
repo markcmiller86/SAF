@@ -1,0 +1,500 @@
+Received: from DM5PR0901MB2165.namprd09.prod.outlook.com (10.167.111.31) by
+ SN4PR0901MB2176.namprd09.prod.outlook.com (10.167.151.140) with Microsoft
+ SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256) id 15.20.77.7 via Mailbox
+ Transport; Tue, 17 Oct 2017 19:54:26 +0000
+Received: from DM5PR09CA0003.namprd09.prod.outlook.com (2603:10b6:4::13) by
+ DM5PR0901MB2165.namprd09.prod.outlook.com (2603:10b6:4:81::31) with Microsoft
+ SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P256) id 15.20.77.7; Tue, 17 Oct
+ 2017 19:54:25 +0000
+Received: from BY2NAM03FT034.eop-NAM03.prod.protection.outlook.com
+ (2a01:111:f400:7e4a::208) by DM5PR09CA0003.outlook.office365.com
+ (2603:10b6:4::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.20.77.21 via Frontend
+ Transport; Tue, 17 Oct 2017 19:54:25 +0000
+Authentication-Results: spf=softfail (sender IP is 128.15.143.151)
+ smtp.mailfrom=sandia.gov; doellnl.mail.onmicrosoft.com; dkim=pass (signature
+ was verified) header.d=sandia.gov;doellnl.mail.onmicrosoft.com;
+ dmarc=bestguesspass action=none header.from=sandia.gov;
+Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
+ sandia.gov discourages use of 128.15.143.151 as permitted sender)
+Received: from webmail.llnl.gov (128.15.143.151) by
+ BY2NAM03FT034.mail.protection.outlook.com (10.152.84.211) with Microsoft SMTP
+ Server (version=TLS1_0, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA_P384) id
+ 15.20.77.10 via Frontend Transport; Tue, 17 Oct 2017 19:54:25 +0000
+Received: from prdesa-3.llnl.gov (128.15.143.233) by
+ PRDEXHUB-03.the-lab.llnl.gov (128.15.143.151) with Microsoft SMTP Server id
+ 14.3.279.2; Tue, 17 Oct 2017 12:54:15 -0700
+Received: from ipss1-host77.is.centurylink.net ([65.127.216.77])  by
+ prdesa-3.llnl.gov with ESMTP; 17 Oct 2017 12:54:15 -0700
+X-Qwest-Status: hEUBLG9ErOsrnKeZ
+Received: from przesa-3.llnl.gov (przesa-3.llnl.gov [128.115.249.163])	by
+ ipss1-host77.is.centurylink.net (Postfix) with ESMTP id B3AEB27CF5DB	for
+ <miller86@llnl.gov>; Tue, 17 Oct 2017 19:54:09 +0000 (UTC)
+X-Attachments:
+IronPort-PHdr: =?us-ascii?q?9a23=3A+zvA1BGL8znIa+wiVVwqPJ1GYnF86YWxBRYc798d?=
+ =?us-ascii?q?s5kLTJ7zr82wAkXT6L1XgUPTWs2DsrQf2rqQ6/iocFdDyK7JiGoFfp1IWk1Nou?=
+ =?us-ascii?q?QttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBAj0OxZr?=
+ =?us-ascii?q?KeTpAI7SiNm82/yv95HJbQhFgDmwbaluIBmqsA7cqtQYjYx+J6gr1xDHuGFIe+?=
+ =?us-ascii?q?NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PGAu+MLrrxjD?=
+ =?us-ascii?q?QhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/VC+85Kl3VhDnlC?=
+ =?us-ascii?q?YHNyY48G7JjMxwkLlbqw+lqxBm3oLYfJ2ZOP94c6zTZ9MaQXdKUNhXWSJPH4iw?=
+ =?us-ascii?q?a5IDA/QdMepdqYT2ulkAogakBQS0BO3h1CJGhmP406M53eQuEwDG0xAvEN8Vqn?=
+ =?us-ascii?q?vYsMn5Ob0OXeypzqTFyyjIYfNM2Tf67YjFah4tr/+WUrJucMre1FIvFwTDjlmI?=
+ =?us-ascii?q?tIfrOC2a1usXvGid4eZrSOWii2s6pA5rvDivx9ojipLSi4IO0F/E8zh2wIcvKt?=
+ =?us-ascii?q?GiR057ZsCkHYJWuiqHOYV2RcYiTHtpuCY80rAGvoW7fDQLyJg9yB7fbOKHfo6V?=
+ =?us-ascii?q?6RzgTOacOSp0iXZmdb6lmhq+7VasxvfhWsS03ltGtDdJnsTDu3wVyhDe5MeKRu?=
+ =?us-ascii?q?Fj8kqh1zuDzR3f5vxKLEwui6bWJIMtzqYtmpcdvknPBDH6lUX4gaOMa0ko5ual?=
+ =?us-ascii?q?5/76brjlu5ORMZJ/hBvkPaQ0gMO/BPw1MggQUGif/uSxzKbj/UjlQLVSkvE6j7?=
+ =?us-ascii?q?PWsIvcJcQfvKK5GBVa0oA+5Ba+FTiqytsYnX4ZLF5deRKHiZbmO03WLfzlCfqy?=
+ =?us-ascii?q?gE6gnCp3y/zYJLHtH5XAI3bZnLv8YLpw5FZQyA8pwtBe45JUBKsBIPX2WkLpsd?=
+ =?us-ascii?q?zXEwU2MxK1w+n6E9VwzZgeVniJAqCEMaPdq0WE5u0oI+mSfIMVoiryK+A55/7y?=
+ =?us-ascii?q?in80gVodfait3ZsTdn+4BPdrLkSCbHrohtcBF2MKshAxTOztll3RGQJUMjyXXq?=
+ =?us-ascii?q?Y46yt/QKevF4SLbcbnyOiE3SO/E4cGOEhCDlaIV3jvadPXde0LbXfYDsZ/kzAf?=
+ =?us-ascii?q?Ur7lA6os2hio/keuzrZuMOvY4QUDvJTv1dEz6OrNw0JhvQdoBtiQhjneB1p/mX?=
+ =?us-ascii?q?kFEnpvhvhy?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0FLAACzXuZZh3KZZsZZAxoBAQEBAgEBA?=
+ =?us-ascii?q?QEIAQEBARUBAQEBAgEBAQEIAQEBAYJERIEQbicHg3OLE45DgXiQdIU/EIFBQwo?=
+ =?us-ascii?q?lgVyCa08CGoRSQRYBAQEBAQEBAQEBAQIQAQEBCA0JCCgvgjgkAQ1GJgYBAQEBA?=
+ =?us-ascii?q?QEBAQEjAQEBAQEBAQEBAQEBAQEBGgIeIBIBARgBAQEBAyMKEwEBNwEPAgEIEQQ?=
+ =?us-ascii?q?BASgDAgICMBQJCAIEDgUIh31IbFcNBQupCxE4a4InJoJiAQEFiBEBAQEBAQEBA?=
+ =?us-ascii?q?QEBAQEBAQEBAQEBAQEVAwWDLoE2UYFSgWmDK4J/gUsIARIBNgoMCRGCDz2CYYo?=
+ =?us-ascii?q?lEJcVBgKUYIIdhXaLDpVwgTgBJQGBDidWKgxKD4Mtgk0KFYFzdohJgSQBgRABA?=
+ =?us-ascii?q?QE?=
+X-IPAS-Result: =?us-ascii?q?A0FLAACzXuZZh3KZZsZZAxoBAQEBAgEBAQEIAQEBARUBAQE?=
+ =?us-ascii?q?BAgEBAQEIAQEBAYJERIEQbicHg3OLE45DgXiQdIU/EIFBQwolgVyCa08CGoRSQ?=
+ =?us-ascii?q?RYBAQEBAQEBAQEBAQIQAQEBCA0JCCgvgjgkAQ1GJgYBAQEBAQEBAQEjAQEBAQE?=
+ =?us-ascii?q?BAQEBAQEBAQEBGgIeIBIBARgBAQEBAyMKEwEBNwEPAgEIEQQBASgDAgICMBQJC?=
+ =?us-ascii?q?AIEDgUIh31IbFcNBQupCxE4a4InJoJiAQEFiBEBAQEBAQEBAQEBAQEBAQEBAQE?=
+ =?us-ascii?q?BAQEVAwWDLoE2UYFSgWmDK4J/gUsIARIBNgoMCRGCDz2CYYolEJcVBgKUYIIdh?=
+ =?us-ascii?q?XaLDpVwgTgBJQGBDidWKgxKD4Mtgk0KFYFzdohJgSQBgRABAQE?=
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+X-MGA-submission: =?us-ascii?q?MDHmuvLhabjTdbDb7fa9ALblFF8F1lQw8OSQlO?=
+ =?us-ascii?q?kErBLsLUcTWReg/T2o95nsnj8HKAdMX1JTsBIpX/wGpfcrR1gDJoS4NB?=
+ =?us-ascii?q?H71BI8z0mrf3FsRI+PJ8UiscCzc938iJiXmYsXRpoEv83BHOcg9KSHLe?=
+ =?us-ascii?q?Ku?=
+Received: from smtp01asnl.sandia.gov ([198.102.153.114])  by przesa-3.llnl.gov
+ with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Oct 2017 12:54:05 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=sandia.gov; i=@sandia.gov; q=dns/txt; s=snl;
+  t=1508270045; x=1539806045;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:mime-version;
+  bh=EpQRB3zyiW3PU901lokzNBfz4ocJpWFKsnXSDEUzqm4=;
+  b=H1QhHWxPhRxOt87lGZln+qrangEwYRiyLa0KLgbVZ3NIU9StPcka5p6+
+   1/RHpKHdyN48ZTfD7lOfz623ER1i8+VGnfp5v3ZWMkwwyWrbqveWdY8tU
+   yAdUYfuReNv2wPzDsLbLY2OY41vsSnG30dZLC2iEdVuPIRghXSaORlaLE
+   RT6FR5BDRyHUekXGdu5yM8PHy/Xy79KR/AmWOO8NN2HBb5CS1Gu2lgsa5
+   E/WzQMm6OaVuyAqrRzyI0iapwcpm6AH+iW+vCu1M9aD37wS+9mvcGUHpv
+   AZfGOA3bY7Nn9wYUXCtBgF51QY0UPhU7gIGiCrLbnMnPAZnHixWZk+wl9
+   g==;
+X-IronPort-MID: 64229975
+X-IronPort-RCPT-ALL: miller86@llnl.gov
+X-IronPort-RCPT-FROM: mdavids@sandia.gov
+X-IronPort-Date: 17 Oct 2017 19:54:05 -0000
+X-IronPort-RemoteIP: 198.102.152.61
+X-IronPort-RemoteHost: interceptor2.sandia.gov
+X-IronPort-Host: smtp01asnl.sandia.gov
+X-IronPort-SBRS: 2.5
+X-IronPort-AV: E=McAfee;i="5900,7806,8687"; a="64229975"
+X-IronPort-AV: E=Sophos;i="5.43,392,1503381600"; 
+   d="scan'208,217";a="64229975"
+Received: from interceptor2.sandia.gov ([198.102.152.61])  by
+ smtp01asnl.sandia.gov with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Oct 2017
+ 13:54:05 -0600
+Received: from mailgate2.sandia.gov (mailgate2.sandia.gov [132.175.109.4]) by
+ interceptor2.sandia.gov (RSA Interceptor) for <miller86@llnl.gov>; Tue, 17
+ Oct 2017 13:53:50 -0600
+Received: from mail.sandia.gov (es08amsnlnt.sandia.gov [134.253.103.170])	by
+ mailgate2.sandia.gov (8.14.4/8.14.4) with ESMTP id v9HJro2Y001758	for
+ <miller86@llnl.gov>; Tue, 17 Oct 2017 13:53:50 -0600
+X-CrossPremisesHeadersFilteredBySendConnector: ES04AMSNLNT.srn.sandia.gov
+Received: from ES05AMSNLNT.srn.sandia.gov (134.253.103.165) by
+ ES04AMSNLNT.srn.sandia.gov (134.253.103.164) with Microsoft SMTP Server (TLS)
+ id 15.0.1263.5; Tue, 17 Oct 2017 13:53:49 -0600
+Received: from ES05AMSNLNT.srn.sandia.gov ([134.253.103.181]) by
+ ES05AMSNLNT.srn.sandia.gov ([134.253.103.181]) with mapi id 15.00.1263.000;
+ Tue, 17 Oct 2017 13:53:49 -0600
+From: "Davidson, Megan" <mdavids@sandia.gov>
+To: "Miller, Mark C." <miller86@llnl.gov>
+CC: "Sjaardema, Gregory D" <gdsjaar@sandia.gov>
+Subject: RE: [EXTERNAL] Is SAF really Open Source
+Thread-Topic: [EXTERNAL] Is SAF really Open Source
+Thread-Index: AQHTR3Fgq6NGMzKQ7kGVCQDWZ3Ws4aLoalEQ
+Date: Tue, 17 Oct 2017 19:53:48 +0000
+Message-ID: <3c6d3e05002347ba8fcb32d50bef674c@ES05AMSNLNT.srn.sandia.gov>
+References: <2D39A9F7-2F25-458B-BA9A-9E4C766A1CFE@contoso.com>
+In-Reply-To: <2D39A9F7-2F25-458B-BA9A-9E4C766A1CFE@contoso.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [134.253.113.241]
+MIME-Version: 1.0
+X-OrganizationHeadersPreserved: ES04AMSNLNT.srn.sandia.gov
+X-RSA-Inspected: yes
+X-RSA-Classifications: public
+X-RSA-Action: allow
+Return-Path: mdavids@sandia.gov
+X-OrganizationHeadersPreserved: PRDEXHUB-03.the-lab.llnl.gov
+X-MS-Exchange-Organization-Network-Message-Id: c479b0b8-7108-482d-4639-08d51598de5c
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Organization-MessageDirectionality: Originating
+X-Forefront-Antispam-Report: CIP:128.15.143.151;IPV:NLI;CTRY:US;EFV:NLI;SFV:SKN;SFS:;DIR:INB;SFP:;SCL:-1;SRVR:DM5PR0901MB2165;H:webmail.llnl.gov;FPR:;SPF:None;LANG:en;
+X-Microsoft-Exchange-Diagnostics: 1;BY2NAM03FT034;1:BXthVamoHM74oScFPvdfo/GAlW8paNeChMW+WGJ0OPZWRmSkTo3ZVa6og98sZjf8DEeQC/uxlnNy5xv0ZxPY/tceg0HzPf7FaDDBYJDms8sp3yhHO6ND2tG58vMvfFDI
+X-CrossPremisesHeadersPromoted: BY2NAM03FT034.eop-NAM03.prod.protection.outlook.com
+X-CrossPremisesHeadersFiltered: BY2NAM03FT034.eop-NAM03.prod.protection.outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c479b0b8-7108-482d-4639-08d51598de5c
+X-DkimResult-Test: Passed
+X-Microsoft-Antispam: UriScan:;BCL:0;PCL:0;RULEID:(22001)(2017030254152)(8251501002)(3001016)(2017052603199)(201703131423075)(201703031133081);SRVR:DM5PR0901MB2165;
+X-Microsoft-Exchange-Diagnostics: 1;DM5PR0901MB2165;3:oZ2Q4rE4uQuLVgNj0HQycHBeY6i3K6EwKBgLywPg2ZgjLxcr0rql7huZONPzAcXF+PemqCzI9+xWpxzPFOJw8lfJrjB0aX9fSxsFe4HFH5rh/DDkLDgC7VT9rZf6672kCiP70D7V3jwuIJGNm+AfuR6JL9+dcQL8KEPfXu3Aj2Av2xJ/T88SkYaa9aApYHVokc4HTjNoM1eKXO+xmmAx1pC5v+V3YvpuZhpvI1sjc/ivPZeI5z0k1H2zK7wrOLvO7BMKXK6B7PsptIWE662H9W47jKeBesUd1mNE6eVfVte+oLOHJ7WOEiR7Kvn03YswodVc7tG4V8y2vJde2pkdWQ6CgmEog14XGIOI/brqTRk=;25:uBkf0S72VuXqbmyRzfE+tzgaTtBh8BapZ0iziuhA9SDMcntX0sAYyZgwkp6zWnmtef3iolvy7ZmXw7U6yPjzjfFDEBuEQ5mv+eItjdDP8E39n/zDAPZJcvn2Uioe6lX5wGr+DN3dyrLo2F54UGF+TKRO6zpxLEpxxD1fHdWxvFHWavkM299LnK7FEeAbAUawCVWt8nDBJYDQ7r5gkrYo/FfF68Ax6yyniMohJ5KVfuj/RslQRi3eW+eKf+sSz3e9wuegry4v4ZXPBT6pQQUIcgSH4x8bH14qndRJZ4R5ECgu215vtrng25sSrn8JDmAhYb6uvLl80/0ie4gdLt7pbw==
+X-MS-TrafficTypeDiagnostic: DM5PR0901MB2165:
+X-Microsoft-Exchange-Diagnostics: 1;DM5PR0901MB2165;31:2OJsRUND5hON3nydLBA2UZeXc9RrOJk+KxjM5G+Ec50LdlKLNCSEXwPLYdCnYnqN5qYFUsdAV8DAdoq4+CcXnreW1kXWlCtE1+Gd1EezXhIsc6dqtAj78ozcWoDk5FFgITeYL1+oUubnenWt0clNph1hUQ7Zl9k7+mlLTmCXE8yLjZqOvKLJXRbf5oPW8qIkT0B1foFhDv3wif8eHBfgpPQ1/n4dtIRUXGbrXV8dvLc=;20:fpirBL8goUffmVsKqa4AEiRYh3F4rlDuHriyn7+yqZS4F0fXk7uOE0UF2r+sYj2lv5RbyZ4Q3M383dBoLR74BvYAcqmu6NscAG2FUZHP9vXJTJsq47rTfW1T96SeTIsiIoDBObpLHgowN2O+b0oCzfFHH0+R8OVF6pIBB5Ar77eaT066aCZaXmUSU6dmghI57vqlB1ZBRKATZlxRsRXUpzJmiGYJN4qe2hRhlVibuHd1riH0H0h/KSXC1i0L8PAY;4:MrIzqmdcXnAb0nhGp+8kaonJjBEkMIW09G4hLsJ21sH70mCg8IFdoBqnjWwzMZ+UvsEyCY9PqIfxz8RMf9QRCy+UxCUjhyrBawFmXoAZ9h/vDsmnZX4qkmvHAkYq09HI+PXaDMivczLqwp3QxuLGVtwEpbCvoFOiss5qmHS4B+LpuWk4G1216L4xKdvuuW3DzgMc3G35LGku6VwKb8o1DV1Lt2tU90uTTZibfSG2BdHmJaNyxpP/W6oPAZWjJu608bSc8fCaU4Vysaj0pyeKVzgdW6paYY5DkXXWpYwKOCo=
+X-MS-Exchange-Organization-SCL: -1
+X-Exchange-Antispam-Report-Test: UriScan:(21748063052155);
+X-Exchange-Antispam-Report-CFA-Test: BCL:0;PCL:0;RULEID:(100000700101)(100105000095)(100000701101)(100105300095)(100000702101)(100105100095)(2401047)(8121501046)(93006095)(93005095)(10201501046)(100000703101)(100105400095)(3002001)(201708071742011)(100000704101)(100105200095)(100000705101)(100105500095);SRVR:DM5PR0901MB2165;BCL:0;PCL:0;RULEID:(100000800101)(100110000095)(100000801101)(100110300095)(100000802101)(100110100095)(100000803101)(100110400095)(100000804101)(100110200095)(100000805101)(100110500095);SRVR:DM5PR0901MB2165;
+X-Microsoft-Exchange-Diagnostics: 1;DM5PR0901MB2165;23:OQLnKzhBPii2z2826ODlvZei1DRPpRqDHGqeccMdMRA4kBtBvg6ruQBOzZe5uV0/wUMwuKM9+G/UPjz9fRx7p8iD4IMa8Lm8CpLM6hMhq+hKFk1SsetjyDHFAB7CwecIC+0keiMd45x5JnLwSPdYHCBnRb+iArq/bMotjRoZSxqR1Ji6EiGmtnDB7EbXp6UK;6:yTiqY6KPrZ5LUrFZ6E+Ts9hv1SesveC2scwRKsm4DwlxWo3j8LYxCH2U7qUm53TrPXSvcKNMj5s3T1KB1GaxTeYFn/u0KZYuR1YZOX9xaj54IiL/ZX8QKIjSM43FlGw8a91O/KpA7UTg0olIIO/h21+/3OEPrdi1NP/MEGPJBjkR4Vn3JNmBKV/bVtc7UvMfHRGizsOWVtcC8fyhEK9Lo60FIu0FhnaoVqG7XnMhXwPU1+UnlOhvSd9vfYUeEaUOLElqvl85qeD02GcZp8npuc4n0ej7qQJkw6p0d4B3+50v7gCxz/diAc86eIxO1PUd0U2J880L0hnm04c1xFBxmQ==;5:vTUHgeCA4vUNdzP0ax/9EKEkoB2WpguY5X4XSFU2TBVOAxhwlABuxhmh6by36rtUyJdyojk6eNA0c90yIqYSdPJMAYwaxv1ian46nEddXliRFyo926N4Nkfoe8AtAdVIlFImNWpQogmeT2IBlWTyIg==;24:JywKZ0EuvBVc/RYtGdsFpWwBTaniDEl/k75fJrY1XmRy/9dQLSJDa+Pflq6kUUyn3E7cbK2zqXe2StUmGWwejQd+eRYeEfZ3Bq8vveyZpB4=
+SpamDiagnosticOutput: 1:2
+SpamDiagnosticMetadata: c3778d363f524c20b1cb17a4d2c6e2db
+X-Microsoft-Exchange-Diagnostics: 1;DM5PR0901MB2165;7:NKNIubWGCQMB17j0gpqVdb9o+Wvw8b1HLYgJyGnkoRXmBMuNu7Hc7GhoVE2EnIiAyEwQGTaW+TRdnVrBs9z+WYh80zIrn5COWyof07HF44Yf1DGAjcJfu928Zv2y4wWH4ktRu3yNle/CrKo1U6J26WoJYZqnFfeb60JoPnN8EC+hgQlVT/CD8EVNfMyfeF4Zubj7RW8/tp6RCi3Td2Kkv3RF3KN4ctZB6yXa7GkU0Dg=
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Oct 2017 19:54:25.0094
+ (UTC)
+X-MS-Exchange-CrossTenant-Id: a722dec9-ae4e-4ae3-9d75-fd66e2680a63
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=a722dec9-ae4e-4ae3-9d75-fd66e2680a63;Ip=[128.15.143.151];Helo=[webmail.llnl.gov]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR0901MB2165
+X-MS-Exchange-Organization-AuthSource: PRDEXHUB-03.the-lab.llnl.gov
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-OriginatorOrg: doellnl.onmicrosoft.com
+X-MS-Exchange-Transport-EndToEndLatency: 00:00:01.1873217
+X-MS-Exchange-Processed-By-BccFoldering: 15.20.0077.017
+X-Microsoft-Exchange-Diagnostics:
+	1;SN4PR0901MB2176;9:YrZ1Z3F4YCrxttxj6iJ7fbeybvO6vOf4JE1Ek3jijTWplvuiCByw0hh5pnRsxJAfaDhQZgwqmbvbpFi3rE4FR3hBYW358HVdVNwWlrIG8ZzYzS7+/WmloGK33CDB2FT/
+X-Microsoft-Exchange-Diagnostics:
+	1;SN4PR0901MB2176;27:3nCScOpCwWFVtCl0aljUNz0CFLebRWgfCrpESd93HA1EZlkX5lTrcjzxzlLFsYBVnYjlWFnU5QSDxh69czn35DIQoDRJZ/cN1iKPuAkk8CPzuza7iCc3tybJoWbey708
+Content-type: multipart/alternative;
+	boundary="B_3591091072_413655801"
+
+> This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
+
+--B_3591091072_413655801
+Content-type: text/plain;
+	charset="UTF-8"
+Content-transfer-encoding: quoted-printable
+
+Mark,=20
+
+=20
+
+SAF is listed in our database as DOE approved for open source. The copyrigh=
+t assertion is old and I was unable to find any records or correspondence ab=
+out this software in the digital or hardcopy  files. I have contacted the ol=
+d copyright administrator to see if she has the hardcopy file and will get b=
+ack to if she finds something.  It is possible that LLNL handled the asserti=
+on on their end and we just made a notation in our database, have you checke=
+d  with your IP office?=20
+
+=20
+
+As far as the license goes, we leave it up to the author of the software to=
+ determine which license they would like to distribute it under. We typicall=
+y release our software under BSD.=20
+
+=20
+
+Please feel free to give me a call if you want to discuss.=20
+
+=20
+
+Meg
+
+=20
+
+Meg Davidson
+
+Akima Infrastructure Services
+
+Under Contract to Sandia National Laboratories
+
+IP Management, BCI, and Business Development
+
+mdavids@sandia.gov
+
+505.845.7160
+
+=20
+
+=20
+
+=20
+
+=20
+
+From: Miller, Mark C. [mailto:miller86@llnl.gov]=20
+Sent: Tuesday, October 17, 2017 11:57 AM
+To: Davidson, Megan <mdavids@sandia.gov>
+Cc: Sjaardema, Gregory D <gdsjaar@sandia.gov>
+Subject: [EXTERNAL] Is SAF really Open Source
+
+=20
+
+Hi Meg,
+
+=20
+
+Your email to Greg says this...
+
+=20
+
+Greg,
+
+=20
+
+I found SAF ver. 2.0 (SCR#821). It was approved for open source distributio=
+n on 8/25/2005. Here=E2=80=99s how it=E2=80=99s listed on the ESTSC site.  Is it still a=
+vailable for download somewhere?
+
+=20
+
+Thanks,
+
+=20
+
+Meg
+
+=20
+
+=20
+
+However, see attached image of page on SciTech site...It specifically says =
+it is NOT open source.
+
+=20
+
+Do you happen to know the license terms of the Open Source release? BSD, GP=
+L, LGPL, something specific to SNL?
+
+=20
+
+Mark
+
+=20
+
+--=20
+
+Mark C. Miller, LLNL
+
+=20
+
+"In the end, we will remember not the words of
+
+our enemies but the silence of our friends" - MLK
+
+
+--B_3591091072_413655801
+Content-type: text/html;
+	charset="UTF-8"
+Content-transfer-encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-microsof=
+t-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" xmlns:m=
+=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http://www.w3.org=
+/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle19
+	{mso-style-type:personal-reply;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body bgcolor=3D"white" lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">Mark, <o:=
+p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">SAF is li=
+sted in our database as DOE approved for open source. The copyright assertio=
+n is old and I was unable to find any records or correspondence about this s=
+oftware in the digital or hardcopy
+ files. I have contacted the old copyright administrator to see if she has =
+the hardcopy file and will get back to if she finds something. &nbsp;It is p=
+ossible that LLNL handled the assertion on their end and we just made a nota=
+tion in our database, have you checked
+ with your IP office? <o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">As far as=
+ the license goes, we leave it up to the author of the software to determine=
+ which license they would like to distribute it under. We typically release =
+our software under BSD.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">Please fe=
+el free to give me a call if you want to discuss.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">Meg<o:p><=
+/o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">Meg David=
+son<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><i><span style=3D"font-size:11.0pt;color:#1F497D">Akima =
+Infrastructure Services<o:p></o:p></span></i></p>
+<p class=3D"MsoNormal"><i><span style=3D"font-size:11.0pt;color:#1F497D">Under =
+Contract to Sandia National Laboratories<o:p></o:p></span></i></p>
+<p class=3D"MsoNormal"><b><span style=3D"font-size:11.0pt;color:#1F497D">IP Man=
+agement, BCI, and Business Development<o:p></o:p></span></b></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><a href=3D"=
+mailto:mdavids@sandia.gov"><span style=3D"color:#0563C1">mdavids@sandia.gov</s=
+pan></a><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D">505.845.7=
+160<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;color:#1F497D"><o:p>&nbs=
+p;</o:p></span></p>
+<div>
+<div style=3D"border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0in 0i=
+n 0in">
+<p class=3D"MsoNormal"><b><span style=3D"font-size:11.0pt">From:</span></b><spa=
+n style=3D"font-size:11.0pt"> Miller, Mark C. [mailto:miller86@llnl.gov]
+<br>
+<b>Sent:</b> Tuesday, October 17, 2017 11:57 AM<br>
+<b>To:</b> Davidson, Megan &lt;mdavids@sandia.gov&gt;<br>
+<b>Cc:</b> Sjaardema, Gregory D &lt;gdsjaar@sandia.gov&gt;<br>
+<b>Subject:</b> [EXTERNAL] Is SAF really Open Source<o:p></o:p></span></p>
+</div>
+</div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt">Hi Meg,<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt"><o:p>&nbsp;</o:p></span=
+></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt">Your email to Greg says=
+ this...<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt"><o:p>&nbsp;</o:p></span=
+></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">Greg,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">&nbsp;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">I found SAF ver. 2.0 (SCR#821). It was approved for open source distributi=
+on on 8/25/2005. Here=E2=80=99s how it=E2=80=99s listed on the ESTSC<a href=3D"https://www=
+.osti.gov/scitech/biblio/1230929-saf-sets-fields-parallel-scientific-data-mo=
+deling-system">&nbsp;site</a>.
+ Is it still available for download somewhere?<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">&nbsp;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">Thanks,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">&nbsp;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">Meg<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-size:11.0pt=
+">&nbsp;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt"><o:p>&nbsp;</o:p></span=
+></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt">However, see attached i=
+mage of page on SciTech site...It specifically says it is NOT open source.<o=
+:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt"><o:p>&nbsp;</o:p></span=
+></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt">Do you happen to know t=
+he license terms of the Open Source release? BSD, GPL, LGPL, something speci=
+fic to SNL?<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt"><o:p>&nbsp;</o:p></span=
+></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt">Mark<o:p></o:p></span><=
+/p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt"><o:p>&nbsp;</o:p></span=
+></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:10.5pt;color:black">--&nbsp;<o:=
+p></o:p></span></p>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:10.5pt;color:black">Mark C. Mil=
+ler, LLNL<o:p></o:p></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:10.5pt;color:black"><o:p>&nbsp;=
+</o:p></span></p>
+</div>
+<div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:10.5pt;color:black">&quot;In th=
+e end, we will remember not the words of<o:p></o:p></span></p>
+</div>
+</div>
+<p class=3D"MsoNormal"><span style=3D"font-size:10.5pt;color:black">our enemies=
+ but the silence of our friends&quot; - MLK</span><o:p></o:p></p>
+</div>
+</body>
+</html>
+
+
+--B_3591091072_413655801--
+

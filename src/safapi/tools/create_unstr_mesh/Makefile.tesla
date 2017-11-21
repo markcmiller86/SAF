@@ -1,0 +1,36 @@
+##
+##
+
+SAF_DIR=/scratch3/jsjones/saf_install/INSTALLED/saf/1.7.1-devel
+HDF_DIR=/scratch3/jsjones/saf_install/INSTALLED/hdf5/1.6.0
+
+HDF_SUBDIR=/serial/64/optim/
+SAF_SUBDIR=/hdf5-1.6.0/serial/64/optim/
+
+CC=cc
+CFLAGS= -64 -O2 -fullwarn -woff 1552 -woff 3201 -woff 3434
+LINK_FLAGS= -64 -lsafapi -lvbt -ldsl -lhdf5 -lm -lc
+
+
+
+SAF_INCLUDE=${SAF_DIR}${SAF_SUBDIR}/include/
+SAF_PRIVATE_INCLUDE=${SAF_DIR}${SAF_SUBDIR}/include/private
+HDF_INCLUDE=${HDF_DIR}${HDF_SUBDIR}/include
+Z_LIB=/usr/local/lib
+SAF_LIB=${SAF_DIR}${SAF_SUBDIR}/lib/
+HDF_LIB=${HDF_DIR}${HDF_SUBDIR}/lib
+
+create_unstr_mesh: create_unstr_mesh.c
+	@echo "-------------------------------------------------------"
+	${CC} ${CFLAGS}  -I. \
+	-I${SAF_INCLUDE} -I${HDF_INCLUDE} -I${SAF_PRIVATE_INCLUDE} \
+	-L${SAF_LIB} -L${HDF_LIB} -L${Z_LIB} \
+	create_unstr_mesh.c ${LINK_FLAGS} -o create_unstr_mesh
+
+clean:
+	@echo "-------------------------------------------------------"
+	rm -f *.o create_unstr_mesh *.saf saf_reader_stdout.txt 
+
+
+
+

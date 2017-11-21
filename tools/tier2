@@ -1,0 +1,1092 @@
+#!/bin/sh
+perl -x -S $0 "$@"
+exit
+#4  \
+#5   \
+#6    \
+#7     >  These lines are here so error numbers are off by 10 because of the portable
+#8    /   manner by which we're invoking the perl compiler.
+#9   /
+#10 /
+#!/usr/bin/perl
+
+# Author: Robb Matzke, LLNL, <matzke@llnl.gov>
+#
+# Purpose:
+#     Performs a tier2 test of the SAF repository, a source directory, or a release-candidate tarball.
+#
+# Usage:
+#     Invoke with the `--help' switch for usage information, or see below.
+#
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Acknowledgements:
+#     Robb P. Matzke              LLNL - Author of various tools
+#     Mark C. Miller              LLNL - Alpha/Beta user; minor debugging/enhancements 
+#     Matthew J. O'Brien          LLNL - Author of various tools
+#     James F. Reus               LLNL - Alpha/Beta user
+
+
+# For systems where Robb installed MIME::Base64 locally
+BEGIN{push @INC, "/home/rpmatzk/lib/perl5/site_perl"};
+BEGIN{push @INC, "/home/rpmatzk/lib/perl5/site_perl/irix-n32"};
+
+## Purpose: Perform SAF Tier-I testing on various platforms.  Invoke with no arguments to see
+## usage information.
+require 5.003;
+use strict;
+use File::Basename;
+use IO::Pipe;
+use IO::Select;
+use MIME::Base64;
+use POSIX;
+
+
+$|=1;
+
+# Global variables
+my($Verbose,$Local,$MailTo,$Compress,$Version);
+my $Timeout = 20*60;		# default timeout
+my $MIME = "==UUD_=_988895359";	# MIME boundary for mail (empty implies no MIME)
+
+# Default configs
+my %dflt_config = (ssh       => 'ssh',
+		   compiler  => 'serial',
+		   generator => 'default',
+		   product   => 'debug',
+		   hdf5      => '1.4.2',
+		   search    => '',
+		   shared    => 'no',
+		   supported => 'yes',
+		   testdir   => "/tmp",
+		   batch     => 'none',
+		   prefix    => '',
+		   make      => '',
+		   timeout   => 'none',
+		  );
+
+# Print some message and also save it for mailing later.  If $config is specified then the message
+# is associated with that configuration and appears with that configuration's other output, otherwise
+# the message is just general and will appear near the top of the output.
+my($MailContent);
+sub say {
+  my($config,@args) = @_;
+  if ($config && $config->{io_output}) {
+    # Child reports to parent
+    my($output) = $config->{io_output};
+    print $output @args;
+  } elsif ($config) {
+    # Config associated with configuration
+    $config->{output} .= join "", @args;
+  } else {
+    # General output
+    print @args;
+    $MailContent .= join "", @args if $MailTo;
+  }
+}
+
+# Display usage information
+sub usage {
+  say undef, <<'EOF'
+Usage: tier2 [SWITCHES] CONFIG_FILES
+   General switches:
+      --verbose
+          Be verbose about what's going on.
+      --mail-to=ADDRESSES
+          Mail the results to the specified addresses. The addresses should
+          be space separated, the arguments to sendmail.
+      --gzip
+          Gzip the results on the remote host before downloading them to
+          the local host.
+
+
+   Version selection switches. Only one of these should be specified. If none
+   are specified then the following algorithm is used to select the revision:
+      1. If there is a single file that matches `saf-*.tar.gz' in the current
+         working directory then use that file.
+      2. If there is more than one file that matches `saf-*.tar.gz' then use
+         the last file in sorted order.
+      3. If there is a directory in the current working directory named `saf'
+         then generate a release tarball from that directory and keep the
+         tarball for later.
+      4. Attempt to check out a fresh version of saf and use it to generate a
+         tarball. Release the checkout after the tarball is generated, but
+         keep the tarball.
+
+      --tarball=FILE
+          Use the specified tarball for testing. The file must exist and
+          should be a release tarball of the saf sources.
+      --directory=DIR
+          Use the specified directory to generate a tarball. The directory
+          must exist. Any tarball which already exists will be overwritten.
+      --cvs=SWITCHES
+          Switches for the cvs checkout command. At a minimum, this should be
+          the name of the module which is to be checked out, but it may also
+          include the cvs switch to select a particular version. Do not supply
+          a directory (-d) switch since the tier2 script will provide one in
+          order to check out into a temporary directory.
+
+   Debugging switches:
+      --only=NAME
+          Run test only for the configurations with the specified name. This
+          is mainly for debugging and may appear multiple times. If absent
+          then all configurations are tried.
+      --local
+          Run test locally. This is mainly for debugging and for situations
+          when there is no ssh connection to the target machine.  Operate by
+          copying the saf-*.tar.gz file to the target machine. The `--only'
+          switch *must* be specified.
+
+  This test reads configuration records from a startup file and attempts to
+  build SAF with each configuration record.  A configuration record consists
+  of `KEY:VALUE' pairs (white space is allowed on either side of the colon),
+  the first of which is the KEY `Platform'.  The understood KEY words are:
+
+      Platform: [USER@]HOST
+          The name of the user and host where the configuration will be
+          built. If USER is not specified then the current user name is
+          used. This script will use SSH (see the `--ssh' switch above) to
+          connect to the specified host, prompting for passwords when
+          required.
+
+      Name: NAME
+          An optional identifier for this configuration. This allows the
+          `--only=NAME' switch to be used to restrict testing to a certain
+          configuration. The default name is the same as the platform.
+
+      SSH: COMMAND
+          The ssh command to use when connecting to this host. The default
+          is to use the value set by the --ssh command-line switch (see
+          above.
+
+      Compiler: serial|mpich|mpich-VERSION|EXECUTABLE
+          The compiler which should be used (default `serial'). If `serial'
+          then use the default serial compiler detected by configure. If
+          `mpich-VERSION' then use the specified version of `mpicc' (if
+          VERSION is omitted then use 1.2.1). If an executable is specified
+          then use that executable (serial will be assumed unless the name can
+          be recognized as a parallel compiler by this script).
+
+      Generator: default|64|n32|o32|mina
+          The code generator. The `64', `n32', and `o32' options are only
+          valid on Irix. The `mina' option is only valid on Linux.
+
+      Product: debug|optim
+          Use debugging flags or optimization flags. Use compatible hdf5 and
+          MPI libraries. Default is `debug'.
+
+      Prefix: DIRECTORY
+          This optional field specifies a top-level home directory for mpich
+          and hdf5. The default value is empty, which indicates that build_saf
+          should use some heuristics to find this prefix.  For example, if a
+          particular machine doesn't use the SAF naming standard for mpich or
+          hdf5, then it is possible for any user to build the SAF directory
+          hierarchy for mpich and hdf5 with symbolic links to the non-standard
+          directories. For example if hdf5 is found under
+          ~/compat/hdf5/... then set Prefix to $HOME/compat.
+
+      Search: DIRECTORIES
+          This is a list of directories that should be added to the compiler
+          include file search path and the library search path of the linker.
+          The a "/include" component will be appended to each directory
+          for include files, and a "/lib" component for the libraries.
+
+      HDF5: VERSION|DIRECTORY
+          Specifies which version of HDF5 should be used.  This script will
+          locate hdf5 libraries which are compatible with the SAF
+          configuration.  However, a specific configuration of hdf5 can be
+          specified by supplying the name of the directory which contains hdf5
+          `include' and `lib' subdirectories.
+
+      Shared: yes|no
+          Compile shared libraries? Default is `no'.
+
+      Supported: yes|no
+          If an error occurs and this is a supported configuration then the
+          tier2 script will fail. Otherwise the error is reported but
+          otherwise ignored. The default is `yes'. If yes, then the final
+          targets are copied back to the local host and installed under a
+          tier2-install subdirectory.
+
+      TestDir: DIRECTORY
+          The directory where the testing will occur on the remote machine
+          (default is `/tmp'). A subdirectory of the name `saf-tier2.N' will
+          be created, where `N' is the process ID of this script.  Shell
+          environment variables of the form `$NAME' may be included in the
+          directory name. The directory must exist.
+
+      Batch: none|psub
+          Some systems (like ASCI-blue) need to run the entire configuration
+          in a batch system. When a batch system like `psub' is specified then
+          a shell script will be created which will then be submitted to the
+          batch system. The configuration for the machine does not return
+          until the batch job has completed.
+
+      Make: MAKE_COMMAND
+          If specified, use MAKE_COMMAND when building. This is often used to
+          turn on parallelism for makes that don't enable it by default, or to
+          turn off parallelism for makes that enable it by default.  For
+          instance, to turn on parallel builds for GNU make set this to `make
+          -j' and to turn it off for IRIX set it to `pmake -J1'.
+
+      Timeout: TIME
+          An optional timeout for commands. If a command, such as a
+          compilation or running of the test suite, exceeds the specified
+          length of time then it will be aborted. The time is specified as an
+          integer optionally followed by a letter `s' (the default), `m', or
+          `h' for seconds, minutes, or hours.
+EOF
+}
+
+# Find the location of some program. First look in $PATH, then some other common places. If not
+# found anywhere then just return the argument.
+sub path_of {
+  my($name) = @_;
+  return $name if $name =~ /^\//; #absolute name
+  my(@paths) = (split(/:+/, $ENV{PATH}),
+		"/bin", "/usr/bin", "/usr/local/bin",
+		"/sbin", "/usr/sbin", "/usr/local/sbin",
+	        "/lib", "/usr/lib", "/usr/local/lib");
+  my($path);
+  foreach $path (@paths) {
+    return "$path/$name" if -e "$path/$name";
+  }
+  return $name;
+}
+
+# Exit the program. If an argument is given then assume non-zero exit; otherwise exit with success.
+# The output is also mailed if requested (but output to stdout or stderr of the main process will be
+# discarded -- like status messages).
+sub perish {
+  my($mesg) = @_;
+
+  print STDERR "$mesg\n" if $mesg;
+
+  # Send mail
+  if ($MailTo) {
+    $MailContent = $mesg . "\n" . $MailContent if $mesg;
+    my($sendmail) = path_of("sendmail") . " " . $MailTo;
+    open MAIL, "|$sendmail" or die "failed: $sendmail\n";
+    if ($MIME) {
+      print MAIL "Mime-Version: 1.0\n";
+      print MAIL "Content-Type: multipart/mixed; boundary=\"$MIME\"\n";
+    }
+    print MAIL "From: \"SAF Tier2 Test\" <saf-dev\@california.sandia.gov>\n";
+    print MAIL "To: $MailTo\n";
+    print MAIL "Subject: $Version tier2 testing ", ($mesg?"FAILED":"passed"), "\n";
+    print MAIL "\n";
+    if ($MIME) {
+      print MAIL "--", $MIME, "\n";
+      print MAIL "Content-Type: text/plain; charset=us-ascii\n";
+      print MAIL "Content-Desciption: message body text\n";
+      print MAIL "Content-Transfer-Encoding: 7bit\n";
+      print MAIL "\n";
+    }
+    print MAIL $MailContent;
+
+    if ($MIME) {
+      print MAIL "--", $MIME, "\n";
+      print MAIL "Content-Type: text/plain; charset=us-ascii\n";
+      print MAIL "Content-Description: .signature\n";
+      print MAIL "Content-Transfer-Encoding: 7bit\n";
+    }
+    print MAIL "\n-- \n";
+    my($comment,$gcos) = (getpwuid $<)[5,6];
+    print MAIL "SAF Tier2 Testing performed by ", ($comment||$gcos), "\n";
+    print MAIL "--", $MIME, "--\n" if $MIME;
+    close MAIL;
+    die "$sendmail failed\n" if $?;
+  }
+
+  exit ($mesg ? 1 : 0);
+}
+
+# Return current mail content and reset.
+sub mail_content {
+  my($title) = @_;
+  local($_);
+  if ($MIME) {
+    $_ .= "--" . $MIME . "\n";
+    $_ .= "Content-Type: Application/Octet-Stream\n";
+    $_ .= "Content-Transfer-Encoding: Base64\n";
+    $_ .= "Content-Disposition: attachment; filename=\"$title.txt\"\n";
+    $_ .= "\n";
+    $_ .= encode_base64($MailContent);
+  } else {
+    $_ = $MailContent;
+  }
+  $MailContent = "";
+  return $_;
+}
+
+# Print one configuration to a string and return it.
+sub print_config {
+  my($config) = @_;
+  my($retval);
+
+  # Fix test directory
+  my($testdir) = $config->{testdir} =~ /(.*)\/saf-tier2\.\d+$/;
+  
+  # Fix timeout value
+  my($timeout) = $config->{timeout};
+  if (!$timeout) {
+    $timeout = "none";
+  } elsif (0==$timeout % 3600) {
+    $timeout = ($timeout/3600) . "h";
+  } elsif (0==$timeout % 60) {
+    $timeout = ($timeout/60) . "m";
+  } else {
+    $timeout .= "s";
+  }
+
+  $retval .= sprintf "%-16s %s\n", "compiler:",  $config->{compiler};
+  $retval .= sprintf "%-16s %s\n", "generator:", $config->{generator};
+  $retval .= sprintf "%-16s %s\n", "product:",   $config->{product};
+  $retval .= sprintf "%-16s %s\n", "hdf5:",      $config->{hdf5};
+  $retval .= sprintf "%-16s %s\n", "search:",    $config->{search};
+  $retval .= sprintf "%-16s %s\n", "shared:",    $config->{shared};
+  $retval .= sprintf "%-16s %s\n", "supported:", $config->{supported};
+  $retval .= sprintf "%-16s %s\n", "testdir:",   $testdir;
+  $retval .= sprintf "%-16s %s\n", "batch:",     $config->{batch};
+  $retval .= sprintf "%-16s %s\n", "prefix:",    $config->{prefix} || "#not set";
+  $retval .= sprintf "%-16s %s\n", "make:",      $config->{make}   || "#not set";
+  $retval .= sprintf "%-16s %s\n", "timeout:",   $timeout;
+  return $retval;
+}
+  
+# Explode the list of configrations from the config file such that each entry of the returned array
+# is a single configuration. This also fills in some default fields for each configuration.
+sub explode_config {
+  my($only_ref,@config) = @_;
+  my(@only) = @$only_ref;
+  my(@retval,$config,$compiler,$generator,$product,$hdf5);
+  my $batchid = "aa";
+
+  foreach $config (@config) {
+    next if @only && !grep {$config->{name} eq $_} @only;
+    $config->{testdir} .= "/saf-tier2.$$";
+    $config->{name} ||= $config->{platform};
+    ($config->{user},$config->{host}) = $config->{platform} =~ /(.*)@(.*)/;
+    $config->{host} ||= $config->{platform};
+    $config->{user} ||= scalar(getpwuid $<);
+
+    # Normalize timeout value
+    if (!$config->{timeout} || $config->{timeout} eq 'none') {
+      $config->{timeout} = "";
+    } elsif ($config->{timeout} =~ /^(\d+)([smh])?$/) {
+      my($n,$suf) = ($1,$2);
+      if (!$suf || $suf eq 's') {
+	$config->{timeout} = $n;
+      } elsif ($suf eq 'm') {
+	$config->{timeout} = $n * 60;
+      } else {
+	$config->{timeout} = $n * 3600;
+      }
+    } else {
+      perish $config->{platform}, ": unknown timeout value: ", $config->{timeout};
+    }
+
+    foreach $compiler (split /,\s*/, $config->{compiler}) {
+      foreach $generator (split /,\s*/, $config->{generator}) {
+	foreach $product (split /,\s*/, $config->{product}) {
+	  foreach $hdf5 (split /,\s*/, $config->{hdf5}) {
+	    my(%c) = %$config;
+	    $c{compiler} = $compiler;
+	    $c{generator} = $generator;
+	    $c{product} = $product;
+	    $c{hdf5} = $hdf5;
+	    $c{batchid} = $batchid++ . "a" if $config->{batch} ne 'none';
+	    $c{configid} = scalar @retval;
+	    push @retval, \%c;
+	  }
+	}
+      }
+    }
+  }
+  return @retval;
+}
+	    
+# Read the config file(s). The return value is an array of configuration records. Each configuration
+# record is a hash reference with keys that are the recognized configuration options and values
+# which are the default configuration values as overridden by the configuration file.
+sub load_configuration {
+  my($only_ref,@config_files) = @_;
+  my($config_file);
+  my(@config);
+  local($_);
+
+  foreach $config_file (@config_files) {
+    open CONFIG, $config_file or die "$config_file: cannot open for reading\n";
+    while (<CONFIG>) {
+      s/\s*\#.*//;
+      next unless /\S/;
+      if (/^\s*platform:\s*(.*?)\s*$/i) {
+	# New configuration. Initialize default values.
+	push @config, {platform=>$1, name=>undef, %dflt_config};
+
+      } elsif (/^\s*(\w+):\s*(.*?)\s*$/) {
+	# Override a default value
+	my($key,$value) = (lc($1), $2);
+	perish "$config_file:$.: no platform defined yet\n" unless @config;
+	perish "$config_file:$.: unknown keyword `$key'\n" unless exists $config[-1]{$key};
+	$config[-1]{$key} = $value;
+
+      } else {
+	# Unknown command
+        perish "$config_file:$.: syntax error\n";
+      }
+    }
+    close CONFIG;
+  }
+  return explode_config $only_ref, @config;
+}
+
+# Return a title for a configuration.
+sub title {
+  my($config) = @_;
+  return sprintf ("#%-3d %-12s %-12s %-7s %-5s", 
+		  $config->{configid}, $config->{host}, basename($config->{compiler}),
+		  $config->{generator}, $config->{product});
+}
+
+# Dump status information for all configurations. If $limit is defined then do not show status
+# if the status has been shown in the last $limit seconds.
+my($LastStatusTime);
+sub status {
+  my($limit,$title,@config) = @_;
+  my($config,$retval);
+
+  return if defined($limit) && time-$LastStatusTime<$limit;
+  $retval .= scalar(localtime) . " $title:\n";
+  foreach $config (@config) {
+    $retval .= sprintf "  %-40s: ", title $config;
+    if ($config->{pid} eq 'done') {
+      if ($config->{status}) {
+	$retval .= "failed during " . $config->{status};
+	$retval .= " (UNSUPPORTED)" unless $config->{supported} eq 'yes';
+	$retval .= "\n";
+      } else {
+	$retval .= "passed\n";
+      }
+    } elsif ($config->{pid} =~ /^\d+$/) {
+      $retval .= ($config->{status}||'download') . " [PID=" . $config->{pid} . "]\n";
+    } elsif ($config->{pid}) {
+      $retval .= ($config->{status}||'download') . " [" . $config->{pid} . "]\n";
+    } else {
+      $retval .= ($config->{status} || 'wait to start') . "\n";
+    }
+  }
+  $LastStatusTime = time;
+  return $retval;
+}
+
+# Set the status for a configuration. An empty status means the configuration was successful.  If
+# more than one line is given for $status then only the last one is used (this sometimes happens
+# when the child is spitting out status messages faster than the parent can process them). Return value
+# is the new status.
+sub set_status {
+  my($config, $status, $substatus) = @_;
+  chomp $status;
+  $status = (split /\n/, $status)[-1];
+  
+  if ($status eq "" && $substatus) {
+    $status = $config->{status};
+    $status =~ s/(.*)\s*\(.*\)$/$1/;
+  }
+  $status .= " ($substatus)" if length $substatus;
+
+  my($old_status) = $config->{status};
+  $config->{status} = $status;
+  if ($config->{pid} || !$config->{io_status}) {
+    # Parent
+    say undef, status 0, "change in status", $config unless $status eq $old_status;
+  } else {
+    # Child
+    my($io_status) = $config->{io_status};
+    print $io_status $status, "\n";
+  }
+  return $status;
+}
+
+# converts a local command into something that can be run remotely.
+sub remote {
+  my($verbose) = shift @_ if $_[0] eq '-v';
+  my($config, $cmd) = @_;
+  my($platform) = $config->{platform};
+
+  if ($Local) {
+    $cmd =~ s/\"/\\\"/g;
+    $cmd = "sh -c \"$cmd\"";
+    return $cmd;
+  }
+
+  # Sorry about all the quoting. The goal is to allow the incoming $cmd to contain double qoutes
+  # even though we're passing this through multiple layers of shell interpretation. The backslashes
+  # are just to escape the double quotes for perl.
+  my($ssh) = $config->{ssh} . ($Verbose?" -v":"") . " -e none -x -o 'BatchMode yes'";
+  return "$ssh $verbose $platform 'sh -c '\"'\"'$cmd'\"'\"";
+}
+
+# Given configuration information and a command, prepare to run the command in the batch system
+# indicated by the configuration.  Return a new command to be run in the stead of $cmd (or just
+# returns the original $cmd if no batch system is requested). This should be called *before*
+# &remote if both are to be used.
+sub batch {
+  my($config,$cmd) = @_;
+
+  my($testdir) = $config->{testdir};
+  my($batchid) = $config->{batchid}++;
+
+  if ($config->{batch} eq 'psub') {
+    my($psub) = remote $config, "cd $testdir && cat >saf_$batchid.psub";
+    my($awk) = remote $config, "cd $testdir && cat >saf_$batchid.awk";
+
+    if (open(PSUB, "|$psub") && open (AWK, "|$awk")) {
+      print PSUB "#!/bin/sh\n";
+      print PSUB "# PSUB -b bdivp                # B-div production bank\n";
+      print PSUB "# PSUB -r saf_$batchid         # Name of job\n";
+      print PSUB "# PSUB -s /bin/sh              # Shell script (csh sucks)\n";
+      print PSUB "# PSUB -c pbatch               # Set of hosts (pbatch or pdebug)\n";
+      print PSUB "# PSUB -eo                     # Merge stderr with stdout\n";
+      print PSUB "# PSUB -o saf_$batchid.out     # Standard output file\n";
+      print PSUB "# PSUB -ln 1                   # Number of dedicated nodes or hosts\n";
+      print PSUB "# PSUB -g 3ip                  # Geometry of node usage\n";
+      print PSUB "# PSUB -tM 120                 # Maximum job CPU time\n";
+      print PSUB "set -x                         # Track progress\n";
+      print PSUB "$cmd\n";
+      print PSUB "echo exit \$? >$testdir/saf_$batchid.done\n";
+      print PSUB "rm -f $testdir/saf_$batchid.run\n";
+
+      print AWK "{if (\$1 == \"saf_$batchid\") {print \"STATUS: JOB\", \$2, \$3}}\n";
+
+      close PSUB;
+      close AWK;
+
+      $cmd = "cd $testdir; ";
+      $cmd .= "rm -f saf_$batchid.done; touch saf_$batchid.run; ";
+      $cmd .= "psub saf_$batchid.psub || exit 1; ";
+      $cmd .= "echo STATUS: submitted; "; #just testing for now; remove later
+      $cmd .= "while [ -f saf_$batchid.run ]; do ";
+      $cmd .=   "pstat -H -u \$USER -o name,jid,status |awk -f saf_$batchid.awk; ";
+      $cmd .=   "sleep 120; ";
+      $cmd .= "done; ";
+      $cmd .= "cat saf_$batchid.out; ";
+      $cmd .= "rm -f saf_$batchid.psub saf_$batchid.awk saf_$batchid.out; ";
+      $cmd .= "exec /bin/sh saf_$batchid.done; ";
+    } else {
+      $cmd = "echo ssh failed; exit 1";
+    }
+  }
+  return $cmd;
+}
+
+# Run a command and return the command output if the command exits with zero status, undefined
+# otherwise. If the command output is empty then return string `\n' to make return value true. If
+# the command fails then print the command output.  If $config is specified then the command is
+# being run on behalf of that configuration.  If $config is simply an integer then the command is
+# not being run on behalf of any configuration, but it should timeout after $config seconds.
+sub do_command {
+  my($config,$cmd) = @_;
+  my($output,$timeout);
+  local($_);
+
+  # If $config is an integer instead of a configuration, then use it for the timeout value.
+  if ($config && !ref $config) {
+    $timeout = $config;
+    $config = undef;
+  } elsif ($config && $config->{timeout}) {
+    $timeout = $config->{timeout};
+  }
+
+  # Run the command in the child, sending output to the pipe.
+  my($pipe) = IO::Pipe->new();
+  my($pid) = fork;
+  die "fork: $!" unless defined $pid;
+  unless ($pid) {
+    # child
+    $pipe->writer;
+    my($fd) = fileno($pipe);
+    open STDOUT, ">&$fd";
+    open STDERR, ">&$fd";
+    $| = 1;
+    print STDERR "+ $cmd" if $Verbose;
+    exec $cmd;
+  }
+
+  # Parent.  Make the pipe non-blocking and read until it closes or we time out.
+  $pipe->reader;
+  say $config, "+ $cmd [pid=$pid]\n" if $Verbose;
+  my($flags) = fcntl $pipe, F_GETFL, 0;
+  fcntl $pipe, F_SETFL, ($flags|O_NONBLOCK);
+  my($sel) = IO::Select->new();
+  $sel->add($pipe);
+
+  # How much time is left?
+  my($must_end_by) = time + $timeout if $timeout;
+
+  # Read from the pipe until it closes or we time out.
+  while (1) {
+    my($time_left) = $must_end_by ? $must_end_by-time : 3600;
+    my(@ready) = $sel->can_read($time_left) if $time_left > 0;
+    unless (@ready) {
+      $_ = sprintf "\n*** TIME EXPIRED (%d seconds, at %s) ***\n", $timeout, scalar(localtime);
+      $output .= $_;
+      print STDERR $_ if $Verbose;
+      kill 'INT', $pid;
+      last;
+    }
+    my($nbytes) = sysread $ready[0], $_, 1024;
+    last if $nbytes<=0;
+    $output .= $_;
+    print if $Verbose;
+    set_status $config, undef, $1 if $_ =~ /.*^STATUS: (.*?)\n/s;
+  }
+  close $pipe;
+  waitpid $pid, 0;
+  my($status) = $?;
+  if ($status) {
+    unless ($Verbose) {
+      say $config, "The following command failed with exit status $status\n";
+      say $config, "+ $cmd\n", $output;
+    }
+    return;
+  }
+
+  return $output ? $output : "\n";
+}
+
+# Given the name of a tarball, return the suspected version string.  If we can't figure out the
+# version string then just return the basename of the tarball.
+sub version {
+  my($tarball) = @_;
+  local($_) = $tarball =~ /.*\/(.*)/;
+  $_ ||= $tarball;
+ 
+  # Removing leading and trailing garbage
+  s/\.tar\.gz$//;
+  s/\.tar\.bz2$//;
+  s/\.tar$//;
+  s/^\D+//;
+  return "SAF $_";
+}
+  
+# Look for or generate a saf release tarball. See comment at top of script for algorithm.
+sub find_tarball {
+  my($tarball,$directory,$cvs) = @_;
+  my(@matches,$remove_dir);
+
+  if ($cvs) {
+    die "--tarball, --directory, and --cvs are mutually exclusive.\n" if $directory || $tarball;
+    $directory = $remove_dir = "saf-tier2-$$.co";
+    say undef, "Checking out $cvs from CVS...\n";
+    if (!do_command $Timeout, "cd /tmp && cvs -Q co -P -d $directory $cvs") {
+      do_command $Timeout, "rm -rf /tmp/$remove_dir";
+      perish "cvs co failed\n";
+    }
+    $directory = "/tmp/$directory";
+    $remove_dir = "/tmp/$directory";
+  }
+
+  if ($directory) {
+    perish "--tarball, --directory, and --cvs are mutually exclusive.\n" if $tarball;
+    perish "$directory: no such directory\n" unless -d $directory;
+    say undef, "Generating release tarball from $directory...\n";
+    $tarball = do_command $Timeout, "$directory/tools/mkrelease --notest $directory";
+    if (!$tarball) {
+      do_command $Timeout, "rm -rf $remove_dir" if $remove_dir;
+      perish "mkrelease failed\n";
+    }
+    # The name of the tarball is the last thing spit out by mkrelease
+    chomp $tarball;
+    $tarball = (split /\n/, $tarball)[-1];
+  }
+
+  if (!$tarball) {
+    my(@matches) = sort glob "saf-*.tar.gz";
+    $tarball = $matches[-1] if @matches;
+  }
+  $tarball ||= find_tarball(undef,"saf",undef) if -d 'saf';
+  $tarball ||= find_tarball(undef,undef,"saf");
+
+  perish "$tarball: no such file\n" unless -r $tarball;
+  perish "$tarball: invalid tarball\n" if system "gunzip <$tarball |tar tf - >/dev/null";
+  return $tarball;
+}
+
+# Send the tarball to the remote system.  We only do this if we haven't sent the tarball to that
+# system and temporary directory already (no need to send it multiple times). Returns true on
+# success, false on failure.
+my(%SentTarball);
+sub send_tarball {
+  my($config,$tarball) = @_;
+  my($testdir) = $config->{testdir};
+  my($send_key) = join ":", $config->{platform}, $testdir;
+  
+  unless (exists $SentTarball{$send_key}) {
+    set_status $config, "tarball upload", "$tarball to $send_key";
+    # Create the directory where all this happens.  Try to set the group ownership to `dmf' with
+    # file permissions 02750 (but don't worry if we can't).  This is the first invocation of
+    # ssh for this configuration, so we pass `-v' to help debug ssh problems.
+    unless (do_command $config, remote '-v', $config, "mkdir -p $testdir/installed") {
+      $SentTarball{$send_key} = undef;
+      return;
+    }
+    do_command $config, remote $config, "chgrp -R dmf $testdir";
+    do_command $config, remote $config, "find $testdir -type d |xargs chmod 2750";
+    
+    # Cat the tarball to the remote side and untar it there.
+    unless (do_command $config, "cat $tarball |" . remote($config,"cd $testdir && gunzip |tar xvf -")) {
+      $SentTarball{$send_key} = undef;
+      return;
+    }
+    $SentTarball{$send_key} = 1;
+  }
+
+  return $SentTarball{$send_key};
+}
+
+# Test one configuration. Return true on success, negative on failure. On failure, the
+# $config->{status} will indicate the reason for the failure (otherwise it's empty). Assume that the
+# source code tarball already exists on the remote system.
+sub test_config {
+  my($config,$tarball) = @_;
+  local($_);
+  set_status $config, "initialization";
+
+  # Some common items
+  my($testdir)   = $config->{testdir};
+  my($compiler)  = $config->{compiler};
+  my($generator) = $config->{generator};
+  my($product)   = $config->{product};
+  my($hdf5)      = $config->{hdf5};
+  my($user)      = $config->{user};
+  my($host)      = $config->{host};
+  my($srcdir)    = $config->{srcdir};
+
+  # Figure out mpich version number if specified
+  my($mpich);
+  ($compiler,$mpich) = ("mpich",$1) if $compiler =~ /^mpich-([^\/]*)$/;
+
+  # What build_saf flags are common for configure, compile, and test phases?
+  my($build_saf) = "COMPILER=$compiler CCMODE=$generator PRODUCT=$product HDF5=$hdf5";
+  $build_saf .= " MPICH=$mpich";
+  $build_saf .= " PREFIX=" . $config->{prefix} if $config->{prefix};
+  $build_saf .= " MAKE=\"" . $config->{make} . "\"" if $config->{make};
+  $build_saf .= " CPPFLAGS=\"" . (join " ", map {"-I$_/include"} split /\s+/, $config->{search}) . "\"";
+  $build_saf .= " LDFLAGS=\"" . (join " ", map {"-L$_/lib"} split /\s+/, $config->{search}) . "\"";
+
+
+  $build_saf .= " ./$srcdir/tools/build_saf ./$srcdir/src/configure";
+  $build_saf .= " --".($config->{shared}eq'no'?"dis":"en")."able-shared";
+
+  # Configure
+  set_status $config, "configuration";
+  $_ = batch $config, ("cd $testdir && ".
+		       "env PRUNE=y TARGETS=none INSTALL=no:$testdir/installed $build_saf");
+  do_command $config, remote $config, $_ or goto make_readable;
+
+  # Compile
+  set_status $config, "compilation";
+  $_ = batch $config, "cd $testdir && env SKIP_CONFIG=y TARGETS=all $build_saf";
+  do_command $config, remote $config, $_ or goto make_readable;
+
+  # Confidence tests
+  set_status $config, "confidence tests";
+  $_ = batch $config, "cd $testdir && env SKIP_CONFIG=y TARGETS=check $build_saf";
+  do_command $config, remote $config, $_ or goto make_readable;
+
+  # Install final targets
+  set_status $config, "installation";
+  $_ = batch $config, ("cd $testdir && mkdir -p installed && " .
+		       "env SKIP_CONFIG=y TARGETS=none INSTALL=y $build_saf");
+  do_command $config, remote $config, $_ or goto make_readable;
+
+  # Clean up the build directory so we don't run out of space
+  set_status $config, "clean up";
+  $_ = "cd $testdir && env PRUNE=y SKIP_CONFIG=y TARGETS=none $build_saf";
+  do_command $config, remote $config, $_ or return;
+
+  # Next step is to download, but that won't happen for a while
+  set_status $config;
+  return 1;
+
+  # If an error occurs then at least make the build directory readable for others on the team.  Add
+  # group read permission to all files and add group execute permission to all files that have
+  # execute permission.
+ make_readable:
+  do_command $config, remote $config, "chmod -R g+r $testdir";
+  do_command $config, remote $config, "find $testdir -perm -0100 |xargs chmod g+x";
+  return;
+}
+
+# Launch a configuration asynchronously, adding it's file descriptors and process ID to the
+# configuration record.
+sub launch {
+  my($config,$tarball,$readers) = @_;
+  local($_);
+  die title($config) . ": already launched?\n" if defined $config->{pid};
+
+  # Where does the tar file untar to?
+  $_ = `gunzip < $tarball | tar tf - | head -1`;
+  ($config->{srcdir}) = /^(.*?)\//;
+
+  # Send tarball to remote system before we become asynchronous because some configurations
+  # share tarballs.
+  unless (send_tarball $config, $tarball) {
+    $config->{pid} = 'done';
+    return;
+  }
+
+  # Fork a child to handle the actual testing
+  my($output) = new IO::Pipe;
+  my($status) = new IO::Pipe;
+  my($pid) = fork;
+  my($flags);
+
+  return unless defined $pid; #error
+  unless ($pid) {
+    # Child
+    $output->writer;
+    $status->writer;
+    select((select($output), $|=1)[0]);
+    select((select($status), $|=1)[0]);
+    $config->{io_output} = $output;
+    $config->{io_status} = $status;
+    $MailTo = undef;
+    test_config $config, $tarball;
+    exit 0;
+  }
+
+  # Parent only reads, and should be non-blocking
+  $output->reader;
+  $flags = fcntl $output, F_GETFL, 0;
+  fcntl $output, F_SETFL, ($flags|O_NONBLOCK);
+
+  $status->reader;
+  $flags = fcntl $status, F_GETFL, 0;
+  fcntl $status, F_SETFL, ($flags|O_NONBLOCK);
+
+  # Update configuration
+  $config->{pid} = $pid;
+  $config->{io_output} = $output;
+  $config->{io_status} = $status;
+  set_status $config, "launching";
+
+  # Add files to list of readable files
+  $readers->add($output);
+  $readers->add($status);
+  return 1;
+}
+
+# Perform one pass on the event queue.
+sub event_loop {
+  my($readers,$timeout,@config) = @_;
+  my($ready);
+  local($_);
+
+  return unless $readers->handles;
+  my(@ready) = $readers->can_read($timeout);
+  foreach $ready (@ready) {
+    my($config) = grep {$_->{io_output} == $ready || $_->{io_status} == $ready} @config;
+    die "cannot look up config by file handle" unless $config;
+    my($nbytes) = sysread $ready, $_, 1024;
+    if (0==$nbytes) {
+      $readers->remove($ready);
+      close $ready;
+    }
+    
+    if ($ready == $config->{io_output}) {
+      delete $config->{io_output} unless $nbytes;
+      $config->{output} .= $_;
+    } elsif (0==$nbytes) {
+      delete $config->{io_status} unless $nbytes;
+    } else {
+      set_status $config, $_;
+    }
+    
+    if (!exists $config->{io_output} && !exists $config->{io_status}) {
+      waitpid $config->{pid}, 0;
+      $config->{pid} = "hold";
+      say undef, status 0, "change in status", $config;
+    }
+  }
+  return 1;
+}
+
+####################################################################################################
+# MAIN PROGRAM
+####################################################################################################
+
+# Command-line args
+my($opt_tarball,$opt_directory,$opt_cvs,@opt_only);
+
+# Parse command-line
+ARG:
+while (@ARGV && $ARGV[0]=~/^-/) {
+  $_ = shift;
+ SW: {
+    # Version selection switches
+    /^--tarball=(.*)/ && do {
+      $opt_tarball = $1;
+      last SW;
+    };
+    /^--directory=(.*)/ && do {
+      $opt_directory = $1;
+      last SW;
+    };
+    /^--cvs=(.*)/ && do {
+      $opt_cvs = $1;
+      last SW;
+    };
+    
+    # Debugging switches
+    /^--only=(.*)/ && do {
+      push @opt_only, $1;
+      last SW;
+    };
+    /^--local$/ && do {
+      $Local = 1;
+      last SW;
+    };
+
+    # General switches
+    /^--mail-to=(.*)/ && do {
+      $MailTo = $1;
+      last SW;
+    };
+    /^-v|--verbose$/ && do {
+      $Verbose = 1;
+      last SW;
+    };
+    /^-h|-?|--help$/ && do {
+      usage;
+      perish;
+    };
+    /^--$/ && last ARG;
+    perish "$0: unknown switch: $_\n";
+  }
+}
+perish "$0: --local requires --only\n" if $Local && !@opt_only;
+perish "$0: no config file specified (invoke with `--help' for usage information)\n" unless @ARGV;
+say undef, "History:\n";
+say undef, scalar(localtime), " started\n";
+my(@config) = load_configuration \@opt_only, @ARGV;
+my($tarball) = find_tarball($opt_tarball,$opt_directory,$opt_cvs);
+$Version = version $tarball;
+
+# Launch each configuration in the background and handle events until they're all done.
+{
+  my($config);
+  my($events) = IO::Select->new();
+  foreach $config (@config) {
+    launch $config, $tarball, $events;
+  }
+  do {print status 600, "snapshot", @config} while event_loop $events, 10, @config;
+}
+
+# Suck all install targets back. We only have to do this once for each platform. But if the suck
+# back fails then we want to indicate failure for all affected platforms that hadn't already failed.
+{
+  my($config,%installed);
+  foreach $config (@config) {
+    next if $config->{status};
+    my($key) = "$config->{platform}:$config->{testdir}";
+    if (exists $installed{$key}) {
+      set_status $config, $installed{$key};
+    } else {
+      my($host) = $config->{host};
+      my($testdir) = $config->{testdir};
+      my($mday,$month,$year) = (localtime)[3,4,5];
+      my($date) = sprintf "%04d%02d%02d", 1900+$year, 1+$month, $mday;
+      my($tarball) = "tier2-$date-$host.tar";
+      $tarball .= ".gz" if $Compress;
+      $installed{$key} = set_status $config, "download of final targets", $tarball;
+      my($cmd) = "cd $testdir/installed && tar cf - saf " . ($Compress?"|gzip -9":"");
+      my($okay) = do_command($config,remote($config,$cmd).">$tarball");
+      $installed{$key} = set_status $config if $okay;
+    }
+  }
+}
+
+# Print/mail a summary, and the details for anything that failed.
+{
+  my($config,$nfails,$nerrors);
+
+  # Count failures and errors.
+  foreach $config (@config) {
+    $config->{pid} = 'done';
+    $nfails++ if $config->{status};
+    $nerrors++ if $config->{status} && $config->{supported} eq 'yes';
+  }
+
+  # History
+  my($history) = mail_content "History";
+
+  # Summary
+  say undef, sprintf "%d supported platform%s failed.\n",$nerrors,1==$nerrors?"":"s";
+  say undef, sprintf "%d unsupported platform%s failed.\n",$nfails-$nerrors,(1==$nfails-$nerrors)?"":"s";
+  say undef, "\n\n", status(0, "summary", @config), "\n\n";
+  my($summary) = $MailContent;
+  $MailContent = "";
+
+  # Configuration records
+  say undef, "\n\nConfiguration records:\n";
+  foreach $config (@config) {
+    local($_) = print_config $config;
+    chomp;
+    say undef, "  Config record #", $config->{configid}, "\n";
+    map {say undef, "    $_\n"} split /\n/;
+    say undef, "\n";
+  }
+  my($config_recs) = mail_content "Configurations";
+    
+  say undef, "\n\nDetails for failed configurations:\n" if $nfails;
+  foreach $config (@config) {
+    next unless $config->{status};
+    say undef, "\n\n", "=" x 78, "\n";
+    say undef, sprintf "=== %-70s ===\n", title $config;
+    say undef, "=" x 78, "\n";
+    say undef, "Failed during ", $config->{status}, "\n";
+    say undef, $config->{output};
+  }
+  my($details) = mail_content "Details";
+
+  $MailContent = $summary . $history . $config_recs . $details;
+  perish sprintf "\n*** %d supported platform%s failed ***\n", $nerrors, 1==$nerrors?"":"s" if $nerrors;
+}
+
+perish; #success
+
+# Because the first line of this file looks like a Bourne shell script, we must tell XEmacs
+# explicitly that this is really a perl script.
+#
+# Local Variables:
+# mode:perl
+# End:

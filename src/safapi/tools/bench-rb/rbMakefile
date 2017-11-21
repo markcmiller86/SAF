@@ -1,0 +1,71 @@
+## This simple makefile is for the standalone version of the rb benchmark. Since there is no configuration management
+## in this case, we expect you to have to make some modifications herein.
+
+VPATH=. /home/matzke/saf-sslib-merged/src/safapi/tools/bench-rb
+
+## The name of the compiler. This makefile expects that all compilers:
+##   * Understand the -I switch to specify directories to search for include files
+##   * Understand the -o switch to specify the final name of the executable
+##   * Understand the -D switch to define preprocessor constants
+##   * Generate object files ending with `.o' in the current working directory
+CC=/usr/local/mpich/1.2.5/Linux/serial/64/debug/bin/mpicc
+
+## MPI
+##   Often the $(CC) value will point to an MPI-aware compiler and the header and library directories don't need to be specified
+##   here. Otherwise specify -I, -L, and -l compiler switches in order to locate these entities. Regardless of whether $(CC)
+##   is MPI-aware, you should define HAVE_PARALLEL if you want the benchmark to use MPI or if you're linking against parallel
+##   versions of the other libraries.
+HAVE_PARALLEL=-DHAVE_PARALLEL
+MPI_INC=
+MPI_LIB=
+
+## HDF5
+##   If HDF5 is available then the HAVE_HDF5 preprocessor constant should be defined and HDF5_INC and HDF5_LIB should be
+##   the compiler switches necessary to locate the HDF5 header files and libraries. (Note: currently, HDF5 is required.)
+HAVE_HDF5=-DHAVE_HDF5
+HDF5_INC=-I/usr/local/hdf5/1.7.44/Linux/mpich-1.2.5/64/debug/include
+HDF5_LIB=-L/usr/local/hdf5/1.7.44/Linux/mpich-1.2.5/64/debug/lib -lhdf5
+
+## SSlib (SAF Support Library)
+##   If SSlib is available then the HAVE_SSLIB preprocessor constant should be defined and SSLIB_INC and SSLIB_LIB should be
+##   the compiler switches necessary to locate the SSlib header files and libraries.  The SAF library below depends on these
+##   also.
+HAVE_SSLIB=-DHAVE_SSLIB
+SSLIB_INC=/usr/local/saf/1.9.0-sslib/Linux/mpich-1.2.5/64/debug/include
+SSLIB_LIB=/usr/local/saf/1.9.0-sslib/Linux/mpich-1.2.5/64/debug/lib -lss
+
+## SAF (Sets and Fields)
+##   If SAF is available then the HAVE_SAF preprocessor constant should be defined and SAF_INC and SAF_LIB should be the
+##   compiler switches necessary to locate the SAF header files and libraries.
+HAVE_SAF=-DHAVE_SAF
+SAF_INC=/usr/local/saf/1.9.0-sslib/Linux/mpich-1.2.5/64/debug/include
+SAF_LIB=/usr/local/saf/1.9.0-sslib/Linux/mpich-1.2.5/64/debug/lib -lsafapi
+
+
+###############################################################################################################################
+
+CPPFLAGS=$(HAVE_PARALLEL) $(MPI_INC)   \
+         $(HAVE_HDF5)     $(HDF5_INC)  \
+         $(HAVE_SSLIB)    $(SSLIB_INC) \
+	 $(HAVE_SAF)      $(SAF_INC)
+
+LDFLAGS=$(SAF_LIB) $(SSLIB_LIB) $(HDF5_LIB) $(MPI_LIB) -lz -lm
+
+###############################################################################################################################
+
+rb: rb.o rb-perf.o
+	$(CC) -o rb rb.o rb-perf.o $(LDFLAGS)
+
+.c.o:
+	$(CC) $(CPPFLAGS) -c $<
+
+.PHONY: clean
+clean:
+	rm -f rb rb.o rb-perf.o
+
+rb.tar.gz: rb.c rb-perf.c rb-perf.h rbMakefile
+	@first=$<; \
+	dir=$${first%%rb.c}; \
+	[ -n "$$dir" ] || dir=.; \
+	echo "+ cd $$dir"; \
+	tar cvf - -C $$dir rb.c rb-perf.c rb-perf.h rbMakefile |gzip -9 >$@

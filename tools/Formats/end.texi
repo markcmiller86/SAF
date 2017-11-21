@@ -1,0 +1,46 @@
+
+
+@c Copyright(C) 1999 The Regents of the University of California.
+@c     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+@c     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+@c     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+@c     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+@c     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+@c     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+@c     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+@c     University.
+@c 
+@c Copyright(C) 1999 Sandia Corporation.
+@c     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+@c     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+@c     States Government.
+@c 
+@c Disclaimer:
+@c     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+@c     Government. Neither the United States  Government nor the United States Department of Energy nor 
+@c     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+@c     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+@c     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+@c     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+@c     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+@c     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+@c     recommendation, or favoring by the  United States Government   or the University of  California.  
+@c     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+@c     the  United  States Government or  the   University of California   and shall  not be  used  for
+@c     advertising or product endorsement purposes.
+@c 
+@c Acknowledgements:
+@c     Robb P. Matzke              LLNL - Author of various tools
+@c     Mark C. Miller              LLNL - Alpha/Beta user; minor debugging/enhancements 
+@c     Matthew J. O'Brien          LLNL - Author of various tools
+@c     James F. Reus               LLNL - Alpha/Beta user
+
+
+@c -------------------------- Function Index ---------------------------
+@c @node Function Index
+@c @unnumbered Function Index
+@c @printindex fn
+
+@c ------------------------- Table of Contents -------------------------
+@contents
+@bye

@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+export PATH=/opt/SUNWhpc/bin:/usr/xpg4/bin:/usr/ccs/bin:/net/sasn232/opt/SUNWspro7.0/SUNWspro/bin:$PATH
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+export DEST=/sierra/Release/saf/2.0.0
+test $SRC_DIR && export DEST=${SRC_DIR}
+export SOURCE=${DEST}/saf
+
+
+export SIERRA_PLATFORM=sun7
+export SIERRA_OPT_DBG=opt
+export SIERRA_INSTDIR=dp_${SIERRA_OPT_DBG}_${SIERRA_PLATFORM}
+
+export HDF_VER=1.7.45
+export CONFDIR=cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+export OPTION=install_$SIERRA_PLATFORM
+export HDF_DIR=/sierra/Release/hdf5/${HDF_VER}/${OPTION}/${SIERRA_OPT_DBG}
+
+export INSTDIR=$DEST/$OPTION/$SIERRA_OPT_DBG
+
+mkdir $DEST/include > /dev/null 2>&1
+mkdir $DEST/lib  > /dev/null 2>&1
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}/private  > /dev/null 2>&1
+mkdir $DEST/$OPTION  > /dev/null 2>&1
+mkdir ${INSTDIR}  > /dev/null 2>&1
+mkdir ${INSTDIR}/lib  > /dev/null 2>&1
+mkdir ${INSTDIR}/include  > /dev/null 2>&1
+
+
+export all=1
+if [ $all  ]
+then
+  mkdir $DEST/$CONFDIR  > /dev/null 2>&1
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+fi
+                                                                                            
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+export HOSTFILE=`pwd`/hostfile
+export NPROCS=3
+export RUNSERIAL="mprun -np 1 "
+export RUNPARALLEL="mprun -np ${NPROCS:=3} "
+
+
+
+export CFLAGS="-xtarget=ultra2 -xarch=v9 -xO2 -ftrap=common"
+export LDFLAGS="-i -lz -lnsl -lm -lsocket"
+export CPP="mpcc -E -xO2"
+export AR=/usr/ccs/bin/ar 
+# export MAKE="gmake"
+
+if [ $all ]
+then
+
+# --builddir=$DEST/$CONFDIR/builddir \
+  $SOURCE/tools/build_saf --prune \
+--compiler=mpcc \
+--product=optim \
+--hdf=$HDF_DIR \
+--builddir=$DEST/$CONFDIR/build \
+--targets=none \
+--install=$INSTDIR \
+--prefix=$INSTDIR $SOURCE/src/configure \
+--without-python \
+--with-java=/usr/j2se | tee $OPTION.configure
+
+# --with-python=/usr/local/python-2.2.2  # enable safsh
+ 
+  cd $DEST/$CONFDIR/build
+  gmake | tee $OPTION.make
+  gmake check | tee $OPTION.test
+  gmake install
+  cd $DEST/$CONFDIR
+
+else
+   gmake install
+fi
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/private/*.* ${DEST}/include/${SIERRA_INSTDIR}/private/.
+

@@ -1,0 +1,102 @@
+#!/bin/csh
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+setenv TFLOPS_XDEV /usr/local/x-comp/intel/tflop/current
+set path=($TFLOPS_XDEV/tflops/bin.solaris /usr/xpg4/bin $path)
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+setenv DEST /sierra/Release/hdf5/1.8.0
+if($?SRC_DIR) then
+ setenv DEST ${SRC_DIR}
+endif
+setenv SOURCE ${DEST}/source
+
+
+setenv SIERRA_PLATFORM janus2
+setenv SIERRA_OPT_DBG opt
+setenv SIERRA_INSTDIR dp_${SIERRA_PLATFORM}_opt
+
+                                                                                
+setenv CONFDIR cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+setenv OPTION install_$SIERRA_PLATFORM
+
+mkdir $DEST/include >& /dev/null
+mkdir $DEST/lib  >& /dev/null
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  >& /dev/null
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  >& /dev/null
+
+setenv all 0
+if ($all) then
+  mkdir $DEST/$CONFDIR  >& /dev/null
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+endif
+                                                                                            
+setenv INSTDIR $DEST/$OPTION
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+setenv HOSTFILE `pwd`/hostfile
+setenv RUNSERIAL "yod  -size 1 "
+setenv RUNPARALLEL "yod -size 3 "
+setenv NPROCS 3
+
+setenv CPP "cpp -E "
+setenv TERSE 'no'
+setenv CC "icc -cougar"
+setenv CXX "iCC -cougar"
+setenv CFLAGS -O
+setenv CPPFLAGS "-I${TFLOPS_XDEV}/tflops/cougar/include.fixmpi -UH5_DEBUG_API -DNDEBUG "
+setenv LIBS "-lmpich"
+
+# setenv MAKE "gmake -j2"
+
+if ($all) then
+
+  $SOURCE/configure --host=i386-intel-osf1 --enable-production --disable-debug \--enable-parallel --disable-serial --enable-static --disable-shared  \
+--without-zlib  --enable-funcstack \
+--prefix=$INSTDIR |tee $OPTION.configure
+
+  gmake -j4 |& tee $OPTION.make
+                                                                                            
+#  gmake check |& tee $OPTION.test
+
+  gmake install
+else
+  gmake -j 4 
+  gmake install
+endif
+
+
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+
+ 
+# NOTE: Cross-compile will work except that partway through, a program
+# needs to be run to generate some system-specific information. The
+# program is hdf5-1.6.2/src/H5detect.  Move this up to janus and then do:
+#
+#       yod -size 1 H5detect > H5Tinit.c
+#
+# Move H5Tinit.c back to hdf5-1.6.2/src/H5Tinit.c and then continue
+# with the make.
+#
+# Testing also needs to be done on janus.  Move test/testhdf5 and
+# testpar/testphdf5 up to janus and run them manually using yod.
+
+
+# scp cfg_janus2_opt/src/H5detect janus:/Net/usr/home/eailles/.
+# scp janus:/Net/usr/home/eailles/H5Tinit.c cfg_janus2_opt/src/.
+

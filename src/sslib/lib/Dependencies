@@ -1,0 +1,570 @@
+## This file is machine generated on GNU systems.
+## Only temporary changes may be made here
+
+ssarray.lo: \
+    $(srcdir)/ssarray.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssattr.lo: \
+    $(srcdir)/ssattr.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssattrtab.lo: \
+    ssattrtab.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssblob.lo: \
+    $(srcdir)/ssblob.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssblobtab.lo: \
+    ssblobtab.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+sserr.lo: \
+    $(srcdir)/sserr.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssfile.lo: \
+    $(srcdir)/ssfile.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssfiletab.lo: \
+    ssfiletab.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssgfile.lo: \
+    $(srcdir)/ssgfile.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+sshdf5.lo: \
+    $(srcdir)/sshdf5.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+sslib.lo: \
+    $(srcdir)/sslib.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssmpi.lo: \
+    $(srcdir)/ssmpi.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssobj.lo: \
+    $(srcdir)/ssobj.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+sspers.lo: \
+    $(srcdir)/sspers.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssperstab.lo: \
+    ssperstab.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssprop.lo: \
+    $(srcdir)/ssprop.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssscope.lo: \
+    $(srcdir)/ssscope.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssscopetab.lo: \
+    ssscopetab.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssstring.lo: \
+    $(srcdir)/ssstring.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+sstable.lo: \
+    $(srcdir)/sstable.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+
+ssval.lo: \
+    $(srcdir)/ssval.c \
+    $(srcdir)/sslib.h \
+    $(top_builddir)/include/SAFconfig.h \
+    ssvers.h \
+    $(srcdir)/sshdf5.h \
+    $(srcdir)/sserr.h \
+    $(srcdir)/ssobj.h \
+    $(srcdir)/ssprop.h \
+    $(srcdir)/ssval.h \
+    $(srcdir)/ssstring.h \
+    $(srcdir)/ssarray.h \
+    $(srcdir)/sspers.h \
+    sslinks.h \
+    ssperstab.h \
+    $(srcdir)/sstable.h \
+    $(srcdir)/ssscope.h \
+    ssscopetab.h \
+    $(srcdir)/ssblob.h \
+    ssblobtab.h \
+    $(srcdir)/ssgfile.h \
+    $(srcdir)/ssfile.h \
+    ssfiletab.h \
+    $(srcdir)/ssattr.h \
+    ssattrtab.h \
+    $(srcdir)/ssmpi.h
+

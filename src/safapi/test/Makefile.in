@@ -1,0 +1,519 @@
+## SAFAPI tests Makefile(.in)
+##
+## Copyright(C) 1999-2005 The Regents of the University of California.
+##     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+##     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+##     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+##     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+##     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+##     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+##     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+##     University.
+## 
+## Copyright(C) 1999-2005 Sandia Corporation.  
+##     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+##     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+##     States Government.
+## 
+## Disclaimer:
+##     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+##     Government. Neither the United States  Government nor the United States Department of Energy nor
+##     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any
+##     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the
+##     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process
+##     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference
+##     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark,
+##     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement,
+##     recommendation, or favoring by the  United States Government   or the University of  California.
+##     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+##     the  United  States Government or  the   University of California   and shall  not be  used  for
+##     advertising or product endorsement purposes.
+## 
+## 
+## Active Developers:
+##     Peter K. Espen              SNL
+##     Eric A. Illescas            SNL
+##     Jake S. Jones               SNL
+##     Robb P. Matzke              LLNL
+##     Greg Sjaardema              SNL
+## 
+## Inactive Developers:
+##     William J. Arrighi          LLNL
+##     Ray T. Hitt                 SNL
+##     Mark C. Miller              LLNL
+##     Matthew O'Brien             LLNL
+##     James F. Reus               LLNL
+##     Larry A. Schoof             SNL
+## 
+## Acknowledgements:
+##     Marty L. Barnaby            SNL - Red parallel perf. study/tuning
+##     David M. Butler             LPS - Data model design/implementation Spec.
+##     Albert K. Cheng             NCSA - Parallel HDF5 support
+##     Nancy Collins               IBM - Alpha/Beta user
+##     Linnea M. Cook              LLNL - Management advocate
+##     Michael J. Folk             NCSA - Management advocate 
+##     Richard M. Hedges           LLNL - Blue-Pacific parallel perf. study/tuning 
+##     Wilbur R. Johnson           SNL - Early developer
+##     Quincey Koziol              NCSA - Serial HDF5 Support 
+##     Celeste M. Matarazzo        LLNL - Management advocate
+##     Tyce T. McLarty             LLNL - parallel perf. study/tuning
+##     Tom H. Robey                SNL - Early developer
+##     Reinhard W. Stotzer         SNL - Early developer
+##     Judy Sturtevant             SNL - Red parallel perf. study/tuning 
+##     Robert K. Yates             LLNL - Blue-Pacific parallel perf. study/tuning
+## 
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+@COMMENCE@
+
+DATACLEAN=$(TEST_FILE_PATH)/{file1,quantities,test_saf,test,diff,missing,outfile1,outfile2,test_str_mesh,terrain}.saf \
+	  $(TEST_FILE_PATH)/{step_,file_}*.dsl $(TEST_FILE_PATH)/topology.dsl $(TEST_FILE_PATH)/safdiff*.text \
+	  $(TEST_FILE_PATH)/larry1w_perturb_[0-6].saf \
+	  $(TEST_FILE_PATH)/blank
+CLEAN=testutil.lo testutil.o larry1_mains.lo larry1_mains.o saf_reader_stdout.txt
+
+# The test executables. These may appear in any order since dependencies are given below.
+TESTS=version error1 types1 types2 db1 info1 file1 atexit_setup atexit_confirm atexit_error quant1 gen_std_types_heavy \
+      larry1w traverse larry1r terrain props misc renew putAtt getAtt storagew storager1 storager2 types3 types4 pipe \
+      arbitrary_mesh_w arbitrary_mesh_r boundary_subset_w boundary_subset_r embed_boundary_subset_w embed_boundary_subset_r \
+      mem_res globalOnly old_tests
+TEST_SRC=$(TESTS:=.c)
+TEST_OBJ=$(TESTS:=.lo)
+
+# The test names. One executable might be executed multiple times with different arguments, but generally speaking, each test
+# corresponds to a single test executable.  These may appear in any order since dependencies are given below.
+CHECK_NAMES=version error1a error1b error1c error1d error1e types1 types2 db1 info1 file1a file1b atexit_setup atexit_confirm \
+	atexit_error quant1 gen_std_types_heavy larry1w traverse larry1r larry1w2 larry1r2 terrain props misc renew putAtt getAtt \
+        storagew storager1 storager2 types3 types4 pipe arbitrary_mesh_w arbitrary_mesh_r boundary_subset_w boundary_subset_r \
+        embed_boundary_subset_w embed_boundary_subset_r read_str_mesh safdiff mem_res globalOnly old_tests fake_ensight
+CHECKS=$(CHECK_NAMES:=.check)
+
+# The `do_multifile' is temporarily commented out because SSlib currently has some problems when one or more objects in the main
+# file point into the auxiliary file(s) and those auxiliary files are not explicitly synchronized before the main database file is
+# synchronized.  If you turn it on you'll see what I mean. [rpm 2004-08-25]
+#CHECK_ARGS=do_describes do_writes do_reads do_multifile
+CHECK_ARGS=do_describes do_writes do_reads
+
+# All tests depend on the other SAF libraries. Make sure they're up to date.
+LIB_DEPS=@SSLIB_LIB@ @SAFAPI_LIB@
+
+#New make variables, so you only have to change them once, rather than changing all of the targets
+LIBS=@SAFAPI_LIBS@
+LDFLAGS=@SAFAPI_LDFLAGS@
+LIBSAFAPI_LA=../lib/libsafapi.la
+
+# The tests 
+# NOTE: The bogus dependencies here are just to emulate the serial order of tests from the old Makefiles
+#       since the tests tend to all read/write to a file with the same name.
+version.check: version
+	@$(BANNER) version
+	$(RUNTEST) ./version $(CHECK_ARGS)
+	@touch $@
+
+error1a.check: error1
+	@$(BANNER) error1
+	$(RUNTEST) ./error1 none
+	@touch $@
+
+error1b.check: error1
+	@$(BANNER) error1
+	$(RUNTEST) ./error1 stderr
+	@touch $@
+
+error1c.check: error1
+	@$(BANNER) error1
+	$(RUNTEST) ./error1 file
+	@touch $@
+
+error1d.check: error1
+	@$(BANNER) error1
+	$(RUNTEST) ./error1 procfile
+	@touch $@
+
+error1e.check: error1
+	@$(BANNER) error1
+	$(RUNTEST) ./error1 segfile
+	@touch $@
+
+types1.check: testutil.lo types1
+	@$(BANNER) types1
+	$(RUNTEST) ./types1 $(CHECK_ARGS)
+	@touch $@
+
+types2.check: testutil.lo types2 types1.check
+	@$(BANNER) types2
+	$(RUNTEST) ./types2 $(CHECK_ARGS)
+	@touch $@
+
+db1.check: db1 types2.check
+	@$(BANNER) db1
+	$(RUNTEST) ./db1 $(CHECK_ARGS)
+	@touch $@
+
+info1.check: info1 db1.check
+	@$(BANNER) info1
+	$(RUNTEST) ./info1 $(CHECK_ARGS)
+	@touch $@
+
+file1a.check: file1 db1.check
+	@$(BANNER) file1 default
+	$(RUNTEST) ./file1 default
+	@touch $@
+
+file1b.check: file1 file1a.check
+	@$(BANNER) file1 limited
+	$(RUNTEST) ./file1 limited
+	@touch $@
+
+atexit_setup.check: atexit_setup file1b.check
+	@$(BANNER) atexit_setup
+	$(RUNTEST) ./atexit_setup $(CHECK_ARGS)
+	@touch $@
+
+atexit_confirm.check: atexit_confirm atexit_setup.check
+	@$(BANNER) atexit_confirm
+	$(RUNTEST) ./atexit_confirm $(CHECK_ARGS)
+	@touch $@
+
+atexit_error.check: atexit_error atexit_confirm.check
+	@$(BANNER) atexit_error ...in parallel this is expected to fail!
+	-$(RUNTEST) ./atexit_error $(CHECK_ARGS)
+	@touch $@
+
+### The old action for the atexit_error.check target.
+#	@$(BANNER) atexit_error  [skipped]
+#	@echo "*** This test is skipped because it is not legal (according to MPI standard)"
+#	@echo "*** in general to make MPI calls after MPI_Finalize(), which is what this"
+#	@echo "*** test does. It hangs on some platforms (e.g., frost.llnl.gov)."
+#	@touch $@
+
+quant1.check: quant1 atexit_error.check
+	@$(BANNER) quant1
+	$(RUNTEST) ./quant1 $(CHECK_ARGS)
+	@touch $@
+
+gen_std_types_heavy.check: gen_std_types_heavy quant1.check
+	@$(BANNER) gen_std_types_heavy 
+	$(RUNTEST) ./gen_std_types_heavy $(CHECK_ARGS)
+	@touch $@
+
+larry1w.check: testutil.lo larry1_mains.lo larry1w gen_std_types_heavy.check
+	@$(BANNER) larry1w
+	$(RUNTEST) ./larry1w $(CHECK_ARGS)
+	@touch $@
+
+traverse.check: traverse testutil.lo larry1w.check
+	@$(BANNER) traverse
+	$(RUNTEST) ./traverse $(CHECK_ARGS)
+	@touch $@
+
+larry1r.check: larry1r larry1_mains.lo testutil.lo traverse.check
+	@$(BANNER) larry1r
+	$(RUNTEST) ./larry1r $(CHECK_ARGS)
+	@touch $@
+
+# creates same database as larry1w except uses MemoryResident mode and saves on close 
+# these tests only make sense in serial.
+#
+# This test is temporarily commented out because SSlib doesn't actually have a real HDF5 file sitting under a memory resident
+# database and is therefore not yet able to store raw data like fields and relations. This causes the larry1w2.check to fail
+# miserably. [rpm 2004-08-18]
+larry1w2.check: testutil.lo larry1_mains.lo larry1w larry1r.check 
+	@$(BANNER) larry1w2
+	@echo "TEST SKIPPED DUE TO SSLIB TRANSIENT FILE LIMITATIONS"
+	: $(RUNSERIAL) ./larry1w do_writes do_multifile -mem_res 10 1 
+	@touch $@
+
+# confirms larry1w2 gives same result as larry1w these tests only make sense in serial
+#
+# This is commented out for the same reason as larry1w2.check above [rpm 2004-08-18]
+larry1r2.check: testutil.lo larry1_mains.lo larry1r larry1w2.check 
+	@$(BANNER) larry1r2
+	@echo "TEST SKIPPED DUE TO SSLIB TRANSIENT FILE LIMITATIONS"
+	: $(RUNSERIAL) ./larry1r $(CHECK_ARGS)
+	@touch $@
+
+# This runs larry1w and larry1r back to back.  It is commented out because memory resident datasets are not capable of
+# storing raw data at this time.
+mem_res.check: mem_res larry1w2.check larry1r2.check
+	@$(BANNER) mem_res 
+	@echo "TEST SKIPPED DUE TO SSLIB TRANSIENT FILE LIMITATIONS"
+	: $(RUNSERIAL) ./mem_res do_writes do_reads do_multifile -mem_res 10 0
+	@touch $@
+
+terrain.check: mem_res.check
+	@cp -f ${top_srcdir}/safapi/test/47N4E.raw .
+	@$(BANNER) terrain
+	$(RUNSERIAL) ./terrain $(CHECK_ARGS)
+	@touch $@
+
+props.check: props terrain.check
+	@$(BANNER) props
+	$(RUNTEST) ./props $(CHECK_ARGS)
+	@touch $@
+
+misc.check: misc props.check
+	@$(BANNER) misc
+	$(RUNTEST) ./misc $(CHECK_ARGS)
+	@touch $@
+
+renew.check: renew misc.check
+	@$(BANNER) renew
+	$(RUNTEST) ./renew $(CHECK_ARGS)
+	@touch $@
+
+putAtt.check: putAtt renew.check
+	@$(BANNER) putAtt
+	$(RUNTEST) ./putAtt $(CHECK_ARGS)
+	@touch $@
+
+getAtt.check: getAtt putAtt.check
+	@$(BANNER) getAtt
+	$(RUNTEST) ./getAtt $(CHECK_ARGS)
+	@touch $@
+
+storagew.check: testutil.lo storagew getAtt.check
+	@$(BANNER) storagew
+	$(RUNTEST) ./storagew $(CHECK_ARGS)
+	@touch $@
+
+storager1.check: testutil.lo storager1 storagew.check
+	@$(BANNER) storager1
+	$(RUNTEST) ./storager1 $(CHECK_ARGS)
+	@touch $@
+
+storager2.check: testutil.lo storager2 storager1.check
+	@$(BANNER) storager2
+	$(RUNTEST) ./storager2 $(CHECK_ARGS)
+	@touch $@
+
+types3.check: testutil.lo types3 storager2.check
+	@$(BANNER) types3
+	$(RUNTEST) ./types3 $(CHECK_ARGS)
+	@touch $@
+
+types4.check: testutil.lo types4 types3.check
+	@$(BANNER) types4
+	$(RUNTEST) ./types4 $(CHECK_ARGS)
+	@touch $@
+
+pipe.check: testutil.lo pipe types4.check
+	@$(BANNER) pipe
+	$(RUNTEST) ./pipe $(CHECK_ARGS)
+	@touch $@
+
+arbitrary_mesh_w.check: testutil.lo arbitrary_mesh_w pipe.check
+	@$(BANNER) arbitrary_mesh_w
+	$(RUNTEST) ./arbitrary_mesh_w $(CHECK_ARGS)
+	@touch $@
+
+arbitrary_mesh_r.check: testutil.lo arbitrary_mesh_r arbitrary_mesh_w.check
+	@$(BANNER) arbitrary_mesh_r
+	$(RUNTEST) ./arbitrary_mesh_r $(CHECK_ARGS)
+	@touch $@
+
+boundary_subset_w.check: testutil.lo boundary_subset_w arbitrary_mesh_r.check
+	@$(BANNER) boundary_subset_w
+	$(RUNTEST) ./boundary_subset_w $(CHECK_ARGS)
+	@touch $@
+
+boundary_subset_r.check: testutil.lo boundary_subset_r boundary_subset_w.check
+	@$(BANNER) boundary_subset_r
+	$(RUNTEST) ./boundary_subset_r $(CHECK_ARGS)
+	@touch $@
+
+embed_boundary_subset_w.check: testutil.lo embed_boundary_subset_w boundary_subset_r.check
+	@$(BANNER) embed_boundary_subset_w
+	$(RUNTEST) ./embed_boundary_subset_w $(CHECK_ARGS)
+	@touch $@
+
+embed_boundary_subset_r.check: testutil.lo embed_boundary_subset_r embed_boundary_subset_w.check
+	@$(BANNER) embed_boundary_subset_r
+	$(RUNTEST) ./embed_boundary_subset_r $(CHECK_ARGS)
+	@touch $@
+
+tools.ensight_reader.create_str_mesh:
+	(cd ../tools/ensight_reader; $(MAKE) create_str_mesh)
+
+tools.ensight_reader.read_str_mesh:
+	(cd ../tools/ensight_reader; $(MAKE) read_str_mesh)
+
+#note: 020703 - $${NPROCS:=3} should not be here, should come from configure.in instead
+#note: The action and target dependencies have been temporarily commented out pending conversion of the tools sources
+#      for SSlib Phase-I. [rpm 2004-08-28]
+# read_str_mesh.check: embed_boundary_subset_r.check tools.ensight_reader.create_str_mesh tools.ensight_reader.read_str_mesh
+read_str_mesh.check: embed_boundary_subset_r.check
+	@$(BANNER) create_str_mesh and read_str_mesh
+	@echo "THIS TEST IS TEMPORARILY COMMENTED OUT, AWAITING SSLIB PHASE-I CONVERSION OF TOOLS!"
+	: $(RUNTEST) ../tools/ensight_reader/create_str_mesh -sh
+	: $(RUNSERIAL) ../tools/ensight_reader/read_str_mesh -sh -q -t $${NPROCS:=3}
+	@touch $@
+
+safdiff.check: read_str_mesh.check larry1w.check
+	@$(BANNER) safdiff
+	@echo "THIS TEST IS TEMPORARILY COMMENTED OUT, AWAITING SSLIB PHASE-I CONVERSION OF TOOLS!"
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 0 -file larry1w_perturb_0.saf
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 1 -file larry1w_perturb_1.saf
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 2 -file larry1w_perturb_2.saf
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 3 -file larry1w_perturb_3.saf
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 4 -file larry1w_perturb_4.saf
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 5 -file larry1w_perturb_5.saf
+	: $(RUNSERIAL) ./larry1w -quiet do_writes -perturb 6 -file larry1w_perturb_6.saf
+	: touch blank
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 larry1w_perturb_0.saf larry1w_perturb_0.saf
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 -expectFileDifferences larry1w_perturb_0.saf larry1w_perturb_1.saf
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 -expectFileDifferences larry1w_perturb_0.saf larry1w_perturb_2.saf
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 -expectFileDifferences larry1w_perturb_0.saf larry1w_perturb_3.saf
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 -expectFileDifferences larry1w_perturb_4.saf larry1w_perturb_0.saf
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 -expectFileDifferences larry1w_perturb_5.saf larry1w_perturb_0.saf
+	: @echo
+	: $(RUNSERIAL) ../tools/safdiff/safdiff -f blank -v 0 -expectFileDifferences larry1w_perturb_6.saf larry1w_perturb_0.saf
+	: @echo
+	@touch $@
+
+globalOnly.check: testutil.lo globalOnly safdiff.check
+	@$(BANNER) globalOnly
+	$(RUNTEST) ./globalOnly $(CHECK_ARGS)
+	@touch $@
+
+old_tests.check: testutil.lo old_tests globalOnly.check
+	@$(BANNER) old_tests
+	$(RUNTEST) ./old_tests $(CHECK_ARGS)
+	@touch $@
+
+fake_ensight.check: old_tests.check
+	@$(BANNER) fake_ensight
+	@echo "THIS TEST IS TEMPORARILY COMMENTED OUT, AWAITING SSLIB PHASE-I CONVERSION OF TOOLS!"
+	: @touch fake_ensight.1.txt
+	: @touch fake_ensight.2.txt
+	: $(RUNSERIAL) ../tools/ensight_reader/fake_ensight -sh larry1w_perturb_0.saf > fake_ensight.1.txt
+#removed 21jan04 $(RUNSERIAL) ../tools/ensight_reader/fake_ensight -sh test_str_mesh.saf > fake_ensight.2.txt
+	: @touch $@
+
+
+
+
+# How to compile object modules used in various tests
+testutil.o:	testutil.lo
+	@$(LT_COMPILE) $(CFLAGS) testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+larry1_mains.o:	larry1_mains.lo
+	@$(LT_COMPILE) $(CFLAGS) larry1_mains.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+# How to link each test case
+version: version.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ version.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+error1: error1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ error1.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+types1: testutil.lo types1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ types1.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+types2: testutil.lo types2.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ types2.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+db1: db1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ db1.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+info1: info1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ info1.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+file1: file1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ file1.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+atexit_error: atexit_error.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ atexit_error.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+atexit_setup: atexit_setup.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ atexit_setup.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+atexit_confirm: atexit_confirm.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ atexit_confirm.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+larry1w: testutil.lo larry1_mains.lo larry1w.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ larry1w.lo larry1_mains.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+traverse: traverse.lo testutil.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ testutil.lo traverse.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+larry1r: larry1r.lo larry1_mains.lo testutil.lo 
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ testutil.lo larry1_mains.lo larry1r.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+terrain: terrain.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ terrain.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+mem_res: mem_res.lo larry1_mains.lo testutil.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ testutil.lo larry1_mains.lo mem_res.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+props: props.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ props.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+misc: misc.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ misc.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+renew: renew.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ renew.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+putAtt: putAtt.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ putAtt.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+getAtt: getAtt.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ getAtt.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+quant1: quant1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ quant1.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+gen_std_types_heavy: gen_std_types_heavy.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ gen_std_types_heavy.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+storagew: testutil.lo storagew.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ storagew.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+storager1: testutil.lo storager1.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ storager1.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+storager2: testutil.lo storager2.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ storager2.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+types3: testutil.lo types3.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ types3.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+types4: testutil.lo types4.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ types4.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+pipe: testutil.lo pipe.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ pipe.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+arbitrary_mesh_w: testutil.lo arbitrary_mesh_w.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ arbitrary_mesh_w.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+arbitrary_mesh_r: testutil.lo arbitrary_mesh_r.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ arbitrary_mesh_r.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+boundary_subset_w: testutil.lo boundary_subset_w.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ boundary_subset_w.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+boundary_subset_r: testutil.lo boundary_subset_r.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ boundary_subset_r.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+embed_boundary_subset_w: testutil.lo embed_boundary_subset_w.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ embed_boundary_subset_w.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+embed_boundary_subset_r: testutil.lo embed_boundary_subset_r.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ embed_boundary_subset_r.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+globalOnly: testutil.lo globalOnly.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ globalOnly.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+old_tests: testutil.lo old_tests.lo
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ old_tests.lo testutil.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS)
+
+@CONCLUDE@

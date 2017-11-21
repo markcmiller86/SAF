@@ -1,0 +1,168 @@
+## SAFAPI ensight_reader Makefile(.in)
+##
+## Copyright(C) 1999-2005 The Regents of the University of California.
+##     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+##     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+##     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+##     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+##     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+##     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+##     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+##     University.
+## 
+## Copyright(C) 1999-2005 Sandia Corporation.  
+##     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+##     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+##     States Government.
+## 
+## Disclaimer:
+##     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+##     Government. Neither the United States  Government nor the United States Department of Energy nor
+##     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any
+##     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the
+##     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process
+##     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference
+##     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark,
+##     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement,
+##     recommendation, or favoring by the  United States Government   or the University of  California.
+##     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+##     the  United  States Government or  the   University of California   and shall  not be  used  for
+##     advertising or product endorsement purposes.
+## 
+## 
+## Active Developers:
+##     Peter K. Espen              SNL
+##     Eric A. Illescas            SNL
+##     Jake S. Jones               SNL
+##     Robb P. Matzke              LLNL
+##     Greg Sjaardema              SNL
+## 
+## Inactive Developers:
+##     William J. Arrighi          LLNL
+##     Ray T. Hitt                 SNL
+##     Mark C. Miller              LLNL
+##     Matthew O'Brien             LLNL
+##     James F. Reus               LLNL
+##     Larry A. Schoof             SNL
+## 
+## Acknowledgements:
+##     Marty L. Barnaby            SNL - Red parallel perf. study/tuning
+##     David M. Butler             LPS - Data model design/implementation Spec.
+##     Albert K. Cheng             NCSA - Parallel HDF5 support
+##     Nancy Collins               IBM - Alpha/Beta user
+##     Linnea M. Cook              LLNL - Management advocate
+##     Michael J. Folk             NCSA - Management advocate 
+##     Richard M. Hedges           LLNL - Blue-Pacific parallel perf. study/tuning 
+##     Wilbur R. Johnson           SNL - Early developer
+##     Quincey Koziol              NCSA - Serial HDF5 Support 
+##     Celeste M. Matarazzo        LLNL - Management advocate
+##     Tyce T. McLarty             LLNL - parallel perf. study/tuning
+##     Tom H. Robey                SNL - Early developer
+##     Reinhard W. Stotzer         SNL - Early developer
+##     Judy Sturtevant             SNL - Red parallel perf. study/tuning 
+##     Robert K. Yates             LLNL - Blue-Pacific parallel perf. study/tuning
+## 
+top_srcdir=@top_srcdir@
+top_builddir=../../..
+srcdir=@srcdir@
+
+@COMMENCE@
+
+SUBDIRS=
+TOOLS=create_str_mesh read_str_mesh fake_ensight
+TOOL_SRC=$(TOOLS:=.c)
+TOOL_OBJ=$(TOOL_SRC:.c=.lo)
+
+# All tools depend on the other SAF libraries. Make sure they're up to date.
+LIB_DEPS=@SAFAPI_LIB@ @SSLIB_LIB@
+
+#New make variables, so you only have to change them once, rather than changing all of the targets
+LIBS=@SAFAPI_LIBS@
+LDFLAGS=@SAFAPI_LDFLAGS@
+LIBSAFAPI_LA=../../lib/libsafapi.la
+
+# LIB=libuserd-saf.la -- do not set: see platform specific link commands below
+LIB_SRC=libuserd_saf.c str_mesh_reader.c unstr_mesh_reader.c variable_names.c subset_transforms.c
+
+# How to link each tool
+create_str_mesh: create_str_mesh.lo $(LIB_OBJ)
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ $(LIB_OBJ) create_str_mesh.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS) 
+
+read_str_mesh: read_str_mesh.lo $(LIB_OBJ)
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ $(LIB_OBJ) read_str_mesh.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS) 
+
+fake_ensight: fake_ensight.lo $(LIB_OBJ) 
+	@$(LT_LINK_EXE) $(CFLAGS) -o $@ $(LIB_OBJ) fake_ensight.lo $(LIBSAFAPI_LA) $(LDFLAGS) $(LIBS) 
+
+
+
+
+## What source files get documented
+DOC_SRC=str_mesh_reader.c unstr_mesh_reader.c create_str_mesh.c read_str_mesh.c variable_names.c fake_ensight.c subset_transforms.c
+
+## HTML version of documentation
+html_here: ../../docs/ensight_reader.html/ensight_reader.html.toc
+../../docs/ensight_reader.html/ensight_reader.html.toc: $(DOC_SRC) ../../docs/refman.html/refman.html.toc
+	rm -rf ../../docs/ensight_reader.html
+	mkdir -p ../../docs/ensight_reader.html
+	$(mkdoc) -c $(top_srcdir)/safapi/tools/ensight_reader/META $(mkdoc_flags) -u  \
+	-o ../../docs/ensight_reader.html/ -f html -m -1  \
+	-p $(top_srcdir)/safapi/tools/ensight_reader -x ../../docs/refman.html/refman.html.toc $(DOC_SRC)
+	mv ../../docs/ensight_reader.html/index.toc $@
+
+## MIF version of documentation
+mif_here: ../../docs/ensight_reader.mif.toc
+../../docs/ensight_reader.mif.toc: $(DOC_SRC) ../../docs/refman.mif.toc
+	mkdir -p ../../docs
+	$(mkdoc) -c $(top_srcdir)/safapi/tools/ensight_reader/META $(mkdoc_flags) -u  \
+	-o ../../docs/ensight_reader -f mif -m -1  \
+	-p $(top_srcdir)/safapi/tools/ensight_reader -x ../../docs/refman.mif.toc $(DOC_SRC)
+	mv ../../docs/ensight_reader.toc $@
+
+## Texinfo version of documentation
+texi_here: ../../docs/ensight_reader.texi.toc
+../../docs/ensight_reader.texi.toc: $(DOC_SRC) ../../docs/refman.texi.toc
+	mkdir -p ../../docs
+	$(mkdoc) -c $(top_srcdir)/safapi/tools/ensight_reader/META $(mkdoc_flags) -u  \
+	-o ../../docs/ensight_reader -f texi -m -1  \
+	-p $(top_srcdir)/safapi/tools/ensight_reader -x ../../docs/refman.texi.toc $(DOC_SRC)
+	mv ../../docs/ensight_reader.toc $@
+
+## Plain text version of documentation
+text_here: ../../docs/ensight_reader.text.toc
+../../docs/ensight_reader.text.toc: $(DOC_SRC) ../../docs/refman.text.toc
+	mkdir -p ../../docs
+	$(mkdoc) -c $(top_srcdir)/safapi/tools/ensight_reader/META $(mkdoc_flags) -u  \
+	-o ../../docs/ensight_reader -f text -m -1  \
+	-p $(top_srcdir)/safapi/tools/ensight_reader -x ../../docs/refman.text.toc $(DOC_SRC)
+	mv ../../docs/ensight_reader.toc $@
+
+## GNU Info version of documentation
+info_here: ../../docs/ensight_reader.info/refman.info
+../../docs/ensight_reader.info/refman.info: $(DOC_SRC) ../../docs/ensight_reader.texi
+	rm -rf ../../docs/ensight_reader.info
+	mkdir -p ../../docs/ensight_reader.info
+	-(cd ../../docs/ensight_reader.info && makeinfo ../ensight_reader.texi) || rmdir ../../docs/ensight_reader.info
+
+
+
+
+# This is almost certainly NOT the way to build a shared library portably! Unfortunately Ensight's shared libraries need
+# some extra linking switches that libtool refuses to pass down to ld, probably for very good reasons.    --rpm 2003-05-13
+# In order to get this to compile for the `all' target we add it to the $(TESTS) macro.
+#jake removing this temporarily 11/10/04 TESTS=libuserd-saf.so
+TESTS=
+libuserd-saf.so: $(LIB_OBJ)
+	@ENSIGHT_LIBS=`echo $(LIBSAFAPI_LA) $(LDFLAGS) |sed -e 's%/lib/%/lib/.libs/%g' -e 's%\.la%.so%g'`; \
+	if test "`uname`" = "Linux"; then \
+	    cmd="ld -shared -Bsymbolic -defsym __fixunsdfdi=0 -defsym __fixunssfdi=0 -o $@ $(LIB_OBJ) $$ENSIGHT_LIBS $(LIBS) -lc"; \
+	elif test "`uname`" = "IRIX64"; then \
+	    cmd="ld -shared -all -no_unresolved -o $@ $(LIB_OBJ) $$ENSIGHT_LIBS $(LIBS) -lc"; \
+	else \
+	    cmd=": Cannot build $@ on this platform."; \
+	fi; \
+	echo "+ $$cmd"; \
+	eval $$cmd || true
+
+
+@CONCLUDE@

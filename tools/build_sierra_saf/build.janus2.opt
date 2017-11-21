@@ -1,0 +1,83 @@
+#!/bin/bash
+
+#
+# This script is intended to work with or without build_tpl
+#
+export TFLOPS_XDEV=/usr/local/x-comp/intel/tflop/current
+export PATH=$TFLOPS_XDEV/tflops/bin.solaris:/usr/xpg4/bin:$PATH
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+export DEST=/sierra/Release/saf/2.0.0
+test $SRC_DIR && export DEST=${SRC_DIR}
+export SOURCE=${DEST}/source
+
+export SIERRA_PLATFORM=janus2
+export SIERRA_OPT_DBG=opt
+export SIERRA_INSTDIR=dp_${SIERRA_PLATFORM}_opt
+
+export HDF_VER=1.7.45
+export CONFDIR=cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+export OPTION=install_$SIERRA_PLATFORM
+export HDF_DIR=/sierra/Release/hdf5/${HDF_VER}/hdf5-tflops
+export INSTDIR=$DEST/$OPTION/$SIERRA_OPT_DBG
+
+mkdir $DEST/include > /dev/null 2>&1
+mkdir $DEST/lib  > /dev/null 2>&1
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}/private  > /dev/null 2>&1
+mkdir $DEST/$OPTION  > /dev/null 2>&1
+mkdir ${INSTDIR}  > /dev/null 2>&1
+mkdir ${INSTDIR}/lib  > /dev/null 2>&1
+mkdir ${INSTDIR}/include  > /dev/null 2>&1
+
+export all=1
+if [ $all  ]
+then
+   mkdir $DEST/$CONFDIR  > /dev/null 2>&1
+   cd $DEST/$CONFDIR
+   rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+fi
+
+export LIBS=" -lz -lmpich -lnoop_stubs"
+export CC="icc -cougar -DJANUS "
+export CPP="icc -cougar -E "
+
+# libz/1.1.3 is temporary; try removing it. Fix might be in place.
+export CPPFLAGS="-O -I${TFLOPS_XDEV}/tflops/cougar/include.fixmpi -I${HDF_DIR}/include -I/sierra/Release/libz/1.1.3  -DNDEBUG"
+#export CPPFLAGS="-O -I${TFLOPS_XDEV}/tflops/cougar/include.fixmpi -I${HDF_DIR}/include -DNDEBUG"
+# export LDFLAGS=" -L${TFLOPS_XDEV}/tflops/cougar/lib/puma -L${HDF_DIR}/lib/${SIERRA_INSTDIR} -L/sierra/Release/libz/1.1.3/lib/dp_janus2_opt -L${TFLOPS_XDEV}/tflops/lib/RW"
+export LDFLAGS=" -L${TFLOPS_XDEV}/tflops/cougar/lib/puma -L${HDF_DIR}/lib -L/sierra/Release/libz/1.1.3/lib/dp_janus2_opt"
+
+export RUNSERIAL="yod -size 1"
+export RUNPARALLEL="yod -size 3"
+
+if [ $all  ]
+then
+  $SOURCE/src/configure \
+    --host=i386-intel-osf1 \
+    --enable-parallel --disable-serial \
+    --enable-static --disable-shared --without-zlib \
+    --disable-debug --disable-funcstack --enable-production \
+    --prefix=$INSTDIR \
+    --without-python \
+    --without-java | tee $OPTION.configure
+    
+  cp ${SOURCE}/tools/SAFconfig-JANUS.h ${SOURCE}/src/safapi/lib
+  cp ${SOURCE}/tools/SAFconfig-JANUS.h ${SOURCE}/src/safapi/lib/SAFconfig.h
+
+  gmake | tee $OPTION.make
+  # gmake check | tee $OPTION.test
+  gmake install
+
+else
+   gmake install
+fi
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/private/*.* ${DEST}/include/${SIERRA_INSTDIR}/private/.
+

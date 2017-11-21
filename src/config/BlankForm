@@ -1,0 +1,177 @@
+#							-*- shell-script -*-
+
+# AN EXAMPLE FOR CREATING CONFIG FILES.
+
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Authors:
+# 	William J. Arrighi	LLNL
+# 	Peter K. Espen		SNL
+# 	Ray T. Hitt 		SNL
+# 	Robb P. Matzke 		LLNL
+# 	Mark C. Miller 		LLNL
+# 	James F. Reus 		LLNL
+# 	Larry A. Schoof 	SNL
+# 
+# Acknowledgements:
+# 	Marty L. Barnaby	SNL - Red parallel perf. study/tuning
+# 	David M. Butler		LPS - Data model design/implementation Spec.
+# 	Albert K. Cheng		NCSA - Parallel HDF5 support
+# 	Nancy Collins		IBM - Alpha/Beta user
+# 	Linnea M. Cook		LLNL - Management advocate
+# 	Michael J. Folk		NCSA - Management advocate 
+# 	Richard M. Hedges	LLNL - Blue-Pacific parallel perf. study/tuning 
+# 	Quincey A. Koziol	NCSA - Serial HDF5 Support 
+# 	Celeste M. Matarazzo	LLNL - Management advocate
+# 	Tom H. Robey 		SNL - Early developer
+# 	Greg D. Sjaardema	SNL - Alpha/Beta user
+# 	Reinhard W. Stotzer	SNL - Early developer
+# 	Judy Sturtevant		SNL - Red parallel perf. study/tuning 
+# 	Robert K. Yates		LLNL - Blue-Pacific parallel perf. study/tuning
+# 
+
+#
+# This file is part of the SAF build script.  It is processed shortly
+# after configure starts and defines, among other things, flags for
+# the various compile modes.
+
+
+# Choosing a C Compiler
+# ---------------------
+#
+# The user should be able to specify the compiler by setting the CC
+# environment variable to the name of the compiler and any switches it 
+# requires for proper operation.  If CC is unset then this script may
+# set it.  If CC is unset by time this script completes then configure 
+# will try `gcc' and `cc' in that order (perhaps some others too).
+#
+# Note: Code later in this file may depend on the value of $CC_BASENAME
+#       in order to distinguish between different compilers when
+#       deciding which compiler command-line switches to use.  This
+#       variable is set based on the incoming value of $CC and is only
+#       used within this file.
+
+if test "X-" =  "X-$CC"; then
+    CC="/some/default/compiler/named/foo -ansi"
+    CC_BASENAME=foo
+fi
+
+
+# C Compiler and Preprocessor Flags
+# ---------------------------------
+#
+# Flags that end with `_CFLAGS' are always passed to the compiler.
+# Flags that end with `_CPPFLAGS' are passed to the compiler when
+# compiling but not when linking.
+#
+# DEBUG_CFLAGS		Flags to pass to the compiler to create a
+# DEBUG_CPPFLAGS	library suitable for use with debugging
+#			tools. Usually this list will exclude
+#			optimization switches (like `-O') and include
+#			switches that turn on symbolic debugging
+#			support (like `-g').
+#
+# PROD_CFLAGS		Flags to pass to the compiler to create a
+# PROD_CPPFLAGS		production version of the library.  These
+#			usualy exclude symbolic debugging switches
+#			(like `-g') and include optimization switches
+#			(like `-O').
+#
+# PROFILE_CFLAGS	Flags to pass to the compiler to create a
+# PROFILE_CPPFLAGS	library suitable for performance testing (like 
+# 			`-pg').  This may or may not include debugging 
+# 			or production flags.
+#			
+# CFLAGS		Flags can be added to this variable which
+#			might already be partially initialized.  These 
+#			flags will always be passed to the compiler
+#			and should include switches to turn on full
+#			warnings.
+#
+#			Warning flags do not have to be added to CFLAGS
+#			variable if the compiler is the GNU gcc
+#			compiler or a descendent of gcc such as EGCS or PGCC
+#			because configure will add them for us.
+#
+#			The CFLAGS should contains *something* or else 
+#			configure will probably add `-g'.  For most
+#			systems this isn't a problem but some systems
+#			will disable optimizations in favor of the
+#			`-g'.
+#
+
+# Compilers which are portable should be detected in their own shell scripts
+# so we can call those scripts from different config files. For
+# instance, GNU gcc is detected by calling `gnu-flags'.  The compiler
+# scripts will set `$cc_flags_set' to the word `yes' if the compiler
+# was detected and the variables listed above have been initialized.
+# Please call the script with its full path name since we may be
+# configuring in a directory other than the source.
+
+. $srcdir/config/gnu-flags
+. $srcdir/config/dec-flags
+
+# If the compiler flags were not set by any compiler scripts above
+# then this script can set the flags based on either the compiler base 
+# name or by invoking the compiler to obtain a version number. Be
+# careful of $CC since it may include the full path name of the
+# compiler.
+
+if X = "X$cc_flags_set"; then
+    case $CC_BASENAME in
+	acc)
+	    CFLAGS="$CFLAGS -Wsign-compare"
+	    DEBUG_CFLAGS="-g -fverbose-asm"
+	    DEBUG_CPPFLAGS=
+	    PROD_CFLAGS="-O3 -fomit-frame-pointer"
+	    PROD_CPPFLAGS=
+	    PROFILE_CFLAGS="-pg"
+	    PROFILE_CPPFLAGS=
+	    ;;
+
+	*)
+	    # very generic
+	    DEBUG_CFLAGS="-g"
+	    PROD_CFLAGS="-O"
+	    PROFILE_CFLAGS="-pg"
+	    ;;
+    esac
+fi
+
+
+# If the machine running configure is different than the machine on
+# which the software will be compiled (which is common on massively
+# parallel systems) then configure may detect things which are
+# incorrect for the target system. In those cases configure can be
+# convinced to use some other value which has been predetermined.
+
+# Set this to `yes' or `no' depending on whether the target is big
+# endian or little endian.
+ac_cv_c_bigendian=${ac_cv_c_bigendian='yes'}

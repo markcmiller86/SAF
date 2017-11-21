@@ -1,0 +1,248 @@
+##------------------------------------------------------------ -*- makefile -*-
+## The following section of this makefile comes from the
+## `./config/commence' file which was generated with config.status
+## from `./config/commence.in'.
+##-----------------------------------------------------------------------------
+
+## Copyright(C) 1999-2003 The Regents of the University of California.
+##     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+##     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+##     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+##     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+##     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+##     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+##     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+##     University.
+## 
+## Copyright(C) 1999-2003 Sandia Corporation.
+##     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+##     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+##     States Government.
+## 
+## Disclaimer:
+##     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+##     Government. Neither the United States  Government nor the United States Department of Energy nor 
+##     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+##     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+##     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+##     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+##     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+##     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+##     recommendation, or favoring by the  United States Government   or the University of  California.  
+##     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+##     the  United  States Government or  the   University of California   and shall  not be  used  for
+##     advertising or product endorsement purposes.
+## 
+## Active Developers:
+##     Peter K. Espen              SNL
+##     Christi Forsythe            SNL
+##     Jake S. Jones               SNL
+##     Robb P. Matzke              LLNL
+##     Mark C. Miller              LLNL
+##     Greg Sjaardema              SNL
+## 
+## Inactive Developers:
+##     William J. Arrighi          LLNL
+##     Ray T. Hitt                 SNL
+##     Matthew J. O'Brien          LLNL
+##     James F. Reus               LLNL
+##     Larry A. Schoof             SNL
+## 
+## Acknowledgements:
+##     Marty L. Barnaby            SNL - parallel perf. study/tuning
+##     David M. Butler             LPS - Data model design/implementation Spec.
+##     Albert K. Cheng             NCSA - Parallel HDF5 support
+##     Nancy Collins               IBM - Alpha/Beta user
+##     Linnea M. Cook              LLNL - Management advocate
+##     Michael J. Folk             NCSA - Management advocate 
+##     Richard M. Hedges           LLNL - parallel perf. study/tuning 
+##     Shirley R. Jennings         LLNL - Occasional release support
+##     Wilbur W. Johnson           SNL - Early Developer
+##     Quincey A. Koziol           NCSA - Serial HDF5 Support 
+##     Celeste M. Matarazzo        LLNL - Management advocate
+##     Tyce T. McLarty             LLNL - parallel perf. study/tuning
+##     Tom H. Robey                SNL - Early developer
+##     Reinhard W. Stotzer         SNL - Early developer
+##     Judy Sturtevant             SNL - parallel perf. study/tuning 
+##     Robert K. Yates             LLNL - Pacific parallel perf. study/tuning
+## 
+
+## How to search directories for target dependencies
+@SEARCH@
+
+## Things that Make needs
+.SUFFIXES:
+.SUFFIXES: .c .o .lo .java .class
+@SET_MAKE@
+
+## Programs
+SHELL=/bin/sh
+AUTOCONF=@AUTOCONF@
+CC=@CC@
+CFLAGS=@CFLAGS@
+CXX=@CXX@
+CXXFLAGS=@CXXFLAGS@
+CPPFLAGS=@CPPFLAGS@
+LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@
+AR=@AR@
+RANLIB=@RANLIB@
+RM=rm -f
+CP=cp
+INSTALL=$(top_srcdir)/config/install-sh
+INSTALL_PROGRAM=$(top_srcdir)/config/install-sh -c -m 755
+INSTALL_DATA=$(top_srcdir)/config/install-sh -c -m 644
+RUNSERIAL=@RUNSERIAL@
+RUNPARALLEL=@RUNPARALLEL@
+RUNTEST=SAF_ASSERT_DISABLE=none SAF_PRECOND_DISABLE=none SAF_POSTCOND_DISABLE=none $(RUNPARALLEL)
+BANNER=$(top_srcdir)/config/banner
+JAVA=@JAVA@
+JAVAC=@JAVAC@
+JAVAH=@JAVAH@
+JAVASDK=@JAVASDK@
+JNI_INCLUDE=@JNI_INCLUDE@
+JAVA_INCLUDE=@JAVA_INCLUDE@
+BROWSER_SHARED_FLAG=@BROWSER_SHARED_FLAG@
+
+PYTHON=@PYTHON@
+PYTHONDIR=@PYTHONDIR@
+PYTHON_INCLUDE=@PYTHON_INCLUDE@
+SAFSH_SHARED_FLAG=@SAFSH_SHARED_FLAG@
+
+## mkdoc (all mkdoc flags come from the various META files now)
+mkdoc=$(top_srcdir)/../tools/mkdoc
+mkdoc_flags=
+mkdoc_lib_meta=-c $(top_srcdir)/../tools/Formats/library/META
+mkdoc_ex_meta=-c $(top_srcdir)/../tools/Formats/example/META
+mkdoc_sslib_meta=-c $(top_srcdir)/sslib/docs/mkdoc/SSlib-API.mkdoc
+mkdoc_phaseI_meta=-c $(top_srcdir)/sslib/docs/mkdoc/Phase-I.mkdoc
+
+## Installation points
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+includedir=@includedir@
+datadir=@datadir@
+sysconfdir=@sysconfdir@
+docsdir=@prefix@/docs
+PUB_LIB=$(LIB)
+TEST_FILE_PATH=@TEST_FILE_PATH@
+
+## Shared libraries
+LT=$(top_builddir)/libtool
+LT_COMPILE=$(LT) --mode=compile $(CC)
+LT_LINK_LIB=$(LT) --mode=link $(CC) -rpath $(libdir)
+LT_LINK_EXE=LDFLAGS= $(LT) --mode=link $(CC) -rpath $(bindir)
+LT_RUN=LDFLAGS= $(LT) --mode=execute
+LT_INSTALL_PROG=$(LT) --mode=install $(INSTALL_PROGRAM)
+LT_INSTALL_LIB=$(LT) --mode=install $(INSTALL_DATA)
+LT_INSTALL_DATA=$(LT) --mode=install $(INSTALL_DATA)
+LT_UNINSTALL=$(LT) --mode=uninstall $(RM)
+
+## Optional variables. We must declare them here because Irix pmake
+## complains if it sees a reference to a variable which has never been
+## defined. The main makefile is free to redefine these to something else.
+LIB=
+LIB_SRC=
+LIB_OBJ=
+PUB_HDR=
+PRIV_HDR=
+LIB_DEPS=
+PROGS=
+TESTS=
+CHECKS=
+CHECK_ARGS=
+TEST_SCRIPTS=
+DATA=
+CONFIG=
+TOOLS=
+TOOLS_SCRIPTS=
+SUBDIRS=
+SSLIB_HTML_DOCS=
+EXP_HTML_DOCS=
+SDIFF_HTML_DOCS=
+ENSIGHT_HTML_DOCS=
+SAF_HTML_DOCS=
+SSLIB_DOCUMENTS=
+SAF_DOCUMENTS=
+
+## The default is to build the tools and tests, which also results in
+## building the library.
+all: tests
+.PHONY: all
+
+## The following rules insure that the Makefile is up-to-date by rerunning
+## various autoconf components (although not all versions of make assume
+## that the makefile is implicitly a target).  We use time stamp files to
+## keep track of the most recent update of config.h.in and config.h
+## because autoheader and config.status don't update the modification time
+## if the contents don't change.
+##
+## Graphically, the dependencies are:
+##
+##		         configure.in
+##                           |  |
+##         +-----------------+  +------------+
+##         |                                 |
+##      stamp1                           configure
+##   (config.h.in)                           |
+##       |  |                                |
+##       |  +---------------+    +-----------+
+##       |                  |    |
+##       |               config.status
+##       |                     |
+##       |  +------------------+
+##       |  |
+##      stamp2
+##     (config.h)                      Makefile.in et al
+##         |                                 |
+##         +------------------+  +-----------+
+##                            |  |
+##                          Makefile
+##
+## A side effect of updating stamp1 is to generate config.h.in and a
+## side effect of updating stamp2 is to generate config.h.  When using
+## a version of make that doesn't treat the makefile as the initial target
+## the user may want to occassionally type `make Makefile' in any source
+## directory.
+##
+STAMP1=$(top_builddir)/config/stamp1
+STAMP2=$(top_builddir)/config/stamp2
+
+MAKEFILE_PARTS=$(srcdir)/Makefile.in		\
+	       $(top_srcdir)/config/commence.in	\
+	       $(top_srcdir)/config/conclude.in	\
+	       $(top_srcdir)/config/depend1.in	\
+	       $(top_srcdir)/config/depend2.in	\
+	       $(top_srcdir)/config/depend3.in	\
+	       $(top_srcdir)/config/depend4.in	\
+	       $(top_srcdir)/config/dependN.in
+
+$(STAMP1): $(top_srcdir)/configure.in
+	touch $(STAMP1)
+	-cd $(top_srcdir); autoheader
+
+$(STAMP2): $(STAMP1) $(top_builddir)/config.status
+	touch $(STAMP2)
+	-cd $(top_builddir); \
+	   CONFIG_FILES= CONFIG_HEADERS=include/SAFconfig.h ./config.status
+
+$(top_srcdir)/configure: $(top_srcdir)/configure.in
+	-cd $(top_srcdir); $(AUTOCONF)
+
+$(top_builddir)/config.status: $(top_srcdir)/configure $(STAMP1)
+	-cd $(top_builddir); ./config.status --recheck
+
+# The following target was renamed from `Makefile' to `Makefiles' because
+# we decided that automatic building of Makefiles was a nuisance.
+# [Robb Matzke, LLNL, 2000-08-17]
+Makefiles: $(MAKEFILE_PARTS) $(STAMP2)
+	-cd $(top_builddir); CONFIG_HEADERS= ./config.status
+
+
+##-----------------------------------------------------------------------------
+## The following section of this makefile comes from the middle of
+## `Makefile.in' from this directory.  It was generated by running
+## `config.status'.
+##-----------------------------------------------------------------------------

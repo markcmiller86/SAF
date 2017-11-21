@@ -1,0 +1,104 @@
+#!/bin/sh
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+export PATH=/usr/bin:$PATH
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+ 
+export DEST=/sierra/Release/saf/2.0.0
+test $SRC_DIR && export DEST=${SRC_DIR}
+export SOURCE=${DEST}/source
+
+
+export SIERRA_PLATFORM=sgi2
+export SIERRA_OPT_DBG=dbg
+export SIERRA_INSTDIR=dbg_dp_${SIERRA_PLATFORM}
+
+export HDF_VER=1.7.45
+export CONFDIR=cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+export OPTION=install_$SIERRA_PLATFORM
+export HDF_DIR=/sierra/Release/hdf5/${HDF_VER}/${OPTION}/${SIERRA_OPT_DBG}
+
+
+mkdir $DEST/include > /dev/null 2>&1
+mkdir $DEST/lib  > /dev/null 2>&1
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  > /dev/null 2>&1
+mkdir ${DEST}/include/${SIERRA_INSTDIR}/private  > /dev/null 2>&1
+export INSTDIR=$DEST/$OPTION/$SIERRA_OPT_DBG
+mkdir $DEST/$OPTION  > /dev/null 2>&1
+mkdir ${INSTDIR}  > /dev/null 2>&1
+mkdir ${INSTDIR}/lib  > /dev/null 2>&1
+mkdir ${INSTDIR}/include  > /dev/null 2>&1
+
+
+export all=1
+if [ $all  ]
+then
+  mkdir $DEST/$CONFDIR  > /dev/null 2>&1
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+fi
+
+export INSTDIR=$DEST/$OPTION/$SIERRA_OPT_DBG
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+
+export HOSTFILE=`pwd`/hostfile
+export NPROCS=3
+# export RUNSERIAL="mpirun -np 1 -machinefile $HOSTFILE"
+export RUNPARALLEL="/usr/bin/mpirun -np 3 "
+
+export MPICH="sgi-mpi"
+export LIBS="-lmpi"
+export MAKE="gmake"
+export CC="cc -64 -g -c99 -I${HDF_DIR}/include -DNDEBUG "
+export CPP="cc -E -g -c99 -I${HDF_DIR}/include -DNDEBUG "
+export CFLAGS=" -woff 1066,1169,1355,1429,1485,1552,1174,1035,1209,3201,1548  -Wl,-woff -Wl,47 -Wl,-woff -Wl,84 -Wl,-woff -Wl,85 -Wl,-woff -Wl,134 -fullwarn "
+# -LANG:std conflicts with libtool
+export LDFLAGS="-L${HDF_DIR}/lib/ -lz"
+
+
+
+if [ $all ]
+then
+  $SOURCE/tools/build_saf --prune \
+--compiler="${CC}" \
+--product=optim \
+--hdf=$HDF_DIR \
+--targets=none \
+--install=$INSTDIR \
+--builddir=$DEST/$CONFDIR/build \
+--prefix=$INSTDIR $SOURCE/src/configure \
+--without-java \
+--without-python |tee $OPTION.configure
+
+#  $SOURCE/src/configure \
+#    --prefix=$INSTDIR \
+#    --enable-parallel --disable-serial \
+#    --enable-static --disable-shared --without-zlib \
+#    --enable-debug --disable-production \
+#    --without-java \
+#    --without-python |tee $OPTION.configure
+ 
+  gmake | tee $OPTION.make
+  gmake check | tee $OPTION.test
+  gmake install
+else
+  gmake install
+fi
+
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/private/*.* ${DEST}/include/${SIERRA_INSTDIR}/private/.

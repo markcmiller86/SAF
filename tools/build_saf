@@ -1,0 +1,999 @@
+#!/bin/sh
+# Author: Robb Matzke <matzke@llnl.gov>
+#
+# Purpose:
+#     Configures, builds, and tests SAF on local platform
+#
+# Usage: build_saf [CONFIGURE [CONFIGURE-SWITCHES]]
+#     This tool is intended for a subset of platforms which are commonly used by the SAF development
+#     team. It is not intended for general consumption since it makes certain assumptions about the
+#     location of various prerequisites such as MPICH and HDF5.
+# 
+#     The SAF source code is expected to be in the same directory as the configure script, whose
+#     default location is related to location of this build_saf script. The building and testing will
+#     occur in various subdirectories of `./build', which need not exist (if it does exist then its
+#     contents will be used after the user is given a 10-second warning).
+#   
+#     By default this script compiles and tests a serial, debug version of the library using the
+#     default compiler.  This behavior can be influenced by defining certain environment variables
+#     before running this script.  See below for details.
+#
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Acknowledgements:
+#     Robb P. Matzke              LLNL - Author of various tools
+#     Mark C. Miller              LLNL - Alpha/Beta user; minor debugging/enhancements 
+#     Matthew J. O'Brien          LLNL - Author of various tools
+#     James F. Reus               LLNL - Alpha/Beta user
+
+ME=build_saf
+
+##################################################################################################################################
+# Prints usage message to stderr and exits non-zero
+usage () {
+    echo "usage: $ME [SWITCHES] [CONFIGURE-SCRIPT [CONFIGURE-SWITCHES]]" >&2
+    echo "(Invoke with --help for more information.)" >&2
+    exit 1
+}
+
+##################################################################################################################################
+# Prints help information to stdout and exits success.
+help () {
+    cat <<'EOF'
+Usage:
+  build_saf [SWITCHES] [CONFIGURE-SCRIPT [CONFIGURE-SWITCHES...]]
+
+Purpose:
+  Configures, builds, tests, and installs SAF, HDF5, or MPICH on various
+  platforms. This is simply a front end to configure that knows about things
+  such as the SAF-approved library installation naming scheme, available
+  compilers on Sandia and Livermore systems, and the process used to
+  configure, build, test, and install the supported packages.
+
+  You generally create an installation directory (like "/usr/local/saf/1.5.2"),
+  unpack the sources into a "source" directory under that directory, and then
+  invoke this script from outside that hierarchy (e.g., in "/tmp").
+
+Switches:
+  This script was originally controlled by environment variables and has
+  gradually migrated to a more traditional command invocation style. In order to
+  maintain backward compatibility the environment variables are still understood
+  and are noted in parentheses. Default values are in square brackets. Switches
+  can be abbreivated to their shortest unique prefix.
+
+  --terse=N (TERSE) [no]
+    Normally this script shows all output as it is produced from each step.
+    However, if this switch is specified then only a progress bar is shown and
+    the last N lines of output is shown if the command fails. If the "=N" is
+    omitted then the last 100 lines of output are shown for failures.
+  --prune (PRUNE)
+    If the temporary build directory exists then remove it before reconfiguring.
+    This is useful if certain configuration parameters are changed and those
+    changes do not affect the name of the build directory or the installation
+    point. The default is to issue a warning, pause, and reuse the existing
+    directory.
+  --prefix=DIRECTORY (PREFIX)
+    Different machines have different base locations for installing software.
+    This switch tells the script where components such as MPICH and HDF5 are
+    located as well as the directory in which to install the results.  By
+    default this script will look for various directories like /usr/gapps,
+    /usr/local, etc.
+  --annotate[=STRING]
+    Software is built and installed into directories that contain a version
+    number as one of their components. However, sometimes we want to build or
+    install software that has not been officially released, and that is what
+    this switch is for. The specified string of characters, which should not
+    include white space or shell meta characters, is appended to the version
+    number reported by the software.  If no string is specified then the
+    current date is appended as YYYYMMDD.
+  --builddir=DIRECTORY (BUILD_DIR) [./build/...]
+    The configuration, building, and testing will be performed in a subdirectory
+    created for that purpose. The directory name is based on the specific
+    configuration being used.  However, the name of the build directory can be
+    overridden with this switch.
+  --compiler=COMPILER (COMPILER) [serial]
+    Specifies the actual compiler executable name, a compiler class, or a class
+    with version number.  The default "serial" indicates that the underlying
+    configure script should make an educated guess (usually trying gcc, then
+    cc).  To compile with a particular version of MPICH specify the compiler as
+    "mpich-VERSION", such as "mpich-1.2.4".
+  --generator=GEN (CCMODE) [default]
+    If a code generator other than "default" is specified then use it for the
+    compilation. Possible values are "default", "64", or "n32". Specifying
+    "default" (or nothing) simply means that this script will not pass special
+    code-generation flags to the underlying configure script.
+  --product=PROD (PRODUCT) [debug]
+    Determines general compiler options for the package. Valid products are
+    "debug" to compile for source-level debugging, "optim" to compile with full
+    optimizations, or "profile" to compile with gprof instrumentation.
+  --hdf5=VERSION (HDF5) [1.6.1]
+    Specifies the version of HDF5 to use when building SAF. This can either be
+    a version number which will be used to construct the installation name of
+    the HDF5 library, or the full path to a directory that contains
+    lib/libhdf5.settings.
+  --skip-config (SKIP_CONFIG)
+    If specified (or the environment variable value begins with the letter
+    "y") then the configuration step is skipped. This is useful if a previous
+    instance of this script has already run configure since doing so again often
+    causes lots of object files to be considered out-of-date by make. The
+    default is to run configure.
+  --make=COMMAND (MAKE)
+    The make command is chosen to be either "make" or "pmake" depending on the
+    system, but that can be adjusted with this switch.  Additional arguments can
+    also be specified such as "make -j" to tell GNU make to run in parallel, or
+    "pmake -J1" to tell Irix pmake to run in serial.
+  --targets=MAKE_TARGETS (TARGETS) [all check]
+    Specifies the targets with which the make program will be invoked. The most
+    common use of this switch is to specify just "all" in order to prevent the
+    test suite from running, since a failed test suite will prevent the
+    installation of the package.  A value of "none" prevents make from running
+    at all (except perhaps the "make install" controlled by the --install
+    switch), which is useful in order to configure but then run make manually
+    from within the temporary build directory.
+  --install[=[no:]DIRECTORY] (INSTALL)
+    If specified then a final "make install" is executed, installing the library
+    into a directory whose name consists of a prefix and some components based
+    on the specific configuration of the software package. The default is to not
+    install.  If a directory is specified then it will be used instead of a
+    name generated from the prefix and configuration. If that directory name
+    is preceded by "no:" then the directory is passed to configure but the
+    installation step is omitted.
+  --group=GROUP (GROUP)
+    If specified, then the installation directory will be created with the
+    specified group ownership. The default is to attempt to use group "hdf5"
+    for an HDF5 installation and group "dmf" for a SAF installation.
+  --noexec
+    Tells the script not to actually do anything, but rather just print
+    the commands that would have been executed.
+EOF
+    exit 0
+}
+
+##################################################################################################################################
+# Reimplementation of `echo -n'
+echo_n () {
+    if [ "`(echo -n abc; echo def) 2>&1`" = abcdef ]; then
+        echo -n "$@"
+    else
+        echo "$@" "\c"
+    fi
+}
+
+##################################################################################################################################
+# Prints a section divider
+banner () {
+    local str="$*"
+    echo
+    echo
+    echo "================================================================================"
+    echo "$str"
+    echo "================================================================================"
+}
+
+##################################################################################################################################
+# Reimplementation of `mkdir -p' that takes a group name, a file mode, and a directory and
+# creates that directory and any missing ancestors. Any directory that is created is given
+# the specified group ownership and permissions. However, if the group ownership cannot be
+# changed then the permissions are not set (mkdir will set them to 0777-umask). We do it this
+# way because `sg' doesn't always work.
+mkdir_pg () {
+    local group="$1" mode="$2" dir="$3" seen
+    [ `echo $dir |cut -c1` = '/' ] || seen=.
+    for comp in `echo $dir |tr / ' '`; do
+	seen="$seen/$comp"
+	if [ ! -d $seen ]; then
+	    mkdir $seen || return 1
+	    (chgrp $group $seen && chmod $mode $seen) 2>/dev/null
+	fi
+    done
+    return 0
+}
+
+##################################################################################################################################
+# Return the second number for this day. We would use `date +%s' but it doesn't work everywhere.
+now () {
+    local hr=`date +%H`
+    local min=`date +%M`
+    local sec=`date +%S`
+    local retval=`expr $hr \* 3600 + $min \* 60 + $sec`
+    echo $retval
+}
+
+##################################################################################################################################
+# This function is simply a filter that normally just reads its stdin and copies it to stdout.  If any line of input is
+# "***EXIT***" then this filter immediately exits with non-zero status.  If $TERSE is set then output is suppressed except for
+# some number of lines before a line (if any) containing soley "***EXIT***". The number of lines to output is determined by the
+# value of $TERSE, which should be an integer.  The first argument is the command to print when a failure occurs failure.
+terse () {
+    [ "$TERSE" = no ] && TERSE=""
+    local title="$1"
+    local tmpfile=./build_saf-$USER-$$.out
+    local timestamp=`now`
+    local LINE current interval
+    [ -n "$TERSE" ] && echo_n "$title..."
+    while read LINE; do
+	if [ "$LINE" = "***EXIT***" ]; then
+	    if [ -n "$TERSE" ]; then
+		echo
+		echo "TASK FAILED (final $TERSE lines of output from command follow)..."
+		tail -$TERSE $tmpfile # `-n $TERSE' isn't portable
+	    fi
+	    rm -f $tmpfile
+	    exit 1
+	else
+	    if [ -n "$TERSE" ]; then
+		current=`now`
+		interval=`expr $current - $timestamp`
+		if [ $interval -gt 5 ]; then
+		    echo_n '.'
+		    timestamp=$current
+		fi
+		echo "$LINE" >>$tmpfile
+	    else
+		echo "$LINE"
+	    fi
+	fi
+    done
+    [ -n "$TERSE" ] && echo
+    rm -f $tmpfile
+    return 0
+}
+
+##################################################################################################################################
+# Prints a command and/or executes it.
+action () {
+    echo + "$@"
+    [ -n "$NOEXEC" ] && return 0
+    "$@"
+}
+
+##################################################################################################################################
+# Prints the MPICH version number from the mpicc script, which is given as the first argument. We can't just invoke mpicc
+# and expect it to print out its version number because it might be wrapping something other than gcc.  We also need to
+# eventually handle the case when `mpicc' is a 
+mpicc_version () {
+    local mpicc="$1"
+    local fullname="`which $mpicc`"
+    local version
+    case "`file $fullname`" in
+        *script*)
+	    # Look for a line of the form:
+	    #   MPIVERSION="1.2.5 (release) of : 2003/01/13 16:21:53"
+	    # and peel off the first part of that value.
+	    while read LINE; do
+		case "$LINE" in
+		    MPIVERSION=*)
+			eval "$LINE"
+			version=`(set -- $MPIVERSION; echo \$1)`
+                esac
+	    done <$fullname
+	    ;;
+    esac
+
+    [ -n "$version" ] || echo "$ME: cannot determine version of $mpicc ($fullname)" >&2
+    echo $version
+}
+
+# Prints the MPICH version number from the README file in the directory indicated by the first argument.
+mpich_version () {
+    local LINE
+    while read LINE; do
+        case "$LINE" in
+            *Version*)
+		# MPICH 1
+                (IFS=' ,'; set -- $LINE; echo $2)
+                break
+                ;;
+	    *MPICH2?Release*)
+		# MPICH 2
+		(set -- $LINE; echo "2.$3")
+		break
+		;;
+        esac
+    done <$1/README
+}
+
+##################################################################################################################################
+# Figure out where MPICH's mpicc is located and echo its name.  If we can't find it then echo `false' and return failure.
+# If the compiler is `mpich-VERSION' then use VERSION when searching for MPICH, otherwise use the
+# default MPICH version defined earlier. Note that relative names will be interpreted with respect to all known prefixes.
+find_mpicc () {
+    local version=unknown searched warn exe mpicc prefix
+    case "$COMPILER" in
+	mpich-*)
+	    # Be careful: version number may contain hyphens
+	    version="`(IFS='-'; set -- $COMPILER; shift; v=\$1; shift; for p in \$*; do v=\"\${v}-\$p\"; done; echo \"\$v\")`" 
+	    ;;
+    esac
+
+    for exe in \
+            mpich/$version/$ARCH/serial/$CCMODE/$PRODUCT/bin/mpicc        '# The SAF naming scheme'                        \
+            mpich/$version/$ARCH/serial/$CCMODE/debug/bin/mpicc           '# Fall back to debug version'                   \
+            mpich/$version/$ARCH/serial/$CCMODE/optim/bin/mpicc           '# Fall back to optimized version'               \
+            '############################################################################################################' \
+            '# WARNING -- The following are hard coded and will not generally work! Lets get rid of them!!!             #' \
+            '############################################################################################################' \
+            /usr/local/saf/mpich/$version/SunOS/cc/$PRODUCT/bin/mpicc     '# SNL EngSci LAN (hard-coded architecture)'     \
+            /usr/local/saf/mpich/1.2.1/SunOS/cc/debug/bin/mpicc           '# SNL EngSci LAN (hard-coded version)'          \
+            /projects/mpich/$version/IRIX64/cc/$CCMODE/$PRODUCT/bin/mpicc '# tesla.sandia.gov (hard-coded architecture)'   \
+            /projects/mpich/1.2.1/IRIX64/cc/$CCMODE/debug/bin/mpicc       '# tesla.sandia.gov (hard-coded version)'        \
+    ;do
+	case "$exe" in
+	    *WARN*)
+		warn=yes ;;
+	    \#*)
+		continue ;;
+	    *)
+		# Look for $exe as specified or w.r.t. all $PREFIXES
+		if [ `echo $exe |cut -c1` != "/" ]; then
+		    for prefix in $PREFIXES; do
+			searched="$searched $prefix/$exe"
+			if [ -x "$prefix/$exe" ]; then
+			    mpicc="$prefix/$exe"
+			    break # for
+			fi
+		    done
+		else
+		    searched="$searched $exe"
+		    [ -x "$exe" ] && mpicc="$exe"
+		fi
+
+		# Done if found, but print warning if appropriate. Invoke mpicc to determine version number
+		if [ -n "$mpicc" ]; then
+		    version="`mpicc_version $mpicc`"
+		    if [ -n "$warn" ]; then
+			echo "--------WARNING---------WARNING---------WARNING---------WARNING---------WARNING" >&2
+			echo "    The MPICH-$version compiler ($mpicc)"                                        >&2
+			echo "    includes components that are hard coded and which might not be appropriate"  >&2
+			echo "    for this configuration. Please check it carefully!"                          >&2
+			echo "-------------------------------------------------------------------------------" >&2
+			sleep 5
+		    fi
+		    break # case
+		fi
+		;;
+	esac
+    done
+    if [ -z "$mpicc" ]; then
+	echo "$ME: unable to find mpicc" >&2
+        echo "$ME: searched these locations for mpicc:" >&2
+        echo_n "    " >&2
+        echo $searched |perl -pe 's/ +/\n    /g' >&2
+	exit 1
+    fi
+    echo $mpicc
+}
+
+##################################################################################################################################
+# Find the installation home of HDF5. That is, the name of the directory containing the `bin', `lib', `include', etc. directories
+# that contain the HDF5 installed files.
+find_hdf5 () {
+    local searched warn f prefix hdf5_home
+    for f in \
+	$HDF5                                                   		'# Name as supplied'                    \
+        hdf5/$HDF5/$ARCH/$COMPILER/$CCMODE/$PRODUCT                             '# The SAF naming scheme'               \
+        hdf5/$HDF5/$ARCH/$COMPILER/$CCMODE/debug                                '# Debug/optim versions are compatible' \
+        hdf5/$HDF5/$ARCH/$COMPILER/$CCMODE/optim                                '# Debug/optim versions are compatible' \
+        '#############################################################################################################' \
+        '# WARNING -- The following are hard coded and will not generally work! Lets get rid of them!!!              #' \
+        '#############################################################################################################' \
+	/usr/local/saf/hdf5/$HDF5/SunOS/mpicc-$MPICH/$CCMODE/$PRODUCT/static	'# SNL EngSci LAN (hard-coded mpich)'   \
+	/usr/local/saf/hdf5/$HDF5/SunOS/cc/$CCMODE/$PRODUCT/static		'# SNL EngSci LAN (hard-coded serial)'	\
+	/usr/local/saf/hdf5/$HDF5/SunOS/cc/$CCMODE/static  			'# SNL EngSci LAN (hard-coded serial)'	\
+	/projects/hdf5/$HDF5/IRIX64/mpicc-$MPICH/$CCMODE/$PRODUCT/static	'# tesla.sandia.gov (hard-coded arch)'	\
+	/projects/hdf5/$HDF5/IRIX64/cc/$CCMODE/$PRODUCT/static		        '# tesla.sandia.gov (hard-coded arch)'	\
+    ;do
+        case "$f" in
+            *WARN*)
+                warn=yes ;;
+            \#*)
+                continue ;;
+            *)
+                # Look for hdf5 as specified or w.r.t. all $PREFIXES
+                if [ `echo $f |cut -c1` != "/" ]; then
+                    for prefix in $PREFIXES; do
+                        searched="$searched $prefix/$f"
+                        if [ -f "$prefix/$f/lib/libhdf5.settings" ]; then
+                            hdf5_home="$prefix/$f"
+                            break # for
+                        fi
+                    done
+                else
+                    searched="$searched $f"
+                    [ -f "$f/lib/libhdf5.settings" ] && hdf5_home="$f"
+                fi
+
+                # Done if found, but print warning if appropriate
+                if [ -n "$hdf5_home" ]; then
+                    if [ -n "$warn" ]; then
+                        echo "--------WARNING---------WARNING---------WARNING---------WARNING---------WARNING" >&2
+                        echo "    The path to HDF5 ($f)"                                                       >&2
+                        echo "    includes components that are hard coded and which might not be appropriate"  >&2
+                        echo "    for this configuration. Please check it carefully!"                          >&2
+                        echo "-------------------------------------------------------------------------------" >&2
+                        sleep 5
+                    fi
+                    break # case
+                fi
+                ;;
+        esac
+    done
+    if [ -z "$hdf5_home" ]; then
+	echo "$ME: cannot find hdf5: $HDF5" >&2
+        echo "$ME: searched these locations for lib/libhdf5.settings:" >&2
+        echo_n "    " >&2
+        echo $searched |perl -pe 's/ +/\n    /g' >&2
+	exit 1
+    fi
+    echo $hdf5_home
+}
+
+##################################################################################################################################
+# Set initial values. Historically the caller would have set these in the environment, so we need to be careful not to
+# overwrite anything.  The `unset' lines are here only for documentation purposes.
+
+: ${TERSE:=no}
+: unset PRUNE
+: unset PREFIX
+: unset ANNOTATE
+: unset BUILD_DIR
+
+: ${COMPILER:=serial}
+: ${CCMODE:=default}
+: ${PRODUCT:=debug}
+: ${HDF5:=1.6.1}
+
+: ${SKIP_CONFIG:=no}
+: unset MAKE
+: ${TARGETS:="all check"}
+: ${INSTALL:=no}
+: unset GROUP
+: unset NOEXEC
+
+##################################################################################################################################
+# Parse command-line arguments and set variables.
+
+while [ $# -gt 0 ]; do
+    arg="$1"
+    case "$arg" in
+        --annotate|--annotat|--annota|--annot|--anno|--ann|--an|-a)
+            ANNOTATE=`date +%Y%m%d` ;;
+        --annotate=*|--annotat=*|--annota=*|--annot=*|--anno=*|--ann=*|--an=*|--a=*)
+            ANNOTATE="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --builddir=*|--builddi=*|--buildd=*|--build=*|--buil=*|--bui=*|--bu=*|--b=*)
+            BUILD_DIR="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --compiler=*|--compile=*|--compil=*|--compi=*|--comp=*|--com=*|--co=*|--c=*)
+            COMPILER="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --generator=*|--generato=*|--generat=*|--genera=*|--gener=*|--gene=*|--gen=*|--ge=*)
+            CCMODE="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --group|--grou|--gro|--gr)
+            GROUP="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --help|--hel|--he)
+            help ;;
+        --hdf5=*|--hdf=*|--hd=*)
+            HDF5="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --install|--instal|--insta|--inst|--ins|--in|--i)
+            INSTALL=yes ;;
+        --install=*|--instal=*|--insta=*|--inst=*|--ins=*|--in=*|--i=*)
+            INSTALL="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --make=*|--mak=*|--ma=*|--m=*)
+            MAKE="`(IFS='='; set -- $arg; echo \$2)`" ;;
+	--noexec|--noexe|--noex|--noe|--no|--n)
+	    NOEXEC=noexec ;;
+        --prefix=*|--prefi=*|--pref=*|--pre=*)
+            PREFIX="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --product=*|--produc=*|--produ=*|--prod=*|--pro=*)
+            PRODUCT="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --prune|--prun|--pru)
+            PRUNE=yes ;;
+        --skip-config|--skip-confi|--skip-conf|--skip-con|--skip-co|--skip-c|--skip|--ski|--sk|--s)
+            SKIP_CONFIG=yes ;;
+        --targets=*|--target=*|--targe=*|--targ=*|--tar=*|--ta=*)
+            TARGETS="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        --terse|--ters|--ter|--te)
+            TERSE=100 ;;
+        --terse=no|--ters=no|--ter=no|--te=no)
+            unset TERSE ;;
+        --terse=*|--ters=*|--ter=*|--te=*)
+            TERSE="`(IFS='='; set -- $arg; echo \$2)`" ;;
+        -*)
+            echo "$ME: unknown command-line switch: $arg" 1>&2
+            echo "$ME: invoke with --help for usage information" 1>&2
+            exit 1
+            ;;
+        *)
+            break ;;
+    esac
+    shift
+done
+
+##################################################################################################################################
+# Machine architecture. We just use whatever uname returns, which had better not contain $IFS characters.
+ARCH=`uname`
+
+##################################################################################################################################
+# What is the name of the configure script and the source tree?  The configure script is either the first non-switch argument
+# or in a directory somehow related to this script (only useful when building SAF).
+if [ -n "$1" ]; then
+    configure="$1"
+    shift
+else
+    configure=`echo $0 | sed 's@/build_saf$@/../src/configure@'`
+    if [ $configure = $0 ]; then
+	configure="./configure"
+    fi
+fi
+srcdir=`echo $configure |sed 's@/configure@@'`
+
+# Convert $configure and $srcdir to absolute names because we'll be changing directories below.
+srcdir=`(cd $srcdir; pwd)`;
+if [ "`echo $SKIP_CONFIG |cut -c1`" = y ]; then
+    SKIP_CONFIG_NOTE="(Skipping configure)"
+    configure=:
+else
+    configure=`(cd $srcdir; pwd)`/configure
+fi
+
+##################################################################################################################################
+# Are we compiling SAF, HDF5, or MPICH?  This is based on the existence of some particular source file.  Once we know this we
+# can figure out the version number.  If the user specified some annotation then tack that onto the end of the version number.
+if [ -f $srcdir/src/H5.c ]; then
+    PACKAGE=hdf5
+    VERSION=`$srcdir/bin/h5vers $srcdir/src/H5public.h`
+    : ${GROUP:=hdf5}
+elif [ -f $srcdir/src/pt2pt/send.c ]; then
+    # MPICH-1
+    # We can't get the MPICH version number with mpicc because it might not be there yet.
+    PACKAGE=mpich
+    VERSION="`mpich_version $srcdir`"
+    : ${GROUP:=mpich}
+elif [ -f $srcdir/src/mpi/pt2pt/send.c ]; then
+    # MPICH-2
+    # We can't get the mpich version number with mpicc because it might not be there yet.
+    PACKAGE=mpich
+    VERSION="`mpich_version $srcdir`"
+    : ${GROUP:=mpich}
+else
+    PACKAGE=saf
+    VERSION=`$srcdir/../tools/saf_version`
+    : ${GROUP:=dmf}
+fi
+if [ ! -n "$VERSION" ]; then
+    echo "Unable to determine $PACKAGE version number." >&2
+    exit 1
+fi
+[ -n "$ANNOTATE" ] && VERSION="$VERSION-$ANNOTATE"
+
+##################################################################################################################################
+# Which make program do we use?  If we set MAKE=pmake then also set MAKE1. The problem is that with `pmake' an error can get
+# lost in the reams of output from other files and we'll never see it. So if `pmake' fails then we'll try again with `pmake -J1'
+# (see the building stuff below for details).
+if [ "`echo $ARCH |cut -c1-4`" = IRIX ]; then
+    if [ ! -n "$MAKE" ]; then
+        if [ $PACKAGE = mpich ]; then
+            # mpich-1.2.5 apparently doesn't support pmake -- some of the makefiles have errors. Use GNU make instead.
+            MAKE=gmake
+        else
+            MAKE=pmake
+            MAKE1='pmake -J1'
+        fi
+    fi
+else
+    MAKE="${MAKE:-make}"
+fi
+
+##################################################################################################################################
+# Where is the default installation point? This is the so called "prefix". We search through possible prefixes in the order listed
+# and use the first directory that we find to exist as the installation prefix. But we also search through all the prefixes when
+# looking for prerequisites like MPICH and HDF5.
+PREFIXES="$PREFIXES /scratch2/saf"          # tesla.sandia.gov
+PREFIXES="$PREFIXES /projects"              # tesla.sandia.gov
+PREFIXES="$PREFIXES /p/gb1/spot"            # blue.llnl.gov
+PREFIXES="$PREFIXES /usr/gapps"             # LLNL B Division machines
+PREFIXES="$PREFIXES /usr/local"             # Various, inc. Linux Filesystem Hierarchy standard
+PREFIXES="$PREFIXES $HOME"                  # last resort.
+
+# The first of the PREFIXES that exists is the default installation prefix.
+if [ -z "$PREFIX" ]; then
+    for d in $PREFIXES; do
+        if [ -d "$d/." ]; then              # append `/.' in case $d is a symlink to the real directory
+            PREFIX=$d
+            break
+        fi
+    done
+else
+    PREFIXES="$PREFIX $PREFIXES"
+fi
+
+##################################################################################################################################
+# Choose the actual compiler (if necessary) and store it in $CC. The $COMPILER variable will become the generic name of the
+# compiler now.
+
+case "$COMPILER:$CCMODE:$PRODUCT" in
+    # General serial compilers...
+    serial:*:*)
+	unset CC
+	unset MPICH
+	;;
+
+    # General mpich compilers...
+    mpich-*:*:*)
+        CC="`find_mpicc`"
+	;;
+
+    mpich*:*:*)
+        CC="`find_mpicc`"
+        COMPILER="mpich-`mpicc_version $CC`"
+	;;
+
+    # Specific mpich compilers...
+    *mpicc:*:*)
+	CC=$COMPILER
+	COMPILER="mpich-`mpicc_version $CC`"
+	;;
+
+    # Specific IBM compilers (ASCI blue)
+    *mpxlc_r:*:*)
+	CC=$COMPILER
+	COMPILER=ibm_mpi
+	[ -x $srcdir/../tools/hcpp ] && CPP="$srcdir/../tools/hcpp $CC -E"
+	;;
+
+    *mpcc_r:*:*)
+	CC=$COMPILER
+	COMPILER=ibm_mpi
+	[ -x $srcdir/../tools/hcpp ] && CPP="$srcdir/../tools/hcpp $CC -E"
+	;;
+
+    # General LAM compilers
+    lam:*:*)
+	CC=hcc
+	COMPILER=lam
+	[ -x $srcdir/../tools/hcpp ] && CPP="$srcdir/../tools/hcpp hcc -E"
+	;;
+
+    # Specific LAM compilers
+    *hcc:*:*)
+	CC=$COMPILER
+	COMPILER=lam
+	[ -x $srcdir/../tools/hcpp ] && CPP="$srcdir/../tools/hcpp $CC -E"
+	;;
+
+    # General SGI parallel compilers
+    sgi_mpi:*:*)
+        # RUNPARALLEL and RUNSERIAL are not set here because they interfere with building HDF5.
+	# we have to use LIBS here (not LDFLAGS) because we want -lmpi at the end of the link
+	LIBS='-lmpi'
+	enable_parallel=yes
+	;;
+
+    # Assume everything else is a serial compiler
+    *)
+	CC=$COMPILER
+	COMPILER=serial
+	;;
+esac
+
+##################################################################################################################################
+# If a code generation mode is specified then we might have to make some adjustments to the compiler flags and configure switches.
+
+if [ "$CCMODE" != default ]; then
+    if [ "$ARCH" = IRIX64 ]; then
+        CC="${CC-cc} -$CCMODE"
+        if [ $PACKAGE = mpich ]; then
+            case "$CCMODE" in
+                n32) config_switches="$config_switches --with-arch=IRIXN32" ;;
+                32)  config_switches="$config_switches --with-arch=IRIX32"  ;;
+                64)  config_switches="$config_switches --with-arch=IRIX64"  ;;
+            esac
+        fi
+    elif [ "$ARCH" = Linux -a "$CCMODE" = 64 ]; then
+        CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=64"
+    elif [ "$ARCH" = SunOS -a "$CCMODE" = 64 ]; then
+        CFLAGS="-xarch=v9"
+    elif [ "$ARCH" = AIX ]; then
+	CFLAGS="-q$CCMODE"
+    fi
+fi
+
+##################################################################################################################################
+# Find the home of HDF5, but only if we're building SAF. Note that relative names will be interpreted with respect to all
+# known $PREFIXES.
+
+if [ $PACKAGE = saf ]; then
+    HDF5_HOME="`find_hdf5`"
+
+    # Adjust compiler include and library search paths and linker libraries.
+    CPPFLAGS="$CPPFLAGS -I$HDF5_HOME/include"
+    LDFLAGS="$LDFLAGS -L$HDF5_HOME/lib"
+    if [ -n "$LD_LIBRARY_PATH" ]; then
+	LD_LIBRARY_PATH="$HDF5_HOME/lib:$LD_LIBRARY_PATH"
+    else
+	LD_LIBRARY_PATH="$HDF5_HOME/lib"
+    fi
+fi
+
+##################################################################################################################################
+# Where do we install and build. Installation is under $PREFIX/..., building is under ./build/... by default.
+
+DIR=$PACKAGE/$VERSION/$ARCH/$COMPILER/$CCMODE/$PRODUCT
+[ -n "$BUILD_DIR" ] || BUILD_DIR=./build/$DIR
+
+case $INSTALL in
+    no|n)
+	install_prefix=$PREFIX/$DIR
+	INSTALL=no
+	;;
+    no:*|n:*)
+        # do not install, but set --prefix
+	install_prefix=`echo $INSTALL |cut -f2 -d:`/$DIR
+	INSTALL=no
+	;;
+    yes|y)
+	# install in default location
+	install_prefix=$PREFIX/$DIR
+	INSTALL=yes
+	;;
+    *)
+	# Install in specified directory
+	install_prefix=$INSTALL
+	INSTALL=yes
+	;;
+esac
+if [ "`echo $SKIP_CONFIG |cut -c1`" = y ]; then
+    install_prefix="directory previously set";
+fi
+
+##################################################################################################################################
+# HDF5 parallel test file prefix. We use the current working directory unless that's nfs mounted, in which case we'll use
+# /tmp/$USER/build_saf-$$, creating it as necessary and advertising that files might remain there after the build completes.
+
+if [ $PACKAGE = hdf5 -a ! -n "$HDF5_PARAPREFIX" ]; then
+    nfs=
+    HDF5_PARAPREFIX=.
+    if (df $BUILD_DIR 2>&1 |grep nfs >/dev/null); then
+        nfs=yes  # Irix version displays fs type by default
+    elif (df -g $BUILD_DIR 2>&1 |grep nfs >/dev/null); then
+        nfs=yes  # SunOS version needs -g to display fs type
+    elif (df -T $BUILD_DIR 2>&1 |grep nfs >/dev/null); then
+        nfs=yes  # GNU version needs -T to display fs type
+    fi
+    if [ -n "$nfs" ]; then
+        mkdir /tmp/$USER 2>/dev/null # might already exist
+        mkdir /tmp/$USER/build_saf-$$ || exit 1 # shouldn't exist
+        HDF5_PARAPREFIX=/tmp/$USER/build_saf-$$
+        echo "HDF5_PARAPREFIX=$HDF5_PARAPREFIX because build directory is nfs."
+    fi
+fi
+[ $PACKAGE = hdf5 ] && export HDF5_PARAPREFIX
+
+##################################################################################################################################
+# Additional configure switches
+
+config_switches="$config_switches --prefix=$install_prefix"
+[ $PACKAGE != mpich -a -n "$enable_parallel" ] && config_switches="$config_switches --enable-parallel"
+[ $PACKAGE = saf -a -r $srcdir/vbt/lib/vbt1r3.tbl ] && config_switches="$config_switches --with-vbt=1r3"
+case "$PACKAGE:$VERSION:$PRODUCT" in
+    mpich:1.*:debug)
+	config_switches="$config_switches --disable-f77 --enable-long-long --enable-long-double"
+	config_switches="$config_switches --with-mpe --enable-mpedbg --enable-debug -opt=-g"
+	;;
+    mpich:1.*:optim)
+	config_switches="$config_switches --disable-f77 --enable-long-long --enable-long-double"
+	config_switches="$config_switches --without-mpe --disable-mpedbg --disable-debug -opt=-O"
+	;;
+    mpich:1.*:profile)
+	config_switches="$config_switches --disable-f77 --enable-long-long --enable-long-double"
+	config_switches="$config_switches --without-mpe --disable-mpedbg --disable-debug -opt=-g"
+        ;;
+
+    mpich:2.*:debug)
+	config_switches="$config_switches --disable-f77 --disable-f90 --disable-cxx --enable-romio --disable-sharedlibs"
+	config_switches="$config_switches --enable-error-checking=all --enable-error-messages=all"
+	config_switches="$config_switches --enable-g=all --with-logging=slog2 --with-mpe"
+	;;
+    mpich:2.*:optim)
+	config_switches="$config_switches --disable-f77 --disable-f90 --disable-cxx --enable-romio --disable-sharedlibs"
+	config_switches="$config_switches --enable-fast --enable-g=none"
+	;;
+
+    hdf5:*:debug|saf:*:debug)
+	config_switches="$config_switches --disable-production --enable-debug --enable-trace"
+	;;
+    hdf5:*:optim|saf:*:optim)
+	config_switches="$config_switches --enable-production --disable-debug --disable-trace"
+	;;
+    hdf5:*:profile|saf:*:profile)
+	config_switches="$config_switches --enable-production=profile --disable-debug --disable-trace"
+	;;
+
+    *)
+	echo "$ME: unable to build $PACKAGE-$VERSION for $PRODUCT (I do not know how to configure it)" >&2
+	exit 1
+	;;
+esac
+
+##################################################################################################################################
+# Configuration sanity checks
+if [ $PACKAGE = mpich ]; then
+    if (echo "$@" |grep -- --with-device >/dev/null); then
+	:
+    else
+	echo "$ME: Warning: you didn't specify --with-device for the MPICH configure script"
+    fi
+fi
+    
+##################################################################################################################################
+# Summarize
+
+echo "Summary of what will be done:"
+echo "  Package to build:  $PACKAGE $VERSION on $ARCH"
+echo "  Using compiler:    $COMPILER (CC="'"'"$CC"'"'")"
+[ -n "$CPP" ] && echo "  C Preprocessor:    $CPP"
+echo "  Compiler mode:     $CCMODE $PRODUCT"
+if [ $PACKAGE = saf ]; then
+    echo "  HDF5 location:     $HDF5 ($HDF5_HOME)"
+fi
+echo "  Build directory:   $BUILD_DIR"
+echo "  Configure script:  $configure $@ $SKIP_CONFIG_NOTE"
+
+echo_n "  Makefiles for:     $MAKE"
+[ -n "$MAKE1" ] && echo_n " (or then $MAKE1)"
+[ -n "$TARGETS" -a "$TARGETS" != none ] && echo_n " $TARGETS"
+echo
+
+echo "  Install targets:   $INSTALL (prefix=$install_prefix)"
+[ -n "$LD_LIBRARY_PATH" ] && echo "  LD_LIBRARY_PATH:   $LD_LIBRARY_PATH"
+
+if [ -n "$NOEXEC" ]; then
+    echo "  Executing:         Only printing commands that would be executed"
+else
+    echo "  Executing:         Executing all commands"
+fi
+
+echo
+
+##################################################################################################################################
+# Export variables we set
+export MAKE
+export CC
+export CPP
+export CFLAGS
+if [ $PACKAGE = mpich ]; then
+    CFLAGS="$CFLAGS $CPPFLAGS"
+    CPPFLAGS=
+else
+    export CPPFLAGS
+fi
+export LDFLAGS
+export LIBS
+export LD_LIBRARY_PATH
+export RUNPARALLEL
+export RUNSERIAL
+
+# Use debug partition on LC machines
+MP_RMPOOL=${MP_RMPOOL-0}; export MP_RMPOOL
+[ "$PACKAGE" = hdf5 ] && MP_LABELIO=no; export MP_LABELIO # labels interfere with H5detect.
+
+##################################################################################################################################
+# Make the build directory
+
+(
+    trap "echo '***EXIT***'" EXIT
+    banner "Preparing build directory ($BUILD_DIR)"
+    if [ -d $BUILD_DIR ]; then
+	if [ "`echo $PRUNE |cut -c1`" = "y" ]; then
+	    if [ ! -f $BUILD_DIR/configure ]; then
+		echo "Removing $BUILD_DIR..."
+		action rm -rf $BUILD_DIR || exit 1
+		action mkdir -p $BUILD_DIR || exit 1
+	    else
+		echo "$ME: build directory appears to contain source code (not deleting it)" >&2
+		exit 1
+	    fi
+	elif [ "`echo $SKIP_CONFIG |cut -c1`" = y ]; then
+	    echo "$ME: build directory exists and will be reused"
+	else
+	    echo "$ME: build directory already exists. It will be reused in 8 seconds."
+	    sleep 8
+	fi
+    else
+	action mkdir -p $BUILD_DIR || exit 1
+    fi
+    trap - EXIT
+) 2>&1 |terse 'build directory' || exit 1
+
+##################################################################################################################################
+# Configure
+(
+    trap "echo '***EXIT***'" EXIT
+    banner "Configuring $PACKAGE $VERSION"
+    echo "+ cd $BUILD_DIR"
+    [ -n "$NOEXEC" ] || cd $BUILD_DIR
+    if [ "`echo $SKIP_CONFIG |cut -c1`" != y ]; then
+	unset INSTALL #interferes with hdf5's configure
+	action $configure $config_switches $@ || exit 1
+
+	# Create the installation directory now and make it either group `dmf' mode 2775 or
+	# the default group mode 755. Don't complain (rather use the default) if we can't do this. If
+	# we can't even create the directory here then we'll get an error if we eventually do
+	# a `make install'.
+	(
+	    umask 022
+	    action mkdir_pg $GROUP 2775 $install_prefix
+	)
+    fi
+    trap - EXIT
+) 2>&1 |terse configuration || exit 1
+
+##################################################################################################################################
+# Build. If $MAKE fails and $MAKE1 is set then run it as well. That way if MAKE=pmake gets an error but produces thousands of
+# lines of additional output, we'll run MAKE1='pmake -J1' and get the same error again but closer to the end of its output.
+for target in none $TARGETS; do
+
+    # MPICH uses slightly different target names than HDF5 and SAF
+    if [ $PACKAGE = mpich ]; then
+       case $target in
+           all) target= ;;
+           check) target=testing ;;
+       esac
+    fi
+
+    # Run make
+    if [ "$target" != none ]; then
+	(
+	    trap "echo '***EXIT***'" EXIT
+	    banner "Running $MAKE $target"
+	    echo "+ cd $BUILD_DIR"
+	    [ -n "$NOEXEC" ] || cd $BUILD_DIR
+            if [ -n "$MAKE1" ]; then
+                action $MAKE $target || action $MAKE1 $target || exit 1
+            else
+                action $MAKE $target || exit 1
+            fi
+	    trap - EXIT
+	) 2>&1 |terse "$MAKE $target" || exit 1
+    fi
+done
+
+##################################################################################################################################
+# Install
+if [ $INSTALL = 'yes' ]; then
+    (
+        trap "echo '***EXIT***'" EXIT
+	banner "Installing final targets ($install_prefix)"
+	echo "+ cd $BUILD_DIR"
+        [ -n "$NOEXEC" ] || cd $BUILD_DIR
+        action $MAKE install || exit 1
+        trap - EXIT
+    ) 2>&1 |terse "$MAKE install" || exit 1
+fi
+
+exit 0

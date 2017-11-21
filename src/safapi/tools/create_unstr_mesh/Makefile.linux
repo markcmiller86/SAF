@@ -1,0 +1,40 @@
+##
+##
+##
+SAF_DIR=/usr/local/saf/1.7.1-devel
+HDF_DIR=/usr/local/hdf5/1.6.0
+
+HDF_SUBDIR=/serial/optim/
+SAF_SUBDIR=/serial/optim/
+
+CC=gcc
+CFLAGS= -g -Wall -W -Wundef -Wno-shadow -Wpointer-arith -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wredundant-decls -Winline -Wno-long-long
+
+LINK_FLAGS= -lsafapi -lvbt -ldsl -lhdf5 -lm -lc -lz 
+
+SAF_INCLUDE=${SAF_DIR}${SAF_SUBDIR}/include/
+SAF_PRIVATE_INCLUDE=${SAF_DIR}${SAF_SUBDIR}/include/private
+HDF_INCLUDE=${HDF_DIR}${HDF_SUBDIR}/include
+Z_LIB=/usr/local/lib
+SAF_LIB=${SAF_DIR}${SAF_SUBDIR}/lib/
+HDF_LIB=${HDF_DIR}${HDF_SUBDIR}/lib
+
+all: clean create_unstr_mesh 
+
+create_unstr_mesh: create_unstr_mesh.c
+	@echo "-------------------------------------------------------"
+	${CC} ${CFLAGS}  -I. \
+	-I${SAF_INCLUDE} -I${HDF_INCLUDE} -I${SAF_PRIVATE_INCLUDE} \
+	-L${SAF_LIB} -L${HDF_LIB} -L${Z_LIB} \
+	create_unstr_mesh.c ${LINK_FLAGS} -o create_unstr_mesh
+	
+.c.o: 
+	@echo "-------------------------------------------------------"
+	${CC} ${CFLAGS}  -I. \
+	-I${SAF_INCLUDE} -I${HDF_INCLUDE} -I${SAF_PRIVATE_INCLUDE} \
+	-c $<
+
+clean:
+	@echo "-------------------------------------------------------"
+	rm -f *.o create_unstr_mesh *.saf 
+

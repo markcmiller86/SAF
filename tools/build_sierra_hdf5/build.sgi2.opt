@@ -1,0 +1,95 @@
+#!/bin/csh
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+set path=(/usr/bin $path)
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+setenv DEST /sierra/Release/hdf5/1.7.45
+if($?SRC_DIR) then
+ setenv DEST ${SRC_DIR}
+endif
+setenv SOURCE ${DEST}/src
+
+setenv SIERRA_PLATFORM sgi2
+setenv SIERRA_OPT_DBG opt
+setenv SIERRA_INSTDIR dp_opt_${SIERRA_PLATFORM}
+
+setenv CONFDIR cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+setenv OPTION install_$SIERRA_PLATFORM
+setenv INSTDIR $DEST/$OPTION/$SIERRA_OPT_DBG
+
+mkdir $DEST/include >& /dev/null
+mkdir $DEST/lib  >& /dev/null
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  >& /dev/null
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  >& /dev/null
+mkdir ${INSTDIR}  >& /dev/null
+mkdir ${INSTDIR}/lib  >& /dev/null
+mkdir ${INSTDIR}/include  >& /dev/null
+
+set all=1
+if ($all) then
+  mkdir $DEST/$CONFDIR  >& /dev/null
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+endif
+                                                                                            
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+setenv HOSTFILE `pwd`/hostfile
+# setenv RUNSERIAL "/usr/bin/mpirun -np 1"
+setenv RUNPARALLEL "/usr/bin/mpirun -np 3"
+setenv NPROCS 3
+
+
+
+setenv OS IRIX64
+setenv CC "cc -64  -mips4 -r12000 -G0 -O3 -OPT:Olimit=125000"
+unsetenv CXXFLAGS
+unsetenv FFLAGS
+unsetenv LDFLAGS
+unsetenv CPPFLAGS
+
+# FROM build_saf
+# cc -64 .libs/chunkS.o -woff 1209,3201 -Wl,-woff -Wl,47 -Wl,-woff -Wl,84 -Wl,-woff -Wl,85 -Wl,-woff -Wl,134 -fullwarn
+
+# FROM: old flags -ansiW did not work
+# setenv CFLAGS "-64 -c99 -LANG:std -ansiW -woff 1066,1169,1355,1429,1485 "
+
+setenv CFLAGS "-64 -mips4 -r12000 -G0 -O3 -OPT:Olimit=125000 -LANG:std -woff 1066,1169,1355,1429,1485,1552,1174,1035,1209,3201  -Wl,-woff -Wl,47 -Wl,-woff -Wl,84 -Wl,-woff -Wl,85 -Wl,-woff -Wl,134 -fullwarn "
+# setenv CFLAGS "-LANG:std -woff 1209,3201,1035 -Wl,-woff -Wl,47 -Wl,-woff -Wl,84 -Wl,-woff -Wl,85 -Wl,-woff -Wl,134 -fullwarn "
+setenv MAKE gmake
+setenv COMPILER "cc -64 "
+setenv MPICH sgi-mpi
+setenv LIBS "-lmpi "
+
+if ($all) then
+   $SOURCE/configure --enable-production --disable-debug --enable-trace \
+--enable-parallel --disable-serial --enable-static --disable-shared  \
+--with-zlib=no --prefix=$INSTDIR |tee $OPTION.configure
+
+    gmake -j 4 |& tee $OPTION.make
+    gmake check |& tee $OPTION.test
+    gmake install
+else
+    gmake install
+endif
+
+
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+
+ 
+

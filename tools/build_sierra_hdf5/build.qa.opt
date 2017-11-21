@@ -1,0 +1,92 @@
+#!/bin/csh
+
+#
+# This script is intended to work with or without build_tpl
+#
+
+#
+# These might already be loaded
+module load CXX_6.5.0
+module load MPI_64bit_R5
+
+
+#
+# If you don't use build_tpl modify $DEST or set SRC_DIR externally. Build_tpl
+# does it for you.
+#
+setenv DEST /usr/projects/sierra/Release/hdf5/1.8.0
+if($?SRC_DIR) then
+ setenv DEST ${SRC_DIR}
+endif
+setenv SOURCE ${DEST}/source
+
+
+
+setenv SIERRA_PLATFORM qa
+setenv SIERRA_OPT_DBG opt
+setenv SIERRA_INSTDIR dp_opt_${SIERRA_PLATFORM}
+
+                                                                                
+setenv CONFDIR cfg_${SIERRA_PLATFORM}_${SIERRA_OPT_DBG}
+setenv OPTION install_$SIERRA_PLATFORM
+
+mkdir $DEST/include >& /dev/null
+mkdir $DEST/lib  >& /dev/null
+mkdir ${DEST}/lib/${SIERRA_INSTDIR}  >& /dev/null
+mkdir ${DEST}/include/${SIERRA_INSTDIR}  >& /dev/null
+
+setenv all 1
+if ($all) then
+  mkdir $DEST/$CONFDIR  >& /dev/null
+  cd $DEST/$CONFDIR
+  rm -rf $DEST/$CONFDIR/*
+else
+  cd $DEST/$CONFDIR
+endif
+                                                                                            
+setenv INSTDIR $DEST/$OPTION/$SIERRA_OPT_DBG
+    
+echo Configuration Directory `pwd`
+echo `hostname` > hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+echo `hostname` >> hostfile
+                                                                                        
+setenv HOSTFILE `pwd`/hostfile
+setenv RUNSERIAL "/bin/prun -np 1 "
+setenv RUNPARALLEL "/bin/prun -np 3"
+setenv NPROCS 3
+
+
+
+setenv OS OSF1
+setenv TERSE 'no'
+setenv CC cxx
+unsetenv MPICH 
+unsetenv COMPILER 
+setenv CFLAGS " -O2 -I/usr/local/opt/Compaq_MPI_64_2.5UK1_r1/usr/include"
+setenv LIBS " -lm -lmld -lmpi -lelan -lelan3 -lmach -lrmscall"
+setenv LDFLAGS "-L/usr/local/opt/Compaq_MPI_64_2.5UK1_r1/usr/lib -L/usr/local/opt/Compaq_MPI_64_2.5UK1_r1/usr/shlib"
+# setenv MAKE "gmake -j2"
+
+if ($all) then
+
+  $SOURCE/configure --enable-production --disable-debug \
+--enable-parallel --disable-serial --enable-static --disable-shared  \
+--prefix=$INSTDIR |tee $OPTION.configure
+
+  gmake -j4 |& tee $OPTION.make
+                                                                                            
+#  gmake check |& tee $OPTION.test
+
+  gmake install
+else
+  gmake install
+endif
+
+
+cp  $INSTDIR/lib/*.* ${DEST}/lib/${SIERRA_INSTDIR}/.
+cp  $INSTDIR/include/*.* ${DEST}/include/${SIERRA_INSTDIR}/.
+
+ 
+

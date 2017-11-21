@@ -1,0 +1,1286 @@
+dnl The ASCI-SAF configuration file.
+dnl Process this file with autoconf to produce configure.
+dnl
+dnl Copyright(C) 1999-2003 The Regents of the University of California.
+dnl     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+dnl     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+dnl     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+dnl     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+dnl     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+dnl     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+dnl     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+dnl     University.
+dnl 
+dnl Copyright(C) 1999-2003 Sandia Corporation.
+dnl     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+dnl     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+dnl     States Government.
+dnl 
+dnl Disclaimer:
+dnl     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+dnl     Government. Neither the United States  Government nor the United States Department of Energy nor 
+dnl     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+dnl     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+dnl     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+dnl     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+dnl     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+dnl     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+dnl     recommendation, or favoring by the  United States Government   or the University of  California.  
+dnl     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+dnl     the  United  States Government or  the   University of California   and shall  not be  used  for
+dnl     advertising or product endorsement purposes.
+dnl 
+dnl Active Developers:
+dnl     Peter K. Espen              SNL
+dnl     Christi Forsythe            SNL
+dnl     Jake S. Jones               SNL
+dnl     Robb P. Matzke              LLNL
+dnl     Mark C. Miller              LLNL
+dnl     Greg Sjaardema              SNL
+dnl 
+dnl Inactive Developers:
+dnl     William J. Arrighi          LLNL
+dnl     Ray T. Hitt                 SNL
+dnl     Matthew J. O'Brien          LLNL
+dnl     James F. Reus               LLNL
+dnl     Larry A. Schoof             SNL
+dnl 
+dnl Acknowledgements:
+dnl     Marty L. Barnaby            SNL - parallel perf. study/tuning
+dnl     David M. Butler             LPS - Data model design/implementation Spec.
+dnl     Albert K. Cheng             NCSA - Parallel HDF5 support
+dnl     Nancy Collins               IBM - Alpha/Beta user
+dnl     Linnea M. Cook              LLNL - Management advocate
+dnl     Michael J. Folk             NCSA - Management advocate 
+dnl     Richard M. Hedges           LLNL - parallel perf. study/tuning 
+dnl     Shirley R. Jennings         LLNL - Occasional release support
+dnl     Wilbur W. Johnson           SNL - Early Developer
+dnl     Quincey A. Koziol           NCSA - Serial HDF5 Support 
+dnl     Celeste M. Matarazzo        LLNL - Management advocate
+dnl     Tyce T. McLarty             LLNL - parallel perf. study/tuning
+dnl     Tom H. Robey                SNL - Early developer
+dnl     Reinhard W. Stotzer         SNL - Early developer
+dnl     Judy Sturtevant             SNL - parallel perf. study/tuning 
+dnl     Robert K. Yates             LLNL - Pacific parallel perf. study/tuning
+dnl 
+
+dnl ----------------------------------------------------------------------
+dnl Initialize configure.
+dnl
+AC_INIT
+AC_CONFIG_SRCDIR([config/BlankForm])
+AC_CONFIG_HEADER(include/SAFconfig.h)
+AC_CONFIG_AUX_DIR(config)
+AC_CANONICAL_HOST
+AC_SUBST(CPPFLAGS)
+
+dnl ----------------------------------------------------------------------
+dnl Dump all shell variables to log file for debugging purposes.
+dnl
+AC_MSG_CHECKING(shell variables initial values)
+set >&5
+AC_MSG_RESULT(done)
+
+dnl ----------------------------------------------------------------------
+dnl Check that the cache file was build on the same host as what we're
+dnl running on now.
+dnl
+AC_CACHE_CHECK(for cached host,saf_cv_host,saf_cv_host="none");
+if test $saf_cv_host = "none"; then
+   saf_cv_host=$host
+elif test $saf_cv_host != $host; then
+   echo "The config.cache file was generated on $saf_cv_host but"
+   echo "this is $host.  Please remove that file and try again."
+   AC_MSG_ERROR(config.cache file is invalid)
+fi
+
+dnl ----------------------------------------------------------------------
+dnl The following function returns the base name of the first command. All
+dnl arguments `env' and `NAME=VALUE' are skipped when looking for the command.
+cmd_name () {
+    while test -n "$1"; do
+	case "$1" in
+	    env|*=*) shift ;; #skip
+	    *) break ;;
+	esac
+    done
+    echo "$1"
+}
+
+cmd_basename () {
+    full="`cmd_name $*`"
+    basename $full
+}
+
+cmd_pathname () {
+    full="`cmd_name $*`"
+    #echo ${full%/*}          # Does not work on solaris. Use sed instead.
+    echo $full | sed 's/\(.*\)\/.*/\1/'
+}
+
+dnl ----------------------------------------------------------------------
+dnl Source any special files that we need.  These files normally aren't
+dnl present but can be used by the maintainers to fine tune things like
+dnl turning on debug or profiling flags for the compiler.  The search order
+dnl is as follows with each `OS' value tried with and without the trailing
+dnl version number.
+dnl
+dnl	CPU-VENDOR-OS
+dnl	VENDOR-OS
+dnl	CPU-OS
+dnl	CPU-VENDOR
+dnl	OS
+dnl	VENDOR
+dnl	CPU
+dnl
+changequote(,)
+host_os_novers=`echo $host_os | sed 's/\..*$//'`
+changequote([,])
+host_config="none"
+for f in $host_cpu-$host_vendor-$host_os \
+	 $host_cpu-$host_vendor-$host_os_novers \
+	 $host_vendor-$host_os \
+         $host_vendor-$host_os_novers \
+	 $host_cpu-$host_os \
+         $host_cpu-$host_os_novers \
+         $host_cpu-$host_vendor \
+	 $host_os \
+	 $host_os_novers \
+	 $host_vendor \
+	 $host_cpu ; do
+   AC_MSG_CHECKING(for config $f)
+   if test -f $srcdir/config/$f; then
+      host_config=$srcdir/config/$f
+      AC_MSG_RESULT(found)
+      break
+   fi
+   AC_MSG_RESULT(no)
+done
+if test $host_config != "none"; then
+   CC_BASENAME="`cmd_basename $CC`"
+   . $host_config
+fi
+
+
+
+dnl ----------------------------------------------------------------------
+dnl Check for programs.
+dnl
+AC_PROG_CC
+
+dnl The preprocessor is a little tricky. Most of the tests below will
+dnl fail if the preprocessor emits anything on stderr (including warnings
+dnl about unused command-line switches for things like libraries, which
+dnl might be supplied to the preprocessor if $CC is actually some wrapper
+dnl around the real C compiler. Therefore we need to temporarily turn
+dnl off all warnings.
+old_CC="$CC"
+CC="$CC $CPP_NOWARN"
+AC_PROG_CPP
+CC="$old_CC"
+
+# The base name of the compiler
+CC_BASENAME="`cmd_basename $CC`"
+
+# Other programs...
+AC_PROG_MAKE_SET
+AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
+
+if test -n "$AR"; then
+   AC_CHECK_PROGS(AR,ar xar,:,$PATH)
+fi
+AC_SUBST(AR)
+
+dnl ----------------------------------------------------------------------
+dnl AM_PROG_LIBTOOL looks at $enable_static and $enable_shared but then
+dnl might refuse to do one or the other based on what capabilities it
+dnl detects.  The only way we know of to find out what AM_PROG_LIBTOOL
+dnl decided is to look at the libtool script that was produced. We will
+dnl then reset $enable_static and $enable_shared based on what we find
+dnl in that script.
+if (grep '^build_libtool_libs=yes' libtool >/dev/null); then
+    enable_shared=yes
+else
+    enable_shared=no
+fi
+if (grep '^build_old_libs=yes' libtool >/dev/null); then
+    enable_static=yes
+else
+    enable_static=no
+fi
+
+dnl ----------------------------------------------------------------------
+dnl Are we using C++ as an improved C?
+dnl
+AC_ARG_ENABLE(cxx,
+  [  --enable-cxx            Use C++ compiler as an improved C compiler.])
+
+if test "X$enable_cxx" = "Xyes" ; then
+   AC_PROG_CXX
+   CXX_BASENAME="`cmd_basename $CXX`"
+fi
+
+dnl ----------------------------------------------------------------------
+dnl save what we've learned so far in the cache
+dnl
+AC_CACHE_SAVE
+
+dnl ----------------------------------------------------------------------
+dnl Check for autoconf. On repo machine, compiler is gcc but autconf is
+dnl not on the machine 
+dnl
+AC_PATH_PROG(AUTOCONF,autoconf,,$PATH:/usr/local/bin:/usr/gnu/bin:/usr/local/gnu/bin)
+AUTOCONF=${AUTOCONF:=:} dnl needs to be something!
+
+dnl ----------------------------------------------------------------------
+dnl Check for the version of `make' and how to include the distributed
+dnl dependencies.
+dnl
+dnl	depend1: GNU make and gcc -- full automatic dependencies
+dnl	depend2: GNU make but native cc (-include Dependencies)
+dnl	depend3: pmake (include <Dependencies>)
+dnl     depend4: other -- dependences are not included.
+AC_MSG_CHECKING(make)
+AC_SUBST(NODIRS)
+AC_SUBST_FILE(DEPEND)
+if test "`${MAKE-make} --version -f /dev/null 2>/dev/null |\
+  sed -n 1p|cut -c1-8`" = "GNU Make"; then
+    GMAKE=yes
+    NODIRS=--no-print-directory
+    if test "X$GCC" = "Xyes"; then
+	AC_MSG_RESULT(GNU make and gcc)
+        DEPEND=config/depend1
+    else
+        AC_MSG_RESULT(GNU make, not gcc)
+	DEPEND=config/depend2
+    fi
+else
+    AC_MSG_RESULT(not GNU)
+fi
+
+dnl How do we include another file into a Makefile?
+if test "X" = "X$DEPEND"; then
+    AC_MSG_CHECKING(how to include a makefile)
+
+    dnl The include file contains the target for `foo'
+    cat >makeinc <<EOF
+foo:
+	@:
+EOF
+
+    while true; do #for break
+
+	dnl pmake. We have to be careful because some pmake think that the
+	dnl contents of the MAKE environment variable is a target.
+	echo '.include <makeinc>' >maketest
+	if (MAKE= ${MAKE-make} -f maketest foo) >/dev/null 2>&1; then
+	    AC_MSG_RESULT([.include <FILE>])
+	    DEPEND=config/depend3
+	    break
+	fi
+
+	dnl Most make's use `include FILE'
+	echo 'include makeinc' >maketest
+	if (${MAKE-make} -f maketest foo) >/dev/null 2>&1; then
+	    AC_MSG_RESULT(include FILE)
+	    DEPEND=config/depend4
+	    break;
+	fi
+
+	dnl default
+	AC_MSG_RESULT(you have a deficient make command)
+	DEPEND=config/dependN
+	break
+    done
+    rm makeinc maketest
+fi
+
+dnl Sometimes makes think the `.PATH:' appearing before the first rule
+dnl with an action should override the `all' default target. So we have
+dnl to decide what the proper syntax is.
+dnl
+AC_MSG_CHECKING(how make searches directories)
+while true; do #for break
+    # The most common method is `VPATH=DIR1 DIR2 ...'
+    cat >maketest <<EOF
+VPATH=$srcdir/config $srcdir/include
+.c.o:
+	cp $< testmake.o
+
+testmake: testmake.o
+	/bin/rm -f testmake.o
+	@echo works
+EOF
+    if (${MAKE-make} -f maketest testmake) >/dev/null 2>&1; then
+	SEARCH_RULE='VPATH='
+	SEARCH_SEP=' '
+	AC_MSG_RESULT([VPATH=DIR1 DIR2 ...])
+	break
+    fi
+
+    # The second most common method is like above except with the
+    # directories separated by colons.
+    cat >maketest <<EOF
+VPATH=$srcdir/config:$srcdir/include
+.c.o:
+	cp $< testmake.o
+
+testmake: testmake.o
+	/bin/rm -f testmake.o
+	@echo works
+EOF
+    if (${MAKE-make} -f maketest testmake) >/dev/null 2>&1; then
+	SEARCH_RULE='VPATH='
+	SEARCH_SEP=':'
+	AC_MSG_RESULT([VPATH=DIR1:DIR2:...])
+	break
+    fi
+
+    # pmake uses the construct `.PATH: DIR1 DIR2
+    cat >maketest <<EOF
+.PATH: $srcdir/config $srcdir/include
+.c.o:
+	cp $< testmake.o
+
+testmake: testmake.o
+	/bin/rm -f testmake.o
+	@echo works
+EOF
+    if (MAKE= ${MAKE-make} -f maketest testmake) >/dev/null 2>&1; then
+	SEARCH_RULE='.PATH: '
+    	SEARCH_SEP=' '
+	AC_MSG_RESULT([.PATH: DIR1 DIR2 ...])
+    	break
+    fi
+
+    # No way for make to search directories
+    SEARCH_RULE='## SEARCH DISABLED: '
+    SEARCH_SEP=' '
+    AC_MSG_RESULT([it doesn't])
+    if test ! -f configure; then
+	AC_MSG_ERROR(${MAKE-make} requires the build and source directories to be the same)
+    fi
+    break
+done
+rm maketest
+
+dnl ----------------------------------------------------------------------
+dnl Turn on warning flags for gcc.
+dnl
+ #removed 19dec2001: this is accomplished already in gnu-flags
+ # if test "$GCC" = yes; then
+    # CFLAGS="$CFLAGS -Wall -W"
+ # fi
+
+dnl ----------------------------------------------------------------------
+dnl Production flags?  Save the value in $CONFIG_MODE so we have it for
+dnl the record.
+dnl
+AC_MSG_CHECKING(for production mode)
+AC_ARG_ENABLE(production,
+  [  --enable-production     Determines how to run the compiler.]
+  ,,enable_production=no)
+
+case "X-$enable_production" in
+   X-yes)
+      AC_MSG_RESULT("production")
+      AC_DEFINE(PRODUCTION_COMPILE)
+      CONFIG_MODE=production
+      CFLAGS="$CFLAGS $PROD_CFLAGS"
+      CPPFLAGS="$CPPFLAGS $PROD_CPPFLAGS"
+      ;;
+   X-no)
+      AC_MSG_RESULT("development")
+      CONFIG_MODE=development
+      CFLAGS="$CFLAGS $DEBUG_CFLAGS"
+      CPPFLAGS="$CPPFLAGS $DEBUG_CPPFLAGS"
+      ;;
+   X-pg|X-profile)
+      AC_MSG_RESULT("profile")
+      CONFIG_MODE=profile
+      CFLAGS="$CFLAGS $PROFILE_CFLAGS"
+      CPPFLAGS="$CPPFLAGS $PROFILE_CPPFLAGS"
+      ;;
+   *)
+      AC_MSG_RESULT("user-defined")
+      CONFIG_MODE="$X-enable_production"
+      ;;
+esac	
+
+
+dnl ----------------------------------------------------------------------
+dnl If you want --enable-coverage, then we must make sure that gcc is present
+dnl and works with the flags -fprofile-args -ftest-coverage
+dnl we must also make sure gcov is present.  We also need perl to be present.
+dnl
+dnl
+dnl
+AC_MSG_CHECKING(for test coverage analysis)
+AC_ARG_ENABLE(coverage,
+  [  --enable-coverage       Turn on test coverage analysis.]
+  ,,enable_coverage=no)
+
+case "X-$enable_coverage" in
+   X-yes)
+      AC_MSG_RESULT("test coverage enabled")
+      AC_DEFINE(COVERAGE_COMPILE)
+      CONFIG_MODE=coverage
+      CC="gcc"
+      CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"
+      CPPFLAGS="$CPPFLAGS"
+
+
+      AC_CHECK_PROG(gcc_coverage_exists, gcc -fprofile-arcs -ftest-coverage, "yes", "no") 
+      AC_CHECK_PROG(gcov_exists, gcov, "yes", "no") 
+      AC_CHECK_PROG(perl_exists, perl, "yes", "no") 
+	
+
+	if test "$gcc_coverage_exists" = no; then
+		echo "gcc -fprofile-arcs -ftest-coverage does not work, but is required for --enable-coverage"
+		exit 1
+	fi
+
+	if test "$perl_exists" = no; then
+		echo "Can not find perl, required for --enable-coverage"
+		exit 1
+	fi
+
+	if test "$gcov_exists" = no; then
+		echo "Can not find gcov, required for --enable-coverage"
+		exit 1
+	fi
+	
+      ;;
+   *)
+      AC_MSG_RESULT("no coverage")
+      ;;
+esac	
+
+
+
+dnl end of --enable-coverage section*******************************************************
+
+
+
+
+dnl ----------------------------------------------------------------------
+dnl save what we've learned so far in the cache
+dnl
+AC_CACHE_SAVE
+
+dnl ----------------------------------------------------------------------
+dnl Check for libraries common to all software
+dnl
+AC_CHECK_LIB(m,ceil)
+AC_CHECK_LIB(coug,main)		dnl ...for ASCI/Red
+AC_CHECK_LIB(gpfs,gpfs_fcntl)	dnl ...for IBM SP GPFS file system
+AC_CHECK_LIB(rt,aio_write)      dnl ...POSIX.1b functions on Linux
+
+dnl ----------------------------------------------------------------------
+dnl Check for system header files.
+dnl
+AC_HEADER_STDC
+AC_HEADER_TIME
+AC_CHECK_HEADERS(sys/resource.h sys/time.h unistd.h sys/ioctl.h sys/stat.h)
+AC_CHECK_HEADERS(stddef.h setjmp.h aio.h)
+AC_CHECK_HEADERS(stdint.h, C9x=yes)
+AC_CHECK_HEADERS(gmgh.h) dnl AIX GPFS stuff
+AC_CHECK_HEADERS(io.h direct.h process.h) dnl WIN32, but here so they get into SAFconfig.h.in
+
+case $host in
+    alpha*-dec*-osf*)
+	dnl The <sys/sysinfo.h> and <sys/proc.h> are needed on the DEC
+	dnl Alpha to turn off UAC fixing. We do *not* attempt to
+	dnl locate these files on other systems because there are too
+	dnl many problems with including them.
+	AC_CHECK_HEADERS(sys/sysinfo.h sys/proc.h)
+	;;
+esac
+
+dnl ----------------------------------------------------------------------
+dnl Is the libz present?  It has a header file `zlib.h' and a library
+dnl `-lz' and their locations might be specified with the `--with-zlib'
+dnl command-line switch.  The value is an include path and/or a library path.
+dnl If the library path is specified then it must be preceded by a comma.
+dnl
+AC_ARG_WITH(zlib,[  --with-zlib=INC,LIB     Use the zlib compression]
+            ,,with_zlib=yes)
+case $with_zlib in
+    yes)
+	AC_CHECK_HEADERS(zlib.h)
+	AC_CHECK_LIB(z, compress)
+	;;
+    no)
+	AC_MSG_CHECKING(for zlib)
+	AC_MSG_RESULT(suppressed)
+	;;
+    *)
+	zlib_inc="`echo $with_zlib |cut -f1 -d,`"
+	if test -n "$zlib_inc"; then
+	    saved_CPPFLAGS="$CPPFLAGS"
+	    CPPFLAGS="$CPPFLAGS -I$zlib_inc"
+	    AC_CHECK_HEADERS(zlib.h,,CPPFLAGS="$saved_CPPFLAGS")
+        else
+	    AC_CHECK_HEADERS(zlib.h)
+	fi
+
+	zlib_lib="`echo $with_zlib |cut -f2 -d, -s`"
+	if test -n "$zlib_lib"; then
+	    saved_LDFLAGS="$LDFLAGS"
+	    LDFLAGS="$LDFLAGS -L$zlib_lib"
+	    AC_CHECK_LIB(z, compress,,LDFLAGS="$saved_LDFLAGS")
+	else
+	    AC_CHECK_LIB(z, compress)
+	fi
+	;;
+esac
+
+dnl ----------------------------------------------------------------------
+dnl HDF5 is a prerequisite.  We have to check this before we check for
+dnl Asynchronous I/O support below.
+
+AC_CHECK_HEADERS(hdf5.h,,AC_MSG_ERROR(HDF5 is required))
+AC_CHECK_LIB(hdf5,main,,AC_MSG_ERROR(HDF5 is required))
+#LIBS="-lhdf5 $LIBS"  # already done by AC_CHECK_LIB -rpm 2003-05-13
+AC_CHECK_FUNCS(H5Eregister_class)
+
+dnl ----------------------------------------------------------------------
+dnl Data types and their sizes.
+dnl
+AC_TYPE_OFF_T
+AC_CHECK_TYPE(size_t, unsigned long)
+AC_CHECK_TYPE(ssize_t, long)
+AC_C_BIGENDIAN
+
+dnl ----------------------------------------------------------------------
+dnl save what we've learned so far in the cache
+dnl
+AC_CACHE_SAVE
+
+dnl Extra header files for AC_CHECK_SIZEOF tests
+cat >>confdefs.h <<\EOF
+#include <sys/types.h>
+EOF
+if test "$C9x" = yes; then
+    cat >>confdefs.h <<\EOF
+#include <stdint.h>
+EOF
+fi
+
+AC_CHECK_SIZEOF( char,        1 )
+AC_CHECK_SIZEOF( short,       2 )
+AC_CHECK_SIZEOF( float,       4 )
+AC_CHECK_SIZEOF( int,         4 )
+AC_CHECK_SIZEOF( long,        4 )
+AC_CHECK_SIZEOF( off_t,       4 )
+AC_CHECK_SIZEOF( size_t,      4 )
+AC_CHECK_SIZEOF( double,      8 )
+dnl    AC_CHECK_SIZEOF( long double, 8 )
+AC_CHECK_SIZEOF( long long,   8 )
+
+
+AC_CHECK_SIZEOF(signed char, 1)
+AC_CHECK_SIZEOF(unsigned char, 1)
+AC_CHECK_SIZEOF(unsigned short, 2)
+AC_CHECK_SIZEOF(unsigned int, 4)
+AC_CHECK_SIZEOF(unsigned long, 4)
+
+AC_CHECK_SIZEOF(unsigned long long, 8)
+AC_CHECK_SIZEOF(__int64, 8)
+
+AC_CHECK_SIZEOF(boolean, 4)
+
+AC_CHECK_SIZEOF(void *, 4)
+
+AC_CHECK_SIZEOF(        int8_t, 1)
+AC_CHECK_SIZEOF(       uint8_t, 1)
+AC_CHECK_SIZEOF(  int_least8_t, 1)
+AC_CHECK_SIZEOF( uint_least8_t, 1)
+AC_CHECK_SIZEOF(   int_fast8_t, 1)
+AC_CHECK_SIZEOF(  uint_fast8_t, 1)
+
+AC_CHECK_SIZEOF(       int16_t, 2)
+AC_CHECK_SIZEOF(      uint16_t, 2)
+AC_CHECK_SIZEOF( int_least16_t, 2)
+AC_CHECK_SIZEOF(uint_least16_t, 2)
+AC_CHECK_SIZEOF(  int_fast16_t, 2)
+AC_CHECK_SIZEOF( uint_fast16_t, 2)
+
+AC_CHECK_SIZEOF(       int32_t, 4)
+AC_CHECK_SIZEOF(      uint32_t, 4)
+AC_CHECK_SIZEOF( int_least32_t, 4)
+AC_CHECK_SIZEOF(uint_least32_t, 4)
+AC_CHECK_SIZEOF(  int_fast32_t, 4)
+AC_CHECK_SIZEOF( uint_fast32_t, 4)
+
+AC_CHECK_SIZEOF(       int64_t, 8)
+AC_CHECK_SIZEOF(      uint64_t, 8)
+AC_CHECK_SIZEOF( int_least64_t, 8)
+AC_CHECK_SIZEOF(uint_least64_t, 8)
+AC_CHECK_SIZEOF(  int_fast64_t, 8)
+AC_CHECK_SIZEOF( uint_fast64_t, 8)
+
+dnl ----------------------------------------------------------------------
+dnl save what we've learned so far in the cache
+dnl
+AC_CACHE_SAVE
+
+dnl ----------------------------------------------------------------------
+dnl Check for libc functions.
+dnl
+AC_CHECK_FUNCS(getpwuid gethostname system getrusage fork waitpid kill)
+AC_CHECK_FUNCS(gettimeofday BSDgettimeofday difftime snprintf vsnprintf)
+AC_CHECK_FUNCS(compress2 setsysinfo longjmp signal sigaction sysconf)
+AC_CHECK_FUNCS(getpid psignal pause)
+AC_CHECK_FUNCS(read_real_time) dnl A timing routine on AIX
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include<sys/types.h>]], [[off64_t n = 0;]])],[AC_CHECK_FUNCS(lseek64 fseek64)],[AC_MSG_RESULT(skipping test for lseek64() and fseek64())])
+
+dnl ----------------------------------------------------------------------
+dnl Are regcmp regex availible? Note that they are sometimes in libc
+dnl and sometimes in -lgen
+dnl
+
+AC_CHECK_HEADERS(libgen.h)
+AC_CHECK_FUNCS(regcmp regex)
+AC_CHECK_FUNCS(MPI_Finalized)
+AC_CHECK_LIB(gen, regex)
+
+dnl ----------------------------------------------------------------------
+dnl Are POSIX regular expressions available. We use them in preference to
+dnl the non-POSIX interface detected above.
+
+AC_CHECK_HEADERS(regex.h)
+AC_CHECK_FUNCS(regcomp regexec)
+
+
+dnl if test "X$ac_cv_func_regex" != Xyes ; then
+dnl    AC_CHECK_LIB(gen, regex)
+dnl fi
+
+dnl ----------------------------------------------------------------------
+dnl save what we've learned so far in the cache
+dnl
+AC_CACHE_SAVE
+
+dnl ----------------------------------------------------------------------
+dnl Check compiler characteristics
+dnl
+
+AC_C_CONST
+
+AC_MSG_CHECKING(for __attribute__ extension)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[int __attribute__((unused)) x]])],[AC_DEFINE(HAVE_ATTRIBUTE)
+		     AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+
+AC_MSG_CHECKING(for __FUNCTION__ extension)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[(void)__FUNCTION__]])],[AC_DEFINE(HAVE_FUNCTION)
+		     AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+
+dnl ----------------------------------------------------------------------
+dnl The following variables are used to distinguish between building a
+dnl serial and parallel library.
+dnl
+dnl    HAVE_PARALLEL	-- defined in SAFconfig.h if we are building
+dnl			   a parallel library even if configure wasn't
+dnl			   able to find some header file or library that
+dnl			   might be required. This is defined if the
+dnl			   compiler looks like a parallel compiler (e.g.,
+dnl			   mpicc or mpcc) or if the user explicitly states
+dnl			   that a parallel library is being built by supplying
+dnl			   the `--enable-parallel' configure switch.
+dnl
+dnl    PARALLEL		-- This variable is set to a non-null value if
+dnl			   configure thinks we're compiling a parallel
+dnl			   version of the library.
+dnl
+dnl    RUNSERIAL	-- This is a command which will be prepended to
+dnl			   the executable name to run the executable using
+dnl			   a single process. For serial versions of the
+dnl			   library this will normally be empty. For parallel
+dnl			   versions it might be something like `mpirun -np 1'.
+dnl			   The value of this variable is substituted in *.in
+dnl			   files.
+dnl
+dnl    RUNPARALLEL	-- This is a command which will be prepended to
+dnl			   the executable name to run the executable on
+dnl			   multiple processors. For the serial library the
+dnl			   value will normally be the empty string. For
+dnl			   parallel library it should be something like
+dnl			   `mpi -np $$NPROCS' where NPROCS will eventually
+dnl			   contain the number of processors on which to run
+dnl			   the executable (the double dollarsigns are to
+dnl			   protect the expansion until make executes the
+dnl			   command).  The value of this variable is
+dnl			   substituted in *.in files.
+dnl
+AC_SUBST(PARALLEL)
+AC_SUBST(RUNSERIAL)
+AC_SUBST(RUNPARALLEL)
+AC_SUBST(TESTPARALLEL)
+
+dnl ----------------------------------------------------------------------
+dnl These are environment variables that possibly need to be passed on to
+dnl MPI tasks at runtime.  Some MPI environments (e.g., LAM) require their
+dnl names to be mentioned on the mpirun command-line.
+
+# Variables in SSlib
+ENV_VARS="$ENV_VARS,SSLIB_DEBUG,SSLIB_2PIO"
+# Variables in _saf_init()
+ENV_VARS="$ENV_VARS,SAF_REGISTRIES,HOME"
+# Variables in saf_createProps_lib()
+ENV_VARS="$ENV_VARS,SAF_ASSERT_DISABLE,SAF_PRECOND_DISABLE,SAF_POSTCOND_DISABLE,SAF_ERROR_REPORTING,SAF_TRACING"
+
+dnl ----------------------------------------------------------------------
+dnl If the compiler is obviously a parallel compiler then we're building
+dnl a parallel version of hdf5 and should define HAVE_PARALLEL. Furthermore,
+dnl the name of the compiler might tell us how to run the resulting
+dnl executable. For `mpicc' the executable should be run with `mpirun' from
+dnl the same directory as mpicc if it exists.
+dnl
+case "$CC_BASENAME" in
+    mpicc)
+	# The mpich compiler. Use mpirun from the same directory if it
+	# exists.
+	PARALLEL=mpicc
+	AC_MSG_CHECKING(for mpirun)
+
+	# Find the path where mpicc is located.
+	cmd="`cmd_name $CC`"
+        if (echo $cmd |grep / >/dev/null); then
+	    path="`cmd_pathname $cmd`"
+	else
+	    for path in `echo $PATH |tr : ' '`; do
+		if test -x $path/$cmd; then
+		    break;
+		fi
+	    done
+	fi
+
+	# Is there an mpirun at that path?
+	if test -x $path/mpirun; then
+            AC_MSG_RESULT($path/mpirun)
+            if test "X-" = "X-$RUNSERIAL"; then
+                RUNSERIAL="$path/mpirun -np 1"
+            fi
+            if test "X-" = "X-$RUNPARALLEL"; then
+                RUNPARALLEL="$path/mpirun -np \$\${NPROCS:=3}"
+            fi
+	else
+	    AC_MSG_RESULT(none)
+        fi
+	;;
+
+   hcc)
+      dnl The LAM compiler. Use mpirun_lam or mpirun from the same directory
+      dnl if it exists.
+      PARALLEL=hcc
+      AC_MSG_CHECKING(for mpirun_lam or mpirun)
+
+      dnl Find the path where hcc is located
+      cmd="`cmd_name $CC`"
+      if (echo $cmd |grep / >/dev/null); then
+         path="`cmd_pathname $cmd`"
+      else
+         for path in `echo $PATH |tr : ' '`; do
+	    if test -x $path/$cmd; then
+	       break
+	    fi
+	 done
+      fi
+
+      dnl Is there an mpirun_lam or mpirun at that path?
+      if test -x $path/mpirun_lam -o -x $path/mpirun; then
+	 if test -x $path/mpirun_lam; then
+	    cmd=mpirun_lam
+         else
+	    cmd=mpirun
+	 fi
+	 AC_MSG_RESULT($path/$cmd);
+         RUNSERIAL="${RUNSERIAL:-none}"
+         if test -z "$RUNPARALLEL"; then
+            RUNPARALLEL="$path/$cmd -np \$\${NPROCS:=3} -x $ENV_VARS"
+         fi
+      else
+	 AC_MSG_RESULT(none)
+      fi
+      ;;
+
+    mpcc|mpcc_r|newmpxlc_r)
+	# The IBM compiler. Pool 0 on frost.llnl.gov is the interactive pool. However, we don't
+	# need to specify a pool since we're running this from the batch system via psub.
+	# See also: http://www.llnl.gov/computing/tutorials/workshops/workshop/poe/MAIN.html
+	PARALLEL="$CC_BASENAME"
+	if test "X-" = "X-$RUNPARALLEL"; then
+	    RUNPARALLEL="MP_PROCS=${NPROCS-3} MP_TASKS_PER_NODE=${NPROCS-3} MP_RMPOOL=0 MP_RETRY=5 MP_RETRYCOUNT=20 poe"
+	fi
+	if test "X-" = "X-$RUNSERIAL"; then
+	    RUNSERIAL="MP_PROCS=1 MP_TASKS_PER_NODE=1 MP_RMPOOL=0 MP_RETRY=5 MP_RETRYCOUNT=20 poe"
+	fi
+	;;
+
+    *)
+	# Probably not a parallel compiler, but if `--enable-parallel'
+	# is defined below then we're still building a parallel saf.
+	;;
+esac
+
+dnl ----------------------------------------------------------------------
+dnl What header files and libraries do we have to look for for parallel
+dnl support?  For the most part, search paths are already specified with
+dnl CPPFLAGS and LDFLAGS or are known to the compiler.  If the user says
+dnl `--disable-parallel' but specifies a known parallel compiler (like mpicc
+dnl or mpcc) then parallel support is enabled but configure doesn't search
+dnl for any parallel header files or libraries.
+dnl
+AC_ARG_ENABLE(parallel,
+  [  --enable-parallel=TYPE  Search for MPI-IO and MPI support files])
+
+AC_MSG_CHECKING(for parallel support files)
+case "X-$enable_parallel" in
+    X-|X-no|X-none)
+	# Either we are not compiling for parallel or the header and library
+	# files and locations are known to the compiler (this is the case
+	# for a correct installation of mpicc for instance).
+	AC_MSG_RESULT(skipped)
+	;;
+
+    X-yes)
+	# We want to compile a parallel library with a compiler that
+	# already knows how to link with MPI and MPI-IO.
+	AC_MSG_RESULT(provided by compiler)
+	PARALLEL=yes
+	;;
+
+    X-mpich)
+	# For normal mpich installation the compiler, mpicc, should know
+	# where the MPI and MPI-IO header files are located and know which
+	# extra libraries need to be linked and will supply appropriate
+	# flags to the underlying compiler.
+	AC_MSG_RESULT(mpich)
+	AC_MSG_WARN(*** Why aren't you using an mpicc compiler? ***)
+
+	# Apparently mpicc isn't installed correctly so configure must search
+	# for the header files and libraries. Actually we only have to search
+	# for the libraries in order to get the onto the link line, the user
+	# will have already told us about the locations. Fail if something
+	# is missing.
+	PARALLEL=mpich
+	AC_CHECK_LIB(mpich,MPI_Init,,AC_MSG_ERROR(no mpich library))
+	;;
+
+    *)
+	AC_MSG_RESULT(error)
+	AC_MSG_ERROR(\"$enable_parallel\" is not a valid parallel search type)
+	;;
+esac
+
+dnl ----------------------------------------------------------------------
+dnl Print some other parallel information and do some sanity checks.
+dnl
+if test "X-" != "X-$PARALLEL"; then
+    # We are building a parallel library
+    AC_DEFINE(HAVE_PARALLEL)
+
+    # Display what we found about running programs
+    AC_MSG_CHECKING(prefix for running on one processor)
+    AC_MSG_RESULT($RUNSERIAL)
+    AC_MSG_CHECKING(prefix for running in parallel)
+    AC_MSG_RESULT($RUNPARALLEL)
+
+    # There *must* be some way to run in parallel even if it's just the
+    # word `none'.
+    if test "X-" = "X-$RUNPARALLEL"; then
+	AC_MSG_ERROR(no way to run a parallel program)
+    fi
+
+    # If RUNSERIAL or RUNPARALLEL is the word `none' then replace it with
+    # the empty string.
+    if test "X-none" = "X-$RUNSERIAL"; then
+	RUNSERIAL=
+    fi
+    if test "X-none" = "X-$RUNPARALLEL"; then
+	RUNPARALLEL=
+    fi
+fi
+
+
+dnl ----------------------------------------------------------------------
+dnl We have two versions of CPPFLAGS and LDFLAGS. The CPPFLAGS and LDFLAGS
+dnl variables hold flags which can be passed directly to the compiler while
+dnl CPPFLAGS_MF and LDFLAGS_MF are the values put into the makefiles. These
+dnl are usually the same, but the makefile versions may contain macros to
+dnl be expanded by make.
+dnl
+CPPFLAGS_MF="$CPPFLAGS"
+LDFLAGS_MF="$LDFLAGS"
+
+dnl Save these for later when we configure hdf5.
+LDFLAGS_orig="$LDFLAGS"
+LIBS_orig="$LIBS"
+
+dnl ----------------------------------------------------------------------
+dnl Python-related things
+dnl
+
+dnl -- python --
+AC_SUBST(PYTHON)
+AC_ARG_WITH(python,[  --with-python=CMD    directory location of Python installation for safsh]
+            ,,with_python=yes)
+case "$with_python" in 
+    no) PYTHON=false ;;
+    *)  if test -x "$with_python/bin/python"; then
+           PYTHON="$with_python/bin/python"
+           SAF_TOOLS="${SAF_TOOLS} safsh "
+        else
+           PYTHON=false
+           with_python=no
+        fi
+        ;;
+esac
+
+AC_SUBST(PYTHONDIR)
+case ${with_python} in
+  no) PYTHONDIR=false ;;
+  *)  PYTHONDIR=$with_python ;;
+esac 
+
+AC_SUBST(PYTHON_INCLUDE)
+AC_SUBST(SAFSH_SHARED_FLAG)
+case ${with_python} in
+  no) PYTHON_INCLUDE=false 
+      SAFSH_SHARED_FLAG=""
+      ;;
+  *)  PYTHON_INCLUDE=${PYTHONDIR}/include/python2.2 
+      SAFSH_SHARED_FLAG="-shared "
+      CPPFLAGS_MF="$CPPFLAGS_MF -I${PYTHON_INCLUDE} "
+      ;;
+esac 
+
+
+
+dnl ----------------------------------------------------------------------
+dnl Java-related things
+dnl
+
+dnl -- java --
+AC_SUBST(JAVA)
+AC_SUBST(BROWSER_SHARED_FLAG)
+AC_ARG_WITH(java,[  --with-java=CMD         directory location of the Java SDK for saf_browser]
+            ,,with_java=yes)
+case "$with_java" in
+	no) JAVA=false ;;
+	*)  if test -f "$with_java/bin/java"; then
+           JAVA="$with_java/bin/java"
+           BROWSER_SHARED_FLAG="-shared"
+        else
+           JAVA=false
+           with_java=no
+           BROWSER_SHARED_FLAG=""
+        fi
+        ;;
+esac
+
+AC_SUBST(JAVASDK)
+case "$with_java" in
+   no) JAVASDK=false ;;
+   *)  JAVASDK=$with_java ;;
+esac
+
+dnl -- javac --
+AC_SUBST(JAVAC)
+case "$with_java" in
+    yes) AC_CHECK_PROGS(JAVAC,${JAVA}/bin/javac,gcj,false) ;;
+    no)  JAVAC=false ;;
+    *)   JAVAC=$with_java/bin/javac ;;
+esac
+
+dnl -- javah --
+AC_SUBST(JAVAH)
+case "$with_java" in
+    yes) AC_CHECK_PROG(JAVAH,javah,javah,false) ;;
+    no)  JAVAH=false ;;
+    *)   JAVAH=$with_java/bin/javah ;;
+esac
+
+AC_SUBST(JNI_INCLUDE)
+AC_SUBST(JAVA_INCLUDE)
+dnl -- extra include directories --
+dnl Bad form here: these are hard coded based on OS --rpm 2003-01-17
+JNI_INCLUDE=false
+JAVA_INCLUDE=false
+if test "$JAVAC" != false; then
+    inc="`type $JAVAC 2>/dev/null |cut -f3 -d' '`"
+    inc="`cmd_pathname $inc`"
+    inc="`echo $inc |sed 's/\/bin$/\/include/'`"
+    if (echo $inc |grep include >/dev/null 2>&1); then
+        :
+    else
+        inc="$inc/include";
+    fi
+    if test -f "$inc/jni.h"; then
+        CPPFLAGS_MF="$CPPFLAGS_MF -I$inc";
+        JAVA_INCLUDE=$inc
+        case "$host_os" in
+            linux*)   CPPFLAGS_MF="$CPPFLAGS_MF -I$inc/linux" 
+                      JNI_INCLUDE="$inc/linux" ;;
+            irix*)    CPPFLAGS_MF="$CPPFLAGS_MF -I$inc/sgi" 
+                      JNI_INCLUDE="$inc/sgi" ;;
+            solaris*) CPPFLAGS_MF="$CPPFLAGS_MF -I$inc/solaris" 
+                      BROWSER_SHARED_FLAG="-G"
+                      JNI_INCLUDE="$inc/solaris" ;;
+        esac
+    fi
+fi
+
+dnl ----------------------------------------------------------------------
+dnl SAF tool prerequisites. The $SAF_TOOLS variable will be set to a space
+dnl separated list of optionally compiled tools (the tools that are always
+dnl compiled are not part of this list but are rather hard coded into the
+dnl Makefiles).
+dnl
+AC_SUBST(SAF_TOOLS)
+
+dnl Get the java version number so we can check it. Checking version numbers
+dnl is not trivial.  We'll extract out the first two components (separated by
+dnl a `.') of the first line of output from `java -version' and concatenate them
+dnl to form an integer which we can then compare with `test'.  We're assuming
+dnl that the first component of the version string is a single digit.
+if test "$JAVA" != false; then
+    AC_MSG_CHECKING(java version)
+    java_version=`$JAVA -version 2>&1 |head -1 |tr -d -c '[.0123456789]'`
+    AC_MSG_RESULT($java_version)
+    java_short_version=`echo $java_version |cut -f1-2 -d. |tr -d '[.]'`
+fi
+
+dnl The saf browser needs java(1.3 or better), javac, javah, and the ability
+dnl to make a shared library.
+if test "$JAVA" != false -a "$JAVAC" != false -a "$JAVAH" != false ; then
+    if test "$java_short_version" = ""; then
+        SAF_TOOLS="$SAF_TOOLS saf_browser"
+    elif test $java_short_version -ge 13; then
+        SAF_TOOLS="$SAF_TOOLS saf_browser"
+    else
+        AC_MSG_WARN([java version must be 1.3 or better to compile the SAF browser])
+    fi
+else
+    AC_MSG_WARN([The SAF browser needs the java runtime, compiler, and shared lib support])
+fi
+
+
+dnl ----------------------------------------------------------------------
+dnl Configure each package which is included in the distribution.
+dnl
+
+dnl Configure SSlib, which must be part of the source tree
+AC_SUBST(SSLIB_LDFLAGS) SSLIB_LDFLAGS="$LDFLAGS_MF"
+AC_SUBST(SSLIB_LIBS)    SSLIB_LIBS="$LIBS"
+#LIBS="-lss $LIBS"
+LDFLAGS_MF='$(top_builddir)/sslib/lib/libss.la '"$LDFLAGS_MF"
+CPPFLAGS_MF='-I$(top_builddir)/sslib/lib -I$(top_srcdir)/sslib/lib '"$CPPFLAGS_MF"
+AC_SUBST(SSLIB_LIB) SSLIB_LIB='$(top_builddir)/sslib/lib/libss.la'
+SSLIB_MAKEFILES="\
+    sslib/Makefile \
+    sslib/lib/Makefile \
+    sslib/test/Makefile \
+    sslib/docs/Makefile \
+    sslib/tools/Makefile"
+
+dnl Configure SAFAPI, which must be part of the source tree
+AC_SUBST(SAFAPI_LDFLAGS) SAFAPI_LDFLAGS="$LDFLAGS_MF"
+AC_SUBST(SAFAPI_LIBS)    SAFAPI_LIBS="$LIBS"
+#LIBS="-lsafapi $LIBS"
+#LDFLAGS_MF='-L${top_builddir}/safapi/lib/.libs '"$LDFLAGS_MF"
+LDFLAGS_MF='${top_builddir}/safapi/lib/libsafapi.la '"$LDFLAGS_MF"
+CPPFLAGS_MF='-I${top_srcdir}/safapi/lib '"$CPPFLAGS_MF"
+AC_SUBST(SAFAPI_LIB) SAFAPI_LIB='$(top_builddir)/safapi/lib/libsafapi.la'
+SAFAPI_MAKEFILES="\
+    safapi/Makefile \
+    safapi/lib/Makefile \
+    safapi/lib/libsafapi.settings \
+    safapi/test/Makefile \
+    safapi/tools/Makefile \
+    safapi/tools/bench/Makefile \
+    safapi/tools/bench-rb/Makefile \
+    safapi/tools/safdiff/Makefile \
+    safapi/tools/ensight_reader/Makefile \
+    safapi/tools/create_unstr_mesh/Makefile \
+    safapi/tools/safsh/Makefile \
+    safapi/tools/saf_browser/Makefile \
+    safapi/examples/Makefile \
+    safapi/docs/Makefile" 
+
+dnl Default places to look for files
+CPPFLAGS="-I. -I${srcdir} $CPPFLAGS"
+CPPFLAGS_MF='-I. -I${srcdir} -I${top_builddir}/include'" $CPPFLAGS_MF"
+
+dnl ----------------------------------------------------------------------
+dnl The test cases use a particular directory to store test files. By default,
+dnl this is the same directory as the test program itself.
+dnl
+TEST_FILE_PATH=${TEST_FILE_PATH:=.}
+AC_SUBST(TEST_FILE_PATH)
+AC_DEFINE_UNQUOTED(TEST_FILE_PATH,"$TEST_FILE_PATH",
+                   [test directory name or "."])
+
+dnl ----------------------------------------------------------------------
+dnl Make some installation path stuff available to the C pre-processor
+dnl
+eval SS_INSTALL_PREFIX=$prefix
+test "$SS_INSTALL_PREFIX" = NONE  && SS_INSTALL_PREFIX="$ac_default_prefix";
+AC_DEFINE_UNQUOTED(SS_INSTALL_PREFIX, "$SS_INSTALL_PREFIX", [installation prefix])
+
+if test "$exec_prefix" = NONE; then
+  exec_prefix="$ac_default_exec_prefix"
+  test "$exec_prefix" = "" -o "$exec_prefix" = NONE && exec_prefix="$prefix"
+fi
+
+eval SS_INSTALL_LIBDIR=$libdir
+AC_DEFINE_UNQUOTED(SS_INSTALL_LIBDIR, "$SS_INSTALL_LIBDIR", [library installation directory])
+
+eval SS_INSTALL_BINDIR=$bindir
+AC_DEFINE_UNQUOTED(SS_INSTALL_BINDIR, "$SS_INSTALL_BINDIR", [binary installation directory])
+
+eval SS_INSTALL_SYSCONFDIR=$sysconfdir
+AC_DEFINE_UNQUOTED(SS_INSTALL_SYSCONFDIR, "$SS_INSTALL_SYSCONFDIR", [configuration installation directory])
+
+eval SS_INSTALL_INCLUDEDIR=$includedir
+AC_DEFINE_UNQUOTED(SS_INSTALL_INCLUDEDIR, "$SS_INSTALL_INCLUDEDIR", [include file installation directory])
+
+eval SS_INSTALL_DATADIR=$datadir
+AC_DEFINE_UNQUOTED(SS_INSTALL_DATADIR, "$SS_INSTALL_DATADIR", [machine independent data installation directory])
+
+eval SS_INSTALL_SRCDIR=$srcdir
+AC_DEFINE_UNQUOTED(SS_INSTALL_SRCDIR, "$SS_INSTALL_SRCDIR", [source code directory])
+
+dnl ----------------------------------------------------------------------
+dnl The makefiles need to know how to search for source files.
+dnl
+AC_SUBST(SEARCH)
+SEARCH='. $(srcdir) $(top_builddir)/include $(top_srcdir)/include'
+cmd='echo $SEARCH |sed "s/ /'$SEARCH_SEP'/g"'
+SEARCH="$SEARCH_RULE`eval $cmd`"
+
+dnl ----------------------------------------------------------------------
+dnl If we're using C++ as an improved C compiler then we'll have to
+dnl use the special script to deal with the .c source file name issue.
+dnl What the script does is to rename (temporarily) file.c as file.cc
+dnl and envoke the real C++ compiler.
+if test "X$enable_cxx" = "Xyes" ; then
+    CC="$srcdir/safcxx --realcxx $CXX"
+    CFLAGS=$CXXFLAGS
+fi
+
+dnl ----------------------------------------------------------------------
+dnl Set some variables for general configuration information to be saved
+dnl and installed with the libraries.
+dnl
+
+dnl SAF version
+AC_SUBST(SAF_VERSION)
+SAF_VERSION="`$srcdir/../tools/saf_version $srcdir/safapi/lib/saf.h`"
+
+dnl Configuration date
+AC_SUBST(CONFIG_DATE) CONFIG_DATE=`date`
+
+dnl User doing the configuration
+AC_SUBST(CONFIG_USER) CONFIG_USER="`whoami`@`hostname`"
+if test -n "$ORGANIZATION"; then
+   CONFIG_USER="$CONFIG_USER at $ORGANIZATION"
+fi
+
+dnl Configuration mode (production, development, profile, etc) saved above.
+AC_SUBST(CONFIG_MODE)
+
+dnl Byte sex from the AC_C_BIGENDIAN macro.
+AC_SUBST(BYTESEX)
+if test "X$ac_cv_c_bigendian" = "Xyes"; then
+   BYTESEX="big-endian"
+else
+   BYTESEX="little-endian"
+fi
+
+dnl Are we compiling static libraries, shared libraries, or both?
+AC_SUBST(STATIC_SHARED)
+if test "X$enable_static" = "Xyes" && test "X$enable_shared" = "Xyes"; then
+    STATIC_SHARED="static, shared"
+elif test "X$enable_static" = "Xyes"; then
+    STATIC_SHARED="static"
+elif test "X$enable_shared" = "Xyes"; then
+    STATIC_SHARED="shared"
+else
+    STATIC_SHARED="none"
+fi
+
+dnl Parallel support? (set above except empty if none)
+PARALLEL=${PARALLEL:-no}
+
+dnl Compiler with version information. This consists of the full path
+dnl name of the compiler and the reported version number.
+
+AC_SUBST(CC_VERSION)
+if `echo $CC | grep / 2>&1 /dev/null`; then
+   CC_VERSION="$CC"	
+else
+   CC_VERSION="$CC";
+   for x in X `echo $PATH | sed -e 's/:/ /g'`; do
+      if test -x "$x/$CC"; then
+	 CC_VERSION="$x/$CC"
+	 break
+      fi
+   done
+fi
+if test -n "$cc_vendor" && test -n "$cc_version"; then
+   CC_VERSION="$CC_VERSION ($cc_vendor-$cc_version)"
+fi
+
+dnl ----------------------------------------------------------------------
+dnl Almost every Makefile.in will begin with the line `@COMMENCE@' and
+dnl end with the line `@CONCLUDE@'.  These lines insert various files
+dnl from the config directory into the Makefile.
+dnl
+AC_SUBST_FILE(COMMENCE) COMMENCE=config/commence
+AC_SUBST_FILE(CONCLUDE) CONCLUDE=config/conclude
+
+dnl Copy the Makefile versions of certain things
+CPPFLAGS="$CPPFLAGS_MF"
+LDFLAGS="$LDFLAGS_MF"
+
+dnl We don't need to say when we're entering directories if we're using
+dnl GNU make becuase make does it for us.
+if test "X$GMAKE" = "Xyes"; then
+   AC_SUBST(SETX) SETX=":"
+else
+   AC_SUBST(SETX) SETX="set -x"
+fi
+
+dnl Some cleanup stuff
+rm -f conftest conftest.o conftest.c dummy.o
+
+dnl Build config.status, touch the stamp files, and build all the Makefiles.
+dnl The order is such that the first `make' does not need to update any
+dnl configuration information. See config/commence.in for the order in which
+dnl things need to be done.
+
+# First the stamp1 file for SAFconfig.h.in
+mkdir ./config >/dev/null 2>&1
+touch ./config/stamp1
+
+# Restore original values for certain variables before we configure hdf5
+LDFLAGS="$LDFLAGS_orig"
+LIBS="$LIBS_orig"
+
+# Then the config.status file (but not makefiles)
+saved_no_create=$no_create
+no_create=yes
+AC_CONFIG_FILES([config/depend1 config/depend2 config/depend3 config/depend4
+	  config/dependN config/commence config/conclude
+	  Makefile $SSLIB_MAKEFILES $SAFAPI_MAKEFILES])
+AC_OUTPUT
+no_create=$saved_no_create
+
+# Then the stamp2 file for SAFconfig.h
+touch ./config/stamp2
+
+# Finally the makefiles
+test "$no_create" = yes || ${CONFIG_SHELL-/bin/sh} $CONFIG_STATUS || exit 1

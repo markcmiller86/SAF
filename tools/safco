@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# A simple shell script for checking out and optionally packing up
+# the SAF source tree. Usage...
+#    checkout <rel|dev> [pack]
+# The first argument indicates which branch. Use either the word
+# 'dev' or 'rel'. Note also that this script will modify itself
+# to update the current releaase. Also, to implement this notion
+# of the current release branch, this script checks the checked
+# out code to see if a tag exists on ReleaseNotes.txt file
+# indicating another release has been made. If it finds this to
+# be true, it will issue an error message, remove the directory
+# update its own notion of the current release number and then
+# checkout the code again.
+
+currentReleaseTag=saf-1_2
+
+if [ -z "$1" ] || [ "$1" = "pack" ]
+then
+   echo "must specify either 'dev' or 'rel' to check out"
+   exit 1
+fi
+
+majorNumber=`echo $currentReleaseTag | cut -d'-' -f2 | cut -d'_' -f1`
+minorNumber=`echo $currentReleaseTag | cut -d'_' -f2`
+nextMinorNumber=`expr $minorNumber + 2`
+nextReleaseTag=saf-1_$nextMinorNumber
+
+if [ "$1" = "rel" ]
+then
+   tmpCoDir=safco_rel.$$
+   echo "Release Checkout with tag $currentReleaseTag..."
+   cvs co -r $currentReleaseTag -d $tmpCoDir saf 1>/dev/null 2>/dev/null || exit 1
+   haveNextTag=`cvs log $tmpCoDir/ReleaseNotes.txt | grep $nextReleaseTag`
+   if [ -n "$haveNextTag" ]
+   then
+      echo "...Warning: A release cycle has occured since you last used $0"
+      echo "            The current release tag is now $nextReleaseTag"
+      echo "            Removing the checkout directory"
+      rm -rf $tmpCoDir || exit 1
+      echo "            Editing safco script"
+      sed -e "s/^currentReleaseTag=${currentReleaseTag}/currentReleaseTag=${nextReleaseTag}/" $0 > $0 || exit 1
+      currentReleaseTag=$nextReleaseTag
+      echo "            Checkout with tag $currentReleaseTag..."
+      cvs co -r $currentReleaseTag -d $tmpCoDir saf 1>/dev/null 2>/dev/null || exit 1
+   fi
+else
+   tmpCoDir=safco_dev.$$
+   echo "Development Checkout..."
+   cvs co -d $tmpCoDir saf 1>/dev/null 2>/dev/null || exit 1
+fi
+
+
+
+currentVersion=saf-`$tmpCoDir/tools/saf_version`
+if [ -d $currentVersion ]
+then
+   echo "...Warning: $currentVersion already exists"
+   currentVersion=${currentVersion}.$$
+fi
+mv $tmpCoDir $currentVersion || exit 1
+echo "...Done. Checkout in $currentVersion" 
+if [ "$2" = "pack" ]
+then
+   echo "Now packing a tarfile..."
+   tar cf - $currentVersion | gzip > $currentVersion.tar.gz || exit 1
+   echo "...Done. File is $currentVersion.tar.gz"
+fi

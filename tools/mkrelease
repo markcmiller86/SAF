@@ -1,0 +1,215 @@
+#!/bin/sh
+
+# Author:  Robb Matzke <matzke@llnl.gov>
+#
+# Purpose:
+#     Will create a saf-*.tar.gz file in the current working directory. An optional comment-line
+#     argument is the name of the directory containing the SAF source tree presumably checked out
+#     from CVS.
+#
+# Usage:
+#     Invoke with `--help' for usage information, or see below.
+#
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Acknowledgements:
+#     Robb P. Matzke              LLNL - Author of various tools
+#     Mark C. Miller              LLNL - Alpha/Beta user; minor debugging/enhancements 
+#     Matthew J. O'Brien          LLNL - Author of various tools
+#     James F. Reus               LLNL - Alpha/Beta user
+
+saf=`echo $0 |sed 's@/tools/mkrelease$@@'`
+doc="docs/manuals"
+gzip=gzip
+ext=".gz"
+tier1=tier1
+verbose=v
+keep=no
+pregen=yes
+
+# Parse switches
+for opt in "$@"; do
+    case $opt in
+        --help|-?|-h)
+	    echo "usage: $0 [SWITCHES] [SAF_DIRECTORY]"
+	    echo "  This shell script creates a tarball of a release candidate version of SAF."
+	    echo "  The recognized SWITCHES are as follows:"
+	    echo "   --quiet"
+	    echo "       This switch suppresses the normal rather verbose output produced"
+	    echo "       while various long-running commands are executed."
+	    echo "   --bzip2"
+	    echo "       The final tarball is normally compressed with GNU gzip. If this switch"
+	    echo "       is specified then bzip2 is used instead."
+	    echo "   --nodoc"
+	    echo "       Do not include documentation in the tarball. This can substantially"
+	    echo "       reduce the final size of the tar file."
+	    echo "   --nopregen"
+	    echo "       Do not generate architecture-independent files to be included into"
+	    echo "       the tarball.  Normally various VBT source files are created on the"
+	    echo "       host running this script, but if this switch is specified then these"
+	    echo "       files will be generated when SAF is compiled instead."
+	    echo "   --notest"
+	    echo "       Do not run a tier1 test before creating the tarball. The default is for"
+	    echo "       the script to ask whether a tier1 test should be run."
+	    echo "   --tarfile=FILE"
+	    echo "       The default output file is named saf-VERSION.tar.gz (or .bz2) in the"
+	    echo "       current working directory. This switch can be used to override that"
+	    echo "       name."
+	    echo "   --keep"
+	    echo "       All work is done in a mkrelease.* directory which is blown away when"
+	    echo "       this script exits unless this switch is specified. This is primarily"
+	    echo "       intended for debugging."
+	    echo "  SAF_DIRECTORY is the name of the directory containing the SAF source code."
+	    echo "  That is, the directory that CVS would have created had SAF been checked"
+	    echo "  out. If not specified then it will be determined from the path used to"
+	    echo "  invoke the mkrelease script."
+	    exit 0;
+	    ;;
+	--nodoc)
+	    doc=
+	    ;;
+	--notest)
+	    tier1=
+	    ;;
+	--nopregen)
+	    pregen=no
+	    ;;
+	--quiet)
+	    verbose=
+	    ;;
+	--bzip2)
+	    gzip=bzip2
+	    ext=".bz2"
+	    ;;
+	--tarfile=*)
+	    tarfile="`echo $opt |cut -f2 -d=`"
+	    ;;
+	--keep)
+	    keep=yes
+	    ;;
+	-*)
+	    echo "unknown switch: $opt" 1>&2
+	    echo "specify --help for usage information" 1>&2
+	    exit 1
+	    ;;
+	*)
+	    saf=$opt
+	    ;;
+    esac
+done
+
+(echo $saf |grep '^/' >/dev/null) || saf=`pwd`/$saf
+saf_base=`basename $saf`
+saf_path=`echo $saf |sed "s#/$saf_base\\$##g"`
+version=`$saf/tools/saf_version $saf/src/safapi/lib/saf.h`
+[ -n "$tarfile" ] || tarfile="saf-$version.tar"
+
+# A filter that passes stdin to stdout. But if $verbose is empty then all input is discarded. If
+# any line of input consists of the string '***EXIT***' then return with non-zero status.
+quiet () {
+    while read LINE; do
+	[ "$LINE" = "***EXIT***" ] && exit 1
+	[ -n "$verbose" ] && echo $LINE
+    done
+}
+
+# Optionally perform a tier1 test
+if [ -n "$tier1" ]; then
+    echo -n "Perform tier-1 test first? [y] "
+    read answer
+    if [ "$answer" = "y" -o "$answer" = "yes" -o "$answer" = "" ]; then
+	$saf/tools/tier1 $saf || exit 1
+    fi
+fi
+
+# Create temporary directory for all this stuff
+mkdir mkrelease.$$ || exit 1;
+[ "$keep" = "yes" ] || trap "rm -rf mkrelease.$$ $tarfile" EXIT
+
+# Tar up some stuff
+(
+    cd mkrelease.$$
+    ln -s $saf saf-$version
+    for f in $doc src tools; do
+	find saf-$version/$f -follow -type f ! -name '*~' ! -name '*,s' |grep -v '/CVS/' |grep -v '/\.rst/'
+    done >MANIFEST
+    tar cf$verbose ../$tarfile saf-$version/COPYRIGHT # Some tar's refuse to create an empty archive
+    cat MANIFEST |xargs tar rf$verbose ../$tarfile # file list may be too long, so use xargs with `r'
+)
+
+# Create temporary directories in place of link
+rm mkrelease.$$/saf-$version
+mkdir mkrelease.$$/saf-$version || exit 1;
+
+# What version of make? Perhaps a better way to do this is to parse the output
+# from `env TARGETS=none SKIP_CONFIG=yes build_saf'
+if [ `uname` = IRIX64 ]; then
+    MAKE=pmake
+else
+    MAKE=make
+fi
+export MAKE
+
+# `make' doesn't try to build things that could have been built elsewhere. If the
+# user wants documentation then we must build the vbt *.c files.
+if [ "$pregen" = yes -o -n "$doc" ]; then
+    [ -n "$verbose" ] && echo "Generating some source files [may take awhile]..."
+    (
+	trap "echo '***EXIT***'" EXIT
+	set -e
+	cd mkrelease.$$/saf-$version
+        $saf/tools/build_saf --terse --targets=none --builddir=src
+	(cd src/dsl/tools/vbtgen && $MAKE)
+	(cd src/vbt/lib && $MAKE vbt1r3.gen)
+	(cd src/vbt/lib && $MAKE vbt.h vbtprivate.h)
+	trap - EXIT
+    ) 2>&1 |quiet || exit 1;
+    (cd mkrelease.$$ && tar rf$verbose ../$tarfile saf-$version/src/vbt/lib/{*.[ch],vbt1r3.gen})
+fi
+
+# Generate documentation
+if [ -n "$doc" ]; then
+    [ -n "$verbose" ] && echo "Generating documentation [may take awhile]..."
+    (
+	trap "echo '***EXIT***'" EXIT
+	set -e
+	set -x
+	cd mkrelease.$$/saf-$version/src
+	make documentation
+	trap - EXIT
+    ) 2>&1 |quiet || exit 1;
+    (cd mkrelease.$$ && find . -type d -name docs |xargs tar rf$verbose ../$tarfile)
+fi
+
+# Compress final file
+[ -n "$verbose" ] && echo "+ $gzip -9 -f $tarfile"
+$gzip -9 -f $tarfile
+echo $tarfile.gz # This must be last output for tier2
+exit 0

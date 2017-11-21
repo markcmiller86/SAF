@@ -1,0 +1,291 @@
+#! /bin/sh
+perl -x -S $0 "$@"
+exit
+
+#! perl
+require 5.003;
+use strict;
+
+###################### STATIC COPYRIGHT NOTICE ############################
+# Copyright © 1998 NCSA.                                                  #
+###########################################################################
+
+# Robb Matzke <matzke@llnl.gov>
+# 17 July 1998
+
+## Modifications
+# Robb Matzke <matzke@llnl.gov>
+# Adapted with permission from NCSA for use by SAF
+
+
+### Purpose
+# Increments the SAF version number by changing the value of
+# constants in the lib/saf.h file.  The new version number is
+# printed on the standard output. An alternate source file name can be
+# specified as an argument.  In any case, the original file is saved
+# by appending a tilde `~' to the name.
+
+### Usage:
+# version [OPTIONS] [FILE]
+
+# Without options this program only displays the current version and
+# doesn't modify any files or create backups.  The default is to print
+# the version number like X.Y.Z-A where X is the major version number,
+# Y is the minor version number, Z is the release number, and A is
+# a short annotation string (the `-' is printed only if A is not empty).
+# If the `-v' switch is given the version will be printed like:
+#
+#    version X.Y release Z (A)
+#
+# The space and parentheses around A are only printed if A is not empty.
+#
+# If the `-t' switch is given then the a CVS tag is printed instead of
+# a version number. A tag is the same as the version number except dots
+# are replaced by underscores.
+#
+# The `-s VERSION' switch will set the version as specified.  If the
+# string contains a dotted triple then it will be used as the version
+# number, otherwise up to three numbers will be read from the end of
+# the string and used as the major version, minor version, and release
+# number.  If any numbers are missing then zero is assumed.  This
+# allows versions to be specified like `-s "version 2.1 release 8"' or
+# `-s saf-2.1.8.tar.bz2'.  If the new version is less than the old
+# version then a warning message is generated on standard error. The
+# annotation string, A, is set only if it appears immediately after the
+# third number, separated by a dash (e.g., `1.2.3-pre1') or in parentheses
+# (e.g., `version 1.2 release 3 (pre1)').
+#
+# The `-i [major|minor|release|annot|last]' option increments the major
+# number, minor number, release number, or annotation string. The `last'
+# switch increments the annotation string if present, otherwise the
+# release number. If the release number is incremented then the annotation
+# string is cleared.  If the minor number is incremented then the release
+# number is set to zero and the annotation string is cleared; if the major
+# number is incremented then the minor and release numbers are set to zero
+# and the annotation string is cleared.
+#
+# If a file is specified then that file is used instead of
+# ./saf.h or ./lib/saf.h.
+#
+##############################################################################
+
+sub getvers {
+  local ($_) = @_;
+  my (@vers);
+
+  ($vers[0]) = /^\#\s*define\s+SAF_VERSION_MAJOR\s+(\d+)/m;
+  ($vers[1]) = /^\#\s*define\s+SAF_VERSION_MINOR\s+(\d+)/m;
+  ($vers[2]) = /^\#\s*define\s+SAF_VERSION_RELEASE\s+(\d+)/m;
+  ($vers[3]) = /^\#\s*define\s+SAF_VERSION_ANNOT\s+\"([^\"]*)\"/m;
+  return @vers;
+}
+
+sub setvers {
+  my ($contents, @vers) = @_;
+  $_[0] =~ s/^(\#\s*define\s+SAF_VERSION_MAJOR\s+)\d+/$1$vers[0]/m;
+  $_[0] =~ s/^(\#\s*define\s+SAF_VERSION_MINOR\s+)\d+/$1$vers[1]/m;
+  $_[0] =~ s/^(\#\s*define\s+SAF_VERSION_RELEASE\s+)\d+/$1$vers[2]/m;
+  $_[0] =~ s/^(\#\s*define\s+SAF_VERSION_ANNOT\s+\")[^\"]*/$1$vers[3]/m;
+  $_[0] =~ s/^(\#\s*define\s+SAF_VERSION_VAR\s+SAF_version_)\d+_\d+_\d+/$1.join("_",@vers[0,1,2])/me;
+}
+
+sub usage {
+  my ($prog) = $0 =~ /([^\/]+)$/;
+  print STDERR <<EOF;
+Usage: $prog [OPTS] [FILE]
+    -i major|minor|release|annot
+        Increment specified version component and set following components
+        to zero.
+    -s VERSION
+        Set the version as specified. The version number can be embedded in
+        some other string such as \"saf-1.1.0-pre1.tar.bz2\" or even
+        \"this is SAF version 1.1 release 0 (pre1)\" for convenience.
+    -v
+        Instead of displaying only a dotted triple version number a line such
+        as \"version 1.1 release 0 (pre1)\" will be printed.
+    -t
+        Displays version number suitable for use as a CVS tag by replacing
+        dots with underscores. The \"-v\" and \"-t\" switches are mutually
+        exclusive.
+    FILE
+        The name of the file that contains version information.  This is
+        seldom necessary since files saf.h, lib/saf.h, and
+        ../lib/saf.h are automatically checked. If none of them exist
+        then we also look for ../src/safapi/lib/saf.h relative to the
+        location of this script.
+EOF
+  exit 1;
+}
+
+# Parse arguments
+my ($style, $set, $inc, $file);
+my ($tools) = $0 =~ /(.*)\//;
+my (@files) = ("saf.h", "lib/saf.h", "../lib/saf.h", "$tools/../src/safapi/lib/saf.h");
+
+
+while ($_ = shift) {
+  $_ eq "-s" && do {
+    die "-s switch needs a version number\n" unless @ARGV;
+    $set = shift;
+    next;
+  };
+
+  $_ eq "-i" && do {
+    if (@ARGV && $ARGV[0]=~/^(major|minor|release|annot)$/) {
+      $inc = shift;
+    } else {
+      $inc = "last";
+    }
+    next;
+  };
+
+  $_ eq "-v" && do {
+    $style = 'verbose';
+    next;
+  };
+
+  $_ eq "-t" && do {
+    $style = 'tag';
+    next;
+  };
+
+  /^-(h|\?|-?help)$/ && usage;
+  /^-/ && die "unrecognized option: $_\n";
+  die "only one file name can be specified\n" if $file;
+  $file = $_;
+}
+die "mutually exclusive options given\n" if $set && $inc;
+
+# Determine file to use as saf.h.
+unless ($file) {
+  for (@files) {
+    ($file=$_,last) if -f $_;
+  }
+}
+die "unable to find source files\n" unless defined $file;
+die "unable to read file: $file\n" unless -r $file;
+
+# Get the current version number.
+open FILE, $file or die "unable to open $file: $!\n";
+my ($contents) = join "", <FILE>;
+close FILE;
+my (@curver) = getvers $contents;
+
+# Determine the new version number.
+my @newver; #new version
+if ($set) {
+  if ($set =~ /(\d+)\.(\d+)\.(\d+)(-([a-zA-Z]\w*))?/) {
+    @newver = ($1, $2, $3, $5);
+  } elsif ($set =~ /(\d+)\D+(\d+)\D+(\d+)(\s*\(([a-zA-Z]\w*)\))?\D*$/) {
+    @newver = ($1, $2, $3, $5);
+  } elsif ($set =~ /(\d+)\D+(\d+)\D*$/) {
+    @newver = ($1, $2, 0, "");
+  } elsif ($set =~ /(\d+)\D*$/) {
+    @newver = ($1, 0, 0, "");
+  } else {
+    die "illegal version number specified: $set\n";
+  }
+} elsif ($inc) {
+  $inc = $curver[3] eq "" ? 'release' : 'annot' if $inc eq 'last';
+  if ($inc eq "major") {
+    $newver[0] = $curver[0]+1;
+    @newver[1,2,3] = (0,0,"");
+  } elsif ($inc eq "minor") {
+    $newver[0] = $curver[0];
+    $newver[1] = $curver[1]+1;
+    @newver[2,3] = (0,"");
+  } elsif ($inc eq "release") {
+    @newver[0,1] = @curver[0,1];
+    $newver[2] = $curver[2]+1;
+    $newver[3] = "";
+  } elsif ($inc eq "annot") {
+    @newver[0,1,2] = @curver[0,1,2];
+    $newver[3] = $curver[3];
+    $newver[3] =~ s/(\d+)\D*$/$1+1/e or
+      die "Annotation \"".$newver[3]."\" cannot be incremented.\n";
+  } else {
+    die "unknown increment field: $inc\n";
+  }
+} else {
+  # Nothing to do but print result
+  @newver = @curver;
+}
+
+# Print a warning if the version got smaller (don't check annot field)
+if ($newver[0]*1000000 + $newver[1]*1000 + $newver[2] <
+    $curver[0]*1000000 + $curver[1]*1000 + $curver[2]) {
+  printf STDERR "Warning: version decreased from %d.%d.%d to %d.%d.%d\n",
+    @curver[0,1,2], @newver[0,1,2];
+}
+
+# Update the version number if it changed.
+if ($newver[0]!=$curver[0] ||
+    $newver[1]!=$curver[1] ||
+    $newver[2]!=$curver[2] ||
+    $newver[3]ne$curver[3]) {
+  setvers $contents, @newver or die "unable to set version\n";
+  rename $file, "$file~" or die "unable to save backup file\n";
+  open FILE, ">$file" or die "unable to open $file but backup saved!\n";
+  print FILE $contents;
+  close FILE;
+
+  # Directory where header file is located
+  my($hdr_dir) = $file;
+  $hdr_dir = "./$hdr_dir" unless $hdr_dir =~ /^(\/|\.\/)/;
+  ($hdr_dir) = $hdr_dir =~ /(.*)\//; # everything up to last slash
+  die "internal problem for `$hdr_dir'" unless -d $hdr_dir;
+  my($newver) = sprintf "%d.%d.%d", @newver[0,1,2];
+  $newver .= "-" . $newver[3] if length $newver[3];
+
+  # Update ../../../ReleaseNotes.txt relative to header file's directory.
+  my($release_notes) = $hdr_dir . "/../../../ReleaseNotes.txt";
+  if (-f $release_notes) {
+    open RELNOTES, $release_notes or die "unable to read $release_notes\n";
+    my(@contents) = <RELNOTES>;
+    close RELNOTES;
+    rename $release_notes, "$release_notes~" or die "unable to rename $release_notes\n";
+    open RELNOTES, ">$release_notes" or die "unable to create $release_notes\n";
+    print RELNOTES "=" x 78, "\n";
+    print RELNOTES "Important modifications for SAF version $newver\n";
+    print RELNOTES "=" x 78, "\n\n", @contents;
+    close RELNOTES;
+  }
+
+  # Update ../../../tools/Formats/library/META file relative to  header file's
+  # directory. The META file should have the saf version number as part of the
+  # title page for the documentation.
+  my($META) = $hdr_dir . "/../../../tools/Formats/library/META";
+  if (-f $META) {
+    open META, $META or die "unable to read $META\n";
+    my($contents) = join "", <META>;
+    close META;
+    rename $META, "$META~" or die "unable to rename $META\n";
+    open META, ">$META" or die "unable to create $META\n";
+    $contents =~ s/(saf|SAF)([-\s]?)\d+\.\d+\.\d+(-[A-Z_a-z0-9]+)?/$1$2$newver/;
+    print META $contents;
+    close META;
+  }
+}
+
+# Print the new version number
+if ($style eq 'verbose') {
+  printf("version %d.%d release %d%s\n", @newver[0,1,2],
+	 $newver[3] eq "" ? "" : " (".$newver[3].")");
+} elsif ($style eq 'tag') {
+  $_ = sprintf("saf-%d.%d.%d%s", @newver[0,1,2],
+	       $newver[3] eq "" ? "" : "-".$newver[3]);
+  s/\./_/g;
+  print $_, "\n";
+} else {
+  printf("%d.%d.%d%s\n", @newver[0,1,2],
+	 $newver[3] eq "" ? "" : "-".$newver[3]);
+}
+
+exit 0;
+
+# Because the first line of this file looks like a Bourne shell script, we
+# must tell XEmacs explicitly that this is really a perl script.
+#
+# Local Variables:
+# mode:perl
+# End:

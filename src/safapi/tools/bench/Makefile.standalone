@@ -1,0 +1,7 @@
+HDF5_HOME = /usr/local/hdf5/hdf5-1.4.2/aix-parallel/prod/bit32/static
+#MPI_HOME = /usr/local/mpich/1.2.1/IRIX64/serial/n32/debug
+CC = mpcc_r 
+
+h5bench:	h5bench.c
+	$(CC) -DH5B_STANDALONE -g -o h5bench h5bench.c -I. -I$(HDF5_HOME)/include -I$(MPI_HOME)/include \
+	-L$(HDF5_HOME)/lib -L$(MPI_HOME)/lib -lhdf5 -lmpi -lm

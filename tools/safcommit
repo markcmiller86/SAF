@@ -1,0 +1,455 @@
+#!/bin/sh
+
+#------------------------------------------------------------------------------------------------------------------------
+# Audience:	Public
+# Chapter:	CVS tools
+# Purpose:	commit files to CVS
+# Description:	This is a simple script to help commit a bunch of files to CVS. It was implemented to deal with issues
+#		CVS was causing in granularity of commit messages, both as messages are bound to files and as they
+#		are emailed to the team. Previously, CVS commit would offer only a single opportuntity to enter a log
+#		message, then it would bind that same log message to every file involved in the commit and, finally,
+#		it would email the log message for every directory involved in the commit. It was the worst of all
+#		worlds!
+#
+#		This tool will help you generate a log message per file, bind only that log message to the file in the
+#		repo and then cat all the log messages together into a single summary message that is emailed.
+#
+#		It uses the 'cvs status' command, invoked from ., to obtain status of all files in subtree rooted at ..
+#		It first scans upwards in the directory hierarchy looking for the exectuable tools/saf_version and will
+#		fail if it cannot find it.
+#
+#		From 'cvs status' output, the lists of files are generated; changed, new and unknown. It then displays
+#		the lists of files and asks if you want to continue.
+#
+#		For each file, it invokes an editor from $EDITOR or vi and asks you to enter a log message. After
+#		exiting from the editor, it commits the file and then cats the log message to a summary file. After
+#		all commits are done, it prints the summary message and asks if you want to send it.
+#
+# Issues:	A list of removed files is currently NOT dealt with. It should be easy to add.
+#		
+#		It should be easy to modify the internal loop to accept the log messages from existing changelogs.
+#------------------------------------------------------------------------------------------------------------------------
+
+#
+# I don't want to worry about cats overwritting existing files
+#
+unset noclobber
+
+CommitSummaryMessage () {
+      # open editor to enter a log message for this file
+      # cp summaryMsg > $oneMsg  
+      cat $summaryMsg > $oneMsg  
+      cat >> $oneMsg <<- EOF
+
+        CVS: ----------------------------------------------------------------------
+        CVS: Enter Log. Lines beginning with 'CVS:' are removed automatically.
+        CVS:
+        CVS:
+        CVS: Log Message Policy Reminders:
+        CVS:    If this is a bug-fix...
+        CVS:       a. Include bug id in the first line as in "bugfix-HYPer03298"
+        CVS:       b. If bug is not logged, enter "bugfix-HYPerNONE"
+        CVS:       c. Set the state of the bug in ClearDDTS to Resolved (!Verified)
+        CVS:       d. If severity is >=severe, make a notation in ReleasNotes.txt, AND
+        CVS:          DON'T FORGET TO ALSO FIX bug in $otherBranchStr branch
+        CVS:    If this is a feature enhancement...
+        CVS:       a. Include the bug id in first line as in "enhance-HYPer02339"
+        CVS:       b. If enhancment is not logged, enter "enhance-HYPerNONE"
+        CVS:       c. Set the state of the bug in ClearDDTS to Resolved (!Verified)
+        CVS:       d. If enhancement is substantial, make a notation in ReleaseNotes.txt
+        CVS:    If unsure of policies, please visit...
+        CVS:       http://www.llnl.gov/SAF/developers/p_and_p.html
+        CVS: ----------------------------------------------------------------------
+
+EOF
+      ${EDITOR:-vi} $oneMsg || exit 1
+                                                                                                                                                                                                                                                                               
+      grep -v '^ *CVS:' $oneMsg | fold -s > ${oneMsg}.commit
+      
+      # overwrite $summaryMsg
+      cat ${oneMsg}.commit > $summaryMsg  
+      # cat ${oneMsg}.commit | sed -e 's/^/               &/' > $summaryMsg  
+      echo -n "commiting files..."
+      # cat $summaryMsg # while debugging
+      cvs commit -F $summaryMsg || exit 1
+      echo "done"
+                                                                                                                                                                                                                                                                               
+      # get rid of this file's log message file
+      if [ -e $oneMsg ]
+      then
+         rm -f $oneMsg
+      fi
+      if [ -e ${oneMsg}.commit ]
+      then
+         rm -f ${oneMsg}.commit
+      fi
+ return
+}
+AddFilesToSummaryMsg () {
+
+   # return if no files in list
+   if [ -z "$fileList" ]
+   then
+      return
+   fi
+   # add the file-type message to the summary file
+   echo "${fileTypeMsg} Files..." >> $summaryMsg
+
+   # process the files
+   for f in $fileList
+   do
+      # add this file's log message to the summary file
+      echo "    $f" >> $summaryMsg
+      # tab 2 columns
+      # cat ${oneMsg}.commit | sed -e 's/^/               &/' >> $summaryMsg
+   done
+
+   # unset fileList and fileTypeMsg so we'll get an error if this routine
+   # is invoked again without setting them.
+   unset fileList
+   unset fileTypeMsg
+   return
+}
+
+#
+# subroutine to commit a list of files
+#
+commitFiles () {
+
+   # return if no files in list
+   if [ -z "$fileList" ]
+   then
+      return
+   fi
+
+   # add the file-type message to the summary file 
+   echo "${fileTypeMsg} Files..." >> $summaryMsg
+
+   # process the files
+   for f in $fileList
+   do
+      # open editor to enter a log message for this file
+      cat > $oneMsg <<- EOF
+	
+	
+	CVS: ----------------------------------------------------------------------
+	CVS: Enter Log. Lines beginning with 'CVS:' are removed automatically.
+	CVS:
+	CVS: $fileTypeMsg File: $f
+	CVS:
+	CVS: Log Message Policy Reminders:
+	CVS:    If this is a bug-fix...
+	CVS:       a. Include bug id in the first line as in "bugfix-HYPer03298"
+	CVS:       b. If bug is not logged, enter "bugfix-HYPerNONE"
+	CVS:       c. Set the state of the bug in ClearDDTS to Resolved (!Verified)
+	CVS:       d. If severity is >=severe, make a notation in ReleasNotes.txt, AND
+	CVS:          DON'T FORGET TO ALSO FIX bug in $otherBranchStr branch
+	CVS:    If this is a feature enhancement...
+	CVS:       a. Include the bug id in first line as in "enhance-HYPer02339"
+	CVS:       b. If enhancment is not logged, enter "enhance-HYPerNONE"
+	CVS:       c. Set the state of the bug in ClearDDTS to Resolved (!Verified)
+	CVS:       d. If enhancement is substantial, make a notation in ReleaseNotes.txt
+	CVS:    If unsure of policies, please visit...
+	CVS:       http://www.llnl.gov/SAF/developers/p_and_p.html
+	CVS: ----------------------------------------------------------------------
+EOF
+      ${EDITOR:-vi} $oneMsg || exit 1
+
+      # commit the file to cvs
+      echo -n "commiting file..."
+      grep -v '^CVS:' $oneMsg | fold -s > ${oneMsg}.commit
+      cvs commit -F ${oneMsg}.commit $f || exit 1
+      echo "done"
+
+      # add this file's log message to the summary file, tabbing it over 2 columns 
+      echo "	$f" >> $summaryMsg
+      cat ${oneMsg}.commit | sed -e 's/^/		&/' >> $summaryMsg
+
+      # get rid of this file's log message file
+      if [ -e $oneMsg ]
+      then
+         rm -f $oneMsg
+      fi
+      if [ -e ${oneMsg}.commit ]
+      then
+         rm -f ${oneMsg}.commit
+      fi
+   done
+
+   # unset fileList and fileTypeMsg so we'll get an error if this routine
+   # is invoked again without setting them.
+   unset fileList
+   unset fileTypeMsg
+   return
+}
+
+
+
+#
+# build some useful local variables 
+#
+theCmd=`basename $0`
+theUser=`echo $USER | cut -d'@' -f1`
+
+#
+# search upwards in the directory hierarchy for tools/saf_version
+# and fail if we can't find it
+#
+theDir=
+lastDir=dummy
+nextDir=
+while [ ! -x ${theDir}tools/saf_version ] && [ "$lastDir" != "$nextDir" ]
+do
+   lastDir=$nextDir
+   theDir=${theDir}../
+   nextDir=`(cd $theDir > /dev/null ; pwd)`
+done
+
+if [ -x ${theDir}tools/saf_version ]
+then
+   versionStr=saf-`${theDir}tools/saf_version`
+   minorNumber=`echo $versionStr | cut -d'.' -f2`
+   let oddNumber=minorNumber%2
+   if [ "$oddNumber" = 1 ]
+   then
+      branchStr=Development
+      otherBranchStr=Release
+   else
+      branchStr=Release
+      otherBranchStr=Development
+   fi
+else
+   echo "Unable to obtain saf version number. Are you sure"
+   echo "you've invoked $theCmd in a saf source tree?"
+   exit 1
+fi
+
+#
+# form a temporary file name for the list of files to commit
+#
+theFiles=/tmp/${theCmd}_${theUser}_files$$
+
+#
+# Get the status of all files from ., recursively
+#
+cvs status > $theFiles 
+
+#
+# build lists of unknown, new and changed files
+#
+unknownFiles=`cat $theFiles | grep '^?' | cut -d' ' -f2`
+newFiles=`cat $theFiles |\
+	      grep -v -e '^cvs' -e '^?' |\
+              paste -s -d"########\n" - |\
+              grep -v -e 'Up-to-date' -e 'Attic' |\
+              grep 'Locally Added' |\
+	      cut -d'#' -f2 | cut -d' ' -f2`
+changedFiles=`cat $theFiles |\
+              grep -v -e '^cvs' -e '^?' |\
+              paste -s -d"########\n" - |\
+              grep -v -e 'Up-to-date' -e 'Attic' |\
+	      grep -v 'Locally Added' | cut -d'#' -f5 | cut -d'/' -f6- | cut -d',' -f1`
+
+if [ -e $theFiles ]
+then
+   rm -f $theFiles
+fi
+
+#
+# add full path information to each file in the list of new and unknown files 
+#
+newFilePaths=
+if [ -n "$newFiles" ]
+then
+   findStr="-name some_silly_unique_file_name"
+   for f in $newFiles
+   do
+      findStr="$findStr -o -name $f"
+   done
+   foundFiles=`find . \( $findStr \) -print`
+   filesStatus=`cvs status $foundFiles |\
+                  grep -v -e '^cvs' -e '^?' |\
+		  paste -s -d"########\n" - |\
+		  tr '\t' ' ' | tr ' ' '_'`
+   fileSlot=0
+   for f in $filesStatus
+   do
+       isNew=`echo $f | grep "Locally_Added"`
+       if [ -n "$isNew" ]
+       then
+	   thisSlot=0
+	   thisFile=
+	   for ff in $foundFiles
+	   do
+	      if [ $thisSlot -eq $fileSlot ]
+	      then
+		  thisFile=$ff
+		  break
+	      fi
+	      thisSlot=`expr $thisSlot + 1`
+	   done
+	   newFilePaths="$newFilePaths $thisFile"
+       fi
+       fileSlot=`expr $fileSlot + 1`
+   done
+fi
+
+unknownFilePaths=
+if [ -n "$unknownFiles" ]
+then
+   findStr="-name some_silly_unique_file_name"
+   for f in $unknownFiles
+   do
+      findStr="$findStr -o -name $f"
+   done
+   foundFiles=`find . \( $findStr \) -print`
+   filesStatus=`cvs status $foundFiles |\
+                  grep -v -e '^cvs' |\
+		  paste -s -d"########\n" - |\
+		  tr '\t' ' ' | tr ' ' '_'`
+   fileSlot=0
+   for f in $filesStatus
+   do
+       isUnknown=`echo $f | grep '^?'`
+       if [ -n "$isUnknown" ]
+       then
+	   thisSlot=0
+	   thisFile=
+	   for ff in $foundFiles
+	   do
+	      if [ $thisSlot -eq $fileSlot ]
+	      then
+		  thisFile=$ff
+		  break
+	      fi
+	      thisSlot=`expr $thisSlot + 1`
+	   done
+	   unknownFilePaths="$unknownFilePaths $thisFile"
+       fi
+       fileSlot=`expr $fileSlot + 1`
+   done
+fi
+
+#
+# If we didn't get anything in theFiles, just print a message and exit
+#
+if [ -z "$changedFiles" ] && [ -z "$newFilePaths" ]
+then
+   echo "did not find any files needing to be committed"
+   exit 0
+fi
+
+#
+# Print the list of files to be commited and ask to proceed
+#
+echo "**********************"
+echo "preparing to commit..."
+echo "**********************"
+if [ -n "$unknownFilePaths" ]
+then
+   echo "   Unknown Files..."
+   for f in $unknownFilePaths
+   do
+      echo "      $f"
+   done
+fi
+if [ -n "$newFilePaths" ]
+then
+   echo "   Added Files..."
+   for f in $newFilePaths
+   do
+      echo "      $f"
+   done
+fi
+if [ -n "$changedFiles" ]
+then
+   echo "   Changed Files..."
+   for f in $changedFiles
+   do
+      echo "      $f"
+   done
+fi
+echo -n "continue? (y/n) [n] "
+read ans
+if [ "$ans" != y ]
+then
+   exit 1
+fi
+
+#
+# Loop to enter a comment for each file and then commit it.
+# The comments entered are also catenated together into a single
+# file that is then mailed to saf-dev. Note, it should be
+# straightforward to modify this loop to use the contents of
+# emacs changelogs files in place of entering comments by hand.
+#
+
+#
+# make some temporary file names
+#
+oneMsg=/tmp/${theCmd}_${theUser}_oneMsg$$
+summaryMsg=/tmp/${theCmd}_${theUser}_summaryMsg$$
+
+#
+# build the initial contents of the summaryMsg file
+#
+cat > $summaryMsg <<- EOF
+	Subject: SAF CVS commit summary ($branchStr branch)
+	
+	Version=$versionStr
+	User=$theUser
+	Host=$HOST
+	
+EOF
+
+#
+# process the changed files
+#
+fileList=$changedFiles
+fileTypeMsg="Changed"
+AddFilesToSummaryMsg
+# commitFiles
+
+#
+# process new files
+#
+fileList=$newFilePaths
+fileTypeMsg="Added"
+AddFilesToSummaryMsg
+# commitFiles
+
+CommitSummaryMessage
+echo ""
+echo "******************************"
+echo "***** Done With Commits ******"
+echo "******************************"
+echo ""
+
+#
+# mail the summary file to saf-dev
+#
+if [ -e $summaryMsg ]
+then
+   ans=e
+   while [ "$ans" = e ]
+   do
+      echo "Summary message..."
+      echo ""
+      echo "------------------------------------------------------------------------------"
+      cat $summaryMsg
+      echo "------------------------------------------------------------------------------"
+      echo ""
+      echo -n "send the summary message (y/n/e=edit) "
+      read ans
+      if [ "$ans" = y ]
+      then
+         echo "." >> $summaryMsg
+         mail -s "Check-in summary for saf" saf-developers@sourceforge.sandia.gov < $summaryMsg
+
+      elif [ "$ans" = e ]
+      then
+         ${EDITOR:-vi} $summaryMsg || exit 1
+      fi
+   done
+   rm -f $summaryMsg
+fi

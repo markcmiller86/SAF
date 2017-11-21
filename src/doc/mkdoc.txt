@@ -1,0 +1,355 @@
+# Copyright(C) 1999 The Regents of the University of California.
+#     This work  was produced, in  part, at the  University of California, Lawrence Livermore National
+#     Laboratory    (UC LLNL)  under    contract number   W-7405-ENG-48 (Contract    48)   between the
+#     U.S. Department of Energy (DOE) and The Regents of the University of California (University) for
+#     the  operation of UC LLNL.  Copyright  is reserved to  the University for purposes of controlled
+#     dissemination, commercialization  through formal licensing, or other  disposition under terms of
+#     Contract 48; DOE policies, regulations and orders; and U.S. statutes.  The rights of the Federal
+#     Government  are reserved under  Contract 48 subject  to the restrictions agreed  upon by DOE and
+#     University.
+# 
+# Copyright(C) 1999 Sandia Corporation.
+#     Under terms of Contract DE-AC04-94AL85000, there is a non-exclusive license for use of this work
+#     on behalf of the U.S. Government.  Export  of this program may require a license from the United
+#     States Government.
+# 
+# Disclaimer:
+#     This document was  prepared as an account of  work sponsored by an agency  of  the United States
+#     Government. Neither the United States  Government nor the United States Department of Energy nor 
+#     the  University  of  California  nor  Sandia  Corporation nor any  of their employees  makes any 
+#     warranty, expressed  or  implied, or  assumes   any  legal liability  or responsibility  for the 
+#     accuracy,  completeness,  or  usefulness  of  any  information, apparatus,  product,  or process 
+#     disclosed,  or  represents that its  use would   not infringe  privately owned rights. Reference 
+#     herein  to any  specific commercial  product,  process,  or  service by  trade  name, trademark, 
+#     manufacturer,  or  otherwise,  does  not   necessarily  constitute  or  imply  its  endorsement, 
+#     recommendation, or favoring by the  United States Government   or the University of  California.  
+#     The views and opinions of authors expressed herein do not necessarily state  or reflect those of
+#     the  United  States Government or  the   University of California   and shall  not be  used  for
+#     advertising or product endorsement purposes.
+# 
+# Authors:
+# 	William J. Arrighi	LLNL
+# 	Peter K. Espen		SNL
+# 	Ray T. Hitt 		SNL
+# 	Robb P. Matzke 		LLNL
+# 	Mark C. Miller 		LLNL
+# 	James F. Reus 		LLNL
+# 	Larry A. Schoof 	SNL
+# 
+# Acknowledgements:
+# 	Marty L. Barnaby	SNL - Red parallel perf. study/tuning
+# 	David M. Butler		LPS - Data model design/implementation Spec.
+# 	Albert K. Cheng		NCSA - Parallel HDF5 support
+# 	Nancy Collins		IBM - Alpha/Beta user
+# 	Linnea M. Cook		LLNL - Management advocate
+# 	Michael J. Folk		NCSA - Management advocate 
+# 	Richard M. Hedges	LLNL - Blue-Pacific parallel perf. study/tuning 
+# 	Quincey A. Koziol	NCSA - Serial HDF5 Support 
+# 	Celeste M. Matarazzo	LLNL - Management advocate
+# 	Tom H. Robey 		SNL - Early developer
+# 	Greg D. Sjaardema	SNL - Alpha/Beta user
+# 	Reinhard W. Stotzer	SNL - Early developer
+# 	Judy Sturtevant		SNL - Red parallel perf. study/tuning 
+# 	Robert K. Yates		LLNL - Blue-Pacific parallel perf. study/tuning
+# 
+
+The `mkdoc' perl script takes C source file names as command-line arguments
+and produces Texinfo, HTML, or MIF documentation on the standard output
+stream, depending on the value of the `-f' switch.
+
+Examples:
+   $ mkdoc -a Public -E issue -m -f html lib/*.[ch] >manual.html
+   $ mkdoc -a Public -a Private -f mif  lib/*.[ch] >manual.mif
+   $ mkdoc -f texi lib/*.[ch] >manual.texi
+   $ mkdoc -f text lib/*.[ch] >manual.text
+
+The script will generate a description of functions, macros, preprocessor
+symbols, and datatypes organized alphabetically by name within alphabetical
+chapters. Each chapter may also have introductory text. A two-level table of
+contents, a permuted index, and a concept index are also produced.
+
+Each function which is to be documented must have a function prologue that
+contains certain fields. The prologue, the function return type, and the
+function closing curly brace must all begin in the first column.  The
+recommended format is:
+
+   |/*------------------------------------------------------------------ |
+   | * Audience:    Public                                               |
+   | * Chapter:     Example Documentation                                |
+   | * Purpose:     Demonstrate function documentation                   |
+   | *                                                                   |
+   | * Description: The calloc() function allocates space for an array   |
+   | *              of NMEMB elements of SIZE bytes. The allocated space |
+   | *              is filled with zeros. If the space does not need to  |
+   | *              be zeroed the malloc() function may be used.         |
+   | *                                                                   |
+   | *              The /Description/ field demonstrates how a function  |
+   | *              is to be documented. This field should consist of    |
+   | *              complete sentences describing the function behavior  |
+   | *              in detail. A field, such as this one, may consist of |
+   | *              multiple paragraphs separated from one another by a  |
+   | *              line that doesn't contain any text.                  |
+   | *                                                                   |
+   | * Return:      On success this function returns a pointer to the    |
+   | *              allocated space; otherwise, it returns NULL.         |
+   | *                                                                   |
+   | * Issues:      The calloc() function initializes the allocated      |
+   | *              space to all zero bits. This may not be the same as  |
+   | *              floating-point zero or the NULL macro.               |
+   | *                                                                   |
+   | * Programmer:  Robb Matzke, LLNL, 2000-03-13                        |
+   | *------------------------------------------------------------------ |
+   | */                                                                  |
+   |void *                                                               |
+   |calloc(size_t nmemb, /* Number of elements to allocate. Argument     |
+   |                      * descriptions are allowed to span multiple    |
+   |                      * lines and the first sentence is always a     |
+   |                      * noun phrase. */                              |
+   |       size_t size   /* Size of each element. By using the full 132  |
+   |                      * available columns we don't have to continue  |
+   |                      * argument comments across so many lines of    |
+   |                      * source code. */                              |
+   |	   )                                                             |
+   |{                                                                    |
+   |   ...                                                               |
+   |}                                                                    |
+
+The `Audience', `Chapter', and `Purpose' fields should each have a one-line
+value and are required (I always group them together at the top of the
+prologue to remind me of that fact).  The mkdoc script attempts to typeset the
+documentation by looking for certain things:
+
+  * A word which is all caps (e.g., `SIZE') will be typeset as a formal
+    argument if it is indeed a formal argument. This usually means using a
+    slanted font.
+
+  * A word which is capitalized funny is typeset as source code unless the
+    previous rule can apply (e.g., `NULL' or `DbProps'). This usually means
+    using a fixed-width font. Certain known abbreviations and one-letter words
+    are excluded from this rule.
+
+  * A word which is followed by `()' is typeset as a function call (e.g., `the
+    foobar() function'). Additionally, if that function is also documented
+    then it will be added to the `See-Also' section of the current function's
+    documentation.
+
+  * Words delimited by asterisks are typeset with some sort of emphasis (e.g.,
+    `then *do*not* do that').
+
+  * The phrases `not implemented' and `not implemented yet' are typeset with
+    some sort of emphasis.
+
+  * Words delimited by slashes are typeset with a slanted font if possible
+    (e.g., `a /library/property/list/ is a').
+
+  * Sequences of characters preceded by `http://', `file://', or `ftp://' are
+    interpreted as url references and formated as hrefs for HTML output and as
+    italic for other output formats.
+
+The mkdoc script recognizes the following field names in function and macro
+documentation prologues:
+
+  * Also:	An optional field listing additional functions that should be
+		added to the `See Also' section of the current function's
+		documentation.  Each function should take the form
+		`function_name()' as in the other fields. The real purpose of
+		this field is to get functions into the `See Also' section
+		without actually having their names mentioned in the
+		documentation.
+
+  * Audience:	A required single-line field consisting of space-separated,
+                capitalized keywords. The list of functions will be filtered
+                by these keywords. If `mkdoc' is invoked with `-a AUDIENCE'
+                switches then only those functions that have the specified
+                audience keyword will be included in the documentation. Case
+                does not matter, but I always capitalize each word.  The
+                currently-defined keywords are:
+
+		Public:  This function/macro is part of a public application
+		         programming interface.
+
+		Private: This function is for internal use only.
+
+  * Bugs:	An optional multi-line description of current known problems
+		with the function/macro, one per paragraph. This is not meant
+		to be a duplicate of our bug list, but rather to notify users
+		of problems that we have decided not to fix in the near
+		future.
+
+  * Issues:	An optional multi-line description of things of which the user
+		should beware. This is a watered down `Bugs' field.
+
+  * Chapter:	A required single-line name of the chapter in which this
+		function's documentation is to appear. The chapter name should
+		be capitalized appropriately and not end with a period.
+
+  * Concepts:	An optional multi-line field listing the concepts which should
+		appear in the concept index for this function/macro. Concepts
+		are separated from one another by newlines or semicolons.
+
+  * Description:
+		An optional multi-line field which serves as the bulk of the
+		function/macro definition. This field is sometimes omitted if
+		the function arguments provide sufficient documentation.
+
+  * Modifications:
+		An optional list of modifications made to the function. Each
+		entry shall have the form:
+
+		    PROGRAMMER, ORGANIZATION, DATE
+		    DESCRIPTION
+
+		Example:
+
+		    Robb Matzke, LLNL, 2000-03-14
+		    Added the FOO argument and documentation.
+
+		The modifications shall be separated from one another by a
+		line containing no text and shall be in chronological order.
+		Dates shall use the ISO standard.
+		     
+  * Parallel:   An optional multi-line field describing things of interest to
+		a programmer using the parallel version of the library.
+		
+  * Programmer: An optional single-line field indicating the implementor of
+		the function in a format like `Robb Matzke, LLNL,
+		2000-03-14'. This is optional but important because it allows
+		future programmers to know who originally implemented the
+		function when they have questions.
+
+  * Purpose:	A required single-line field desribing the general nature of
+		the function/macro. This should be a declarative phrase which
+		does not end with punctuation and which will be used in the
+		table of contents, various indicies, etc. (and should be as
+		terse as possible).
+  
+  * Return:	A description of the return value for both success and
+		failure.
+
+Any field which is present should not be present just for the sake of being
+present. The documentation is written for programmers familiar with C, and
+since the function prototype will be part of the documentation it is quite
+useless to do things like the following:
+
+   /*
+   ...
+    * Return:  void
+   ...
+    */
+   void
+   do_something(const properties_t *props, /* The properties. */
+                const char *function_name /* the function name. */
+   ...
+
+
+
+			     INLINE DOCUMENTATION
+			     ====================
+
+Any of the function prologue fields may also appear in the body of the
+function, augmenting the value defined in the prologue (each appearance will
+start a new paragraph). However, required fields are required to be in the
+prologue.  The format, when appearing in the function body, is that a comment
+begin with the field name followed by the field value and that comment must
+contain only one field.  The field name may be capitalized or all upper case
+and may be singular for field names which are defined as plural above. For
+example:
+
+    /*
+     * BUG: We use an insertion sort algorithm here even though performance
+     *      will suffer if the map size becomes very large.
+     */
+
+
+				PRECONDITIONS
+				=============
+
+Functions may have preconditions in the form of:
+
+	  SAF_ASSERT(COND,TEXT,FUNC);
+
+where COND is some C code, TEXT is the statement issued to the user when COND
+is false, and FUNC is the name of the function, usually the variable `me'. The
+TEXT should be a statement of requirement such as `the library must be
+initialized' or `NAME must be non-null for all participating processes'. If
+TEXT is `NULL' then the condition expression itself will be used instead.
+
+
+
+				POSTCONDITIONS
+				==============
+
+Postconditions are not implemented yet.
+
+
+				  EXCLUSIONS
+				  ==========
+
+Mkdoc will normally complain if a function is not documented. This complaint
+can be suppressed with a comment like /*DOCUMENTED*/ in place of the
+prologue. This is often useful when the source files contain two definitions
+of a function or when a function is documented outside the mkdoc system.
+
+				   CHAPTERS
+				   ========
+
+Each chapter may have one or more leading paragraphs that will appear in the
+documentation before the list of functions for that chapter. The chapter text
+may appear in multiple comments anywhere in the source code stream except for
+within the body of a proprocessor directive, the body of a function, or a
+position which makes it appear as though it were a function or macro
+prologue. Chapter text comments must begin in the first column and contain
+these required fields, in generally the same format as for function/macro
+prologues: Audience, Chapter, and Description.
+
+For example:
+
+    /*-----------------------------------------------------------
+     * Audience:    Private
+     * Chapter:     Memory Management
+     *
+     * Description: The functions documented here all allocate or
+     *              free blocks of memory. The functions which
+     *              allocate memory return a pointer to the new
+     *              memory (generally uninitialized) upon success
+     *              and return the NULL pointer upon failure. The
+     *              global errno value is also set when the
+     *              function fails.
+     */
+
+
+
+				MISCELLANEOUS
+				=============
+
+The mkdoc script will eventually allow cross references between function
+documentation and usage examples, the the mechanism has not been designed yet.
+It may also be possible to include simple examples and arbitrary code inline
+in the documentation by indenting the code slightly, although this hasn't been
+implemented yet. E.g.,
+
+    ...
+     * Description: The HOFFSET() macro can be used as the third argument
+     *              of the H5Tinsert() function call to indicate the position
+     *              of the struct member within the struct, as determined
+     *              at compile time.  For example:
+     *
+     *                  struct {
+     *                      char a, b, c;
+     *                      float d;
+     *                      int e, f;
+     *                  } a_struct;
+     *
+     *                  H5Tinsert(..., HOFFSET(a_struct,f), ...);
+     *
+     *              However, one has to beware of the phase of the moon.
+    ...
+
+Examples should not be more than about 40 columns wide in order to fit
+reasonably into the various output formats.
+
+The mkdoc script may eventually allow graphics to be incorporated into the
+documentation by mentioning some sort of uniform resource locator (URL) within
+the C source file. The tricky part of this feature is that the various output
+formts (HTML, MIF, ASCII text, Postscript, TeX, GNU Info) require various
+graphics formats.

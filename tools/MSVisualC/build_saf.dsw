@@ -1,0 +1,998 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "build_all"=.\build_all\build_all.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name create_str_mesh
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name create_unstr_mesh
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name fake_ensight
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libuserd
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name read_str_mesh
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name safapi_tests
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name safdiff
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "create_str_mesh"=.\SAFAPI\TOOLS\ENSIGHT_READER\create_str_mesh\create_str_mesh.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "create_unstr_mesh"=.\SAFAPI\TOOLS\create_unstr_mesh\create_unstr_mesh.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "fake_ensight"=.\SAFAPI\TOOLS\ENSIGHT_READER\fake_ensight\fake_ensight.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libuserd"=.\SAFAPI\TOOLS\ENSIGHT_READER\libuserd\libuserd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "read_str_mesh"=.\safapi\tools\ensight_reader\read_str_mesh\read_str_mesh.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi"=.\safapi\lib\safapi.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_library
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_all_tests
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_arbitrary_mesh_r"=.\safapi\test\safapi_test_arbitrary_mesh_r\safapi_test_arbitrary_mesh_r.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_arbitrary_mesh_w
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_arbitrary_mesh_w"=.\safapi\test\safapi_test_arbitrary_mesh_w\safapi_test_arbitrary_mesh_w.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_pipe
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_atexit_confirm"=.\safapi\test\safapi_test_atexit_confirm\safapi_test_atexit_confirm.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_atexit_setup
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_atexit_error"=.\safapi\test\safapi_test_atexit_error\safapi_test_atexit_error.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_atexit_confirm
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_atexit_setup"=.\safapi\test\safapi_test_atexit_setup\safapi_test_atexit_setup.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_file1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_boundary_subset_r"=.\safapi\test\safapi_test_boundary_subset_r\safapi_test_boundary_subset_r.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_boundary_subset_w
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_boundary_subset_w"=.\safapi\test\safapi_test_boundary_subset_w\safapi_test_boundary_subset_w.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_arbitrary_mesh_r
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_db1"=.\safapi\test\safapi_test_db1\safapi_test_db1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_types2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_embed_boundary_subset_r"=.\safapi\test\safapi_test_embed_boundary_subset_r\safapi_test_embed_boundary_subset_r.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_embed_boundary_subset_w
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_embed_boundary_subset_w"=.\safapi\test\safapi_test_embed_boundary_subset_w\safapi_test_embed_boundary_subset_w.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_boundary_subset_r
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_error1"=.\safapi\test\safapi_test_error1\safapi_test_error1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_version
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_fake_ensight"=.\safapi\test\safapi_test_fake_ensight\safapi_test_fake_ensight.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_old_tests
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name fake_ensight
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_file1"=.\safapi\test\safapi_test_file1\safapi_test_file1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_info1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_getAtt"=.\safapi\test\safapi_test_getAtt\safapi_test_getAtt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_putAtt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_globalOnly"=.\safapi\test\safapi_test_globalOnly\safapi_test_globalOnly.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_mem_res
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_info1"=.\safapi\test\safapi_test_info1\safapi_test_info1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_db1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_larry1r"=.\safapi\test\safapi_test_larry1r\safapi_test_larry1r.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_traverse
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_larry1r2"=.\safapi\test\safapi_test_larry1r2\safapi_test_larry1r2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_larry1w2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_larry1w"=.\safapi\test\safapi_test_larry1w\safapi_test_larry1w.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_quant1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_larry1w2"=.\SAFAPI\TEST\safapi_test_larry1w2\safapi_test_larry1w2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_larry1r
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_mem_res"=.\safapi\test\safapi_test_mem_res\safapi_test_mem_res.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_safdiff
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_misc"=.\safapi\test\safapi_test_misc\safapi_test_misc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_props
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_old_tests"=.\safapi\test\safapi_test_old_tests\safapi_test_old_tests.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_globalOnly
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_pipe"=.\safapi\test\safapi_test_pipe\safapi_test_pipe.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_types4
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_props"=.\safapi\test\safapi_test_props\safapi_test_props.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_larry1r2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_putAtt"=.\safapi\test\safapi_test_putAtt\safapi_test_putAtt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_renew
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_quant1"=.\safapi\test\safapi_test_quant1\safapi_test_quant1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_atexit_error
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_renew"=.\safapi\test\safapi_test_renew\safapi_test_renew.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_misc
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_safdiff"=.\safapi\test\safapi_test_safdiff\safapi_test_safdiff.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_str_mesh
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name safdiff
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_storager1"=.\safapi\test\safapi_test_storager1\safapi_test_storager1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_storagew
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_storager2"=.\safapi\test\safapi_test_storager2\safapi_test_storager2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_storager1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_storagew"=.\safapi\test\safapi_test_storagew\safapi_test_storagew.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_getAtt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_str_mesh"=.\safapi\test\safapi_test_str_mesh\safapi_test_str_mesh.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name create_str_mesh
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_embed_boundary_subset_r
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name read_str_mesh
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_traverse"=.\safapi\test\safapi_test_traverse\safapi_test_traverse.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_larry1w
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_types1"=.\safapi\test\safapi_test_types1\safapi_test_types1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_error1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_types2"=.\safapi\test\safapi_test_types2\safapi_test_types2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_types1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_types3"=.\safapi\test\safapi_test_types3\safapi_test_types3.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_storager2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_types4"=.\safapi\test\safapi_test_types4\safapi_test_types4.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_types3
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_test_version"=.\SAFAPI\TEST\safapi_test_version\safapi_test_version.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safapi_tests"=.\SAFAPI\TEST\safapi_tests\safapi_tests.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi_test_fake_ensight
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "safdiff"=.\SAFAPI\TOOLS\safdiff\safdiff.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name safapi
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_gen_types"=.\SSLIB\sslib_gen_types\sslib_gen_types.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_set_version
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_library"=.\SSLIB\sslib_library\sslib_library.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_gen_types
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_set_version"=.\SSLIB\sslib_set_version\sslib_set_version.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sslib_test_all_tests"=.\SSLIB\sslib_test_all_tests\sslib_test_all_tests.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_gen_types
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_library
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_set_version
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tarray1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tattr1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tblob1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tblob2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tcopy1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_terr1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tfile1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tfind1
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tsync1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tarray1"=.\sslib\sslib_test_tarray1\sslib_test_tarray1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tsync1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tattr1"=.\sslib\sslib_test_tattr1\sslib_test_tattr1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tcopy1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tblob1"=.\sslib\sslib_test_tblob1\sslib_test_tblob1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tfile1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tblob2"=.\sslib\sslib_test_tblob2\sslib_test_tblob2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tblob1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tcopy1"=.\sslib\sslib_test_tcopy1\sslib_test_tcopy1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tarray1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_terr1"=.\SSLIB\sslib_test_terr1\sslib_test_terr1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tfile1"=.\sslib\sslib_test_tfile1\sslib_test_tfile1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_terr1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tfind1"=.\sslib\sslib_test_tfind1\sslib_test_tfind1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tblob2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sslib_test_tsync1"=.\sslib\sslib_test_tsync1\sslib_test_tsync1.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name sslib_test_tfind1
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
