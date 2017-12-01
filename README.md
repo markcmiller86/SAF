@@ -18,7 +18,7 @@ it its ability to describe and store a variety of forms of scientific data. In a
 the implementation of SAF developed here employs a number of features of
 [Smart Libraries](https://wci.llnl.gov/codes/smartlibs/index.html).
 
-An introductory paper on the SAF data model can be found [here](../src/safapi/docs/miller001.pdf)
+An introductory paper on the SAF data model can be found [here](src/safapi/docs/miller001.pdf)
 
 [![Documentation Status](https://readthedocs.org/projects/sets-and-fields/badge/?version=latest)](http://sets-and-fields.readthedocs.io)
 
