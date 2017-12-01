@@ -21,13 +21,15 @@ import subprocess
 # Do some work to create some rst content and see if that content will
 # build as we would ordinarily expect
 #
-lsstr = subprocess.check_output(['ls', '-l'])
+configStr = subprocess.check_output(['configure'])
+makeStr = subprocess.check_output(['make refman.rest'])
 
 f = open('index.rst','w')
 f.write('Foo\n')
 f.write('###########\n\n')
 f.write('This is a test\n')
-f.write('%s\n'%lsstr)
+f.write('%s\n\n'%configStr)
+f.write('%s\n\n'%makeStr)
 f.write('.. toctree::\n\n')
 f.write('   Sets and Fields (SAF) API <refman.rest/index>\n')
 f.write('   SAF Examples <examples.rest/index>\n')
