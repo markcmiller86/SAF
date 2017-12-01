@@ -22,7 +22,7 @@ import subprocess
 # build as we would ordinarily expect
 #
 configStr = subprocess.check_output(['./configure'])
-makeStr = subprocess.check_output(['make refman.rest'])
+makeStr = subprocess.check_output(['which make'])
 
 f = open('index.rst','w')
 f.write('Foo\n')
