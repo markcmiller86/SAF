@@ -15,15 +15,19 @@
 import sys
 import os
 import sphinx_rtd_theme
+import subprocess
 
 #
 # Do some work to create some rst content and see if that content will
 # build as we would ordinarily expect
 #
+lsstr = subprocess.check_output(['ls', '-l'])
+
 f = open('index.rst','w')
 f.write('Hello World\n')
 f.write('###########\n\n')
-f.write('This is a test\n\n')
+f.write('This is a test\n')
+f.write('$s\n'%lsstr)
 f.write('.. toctree::\n\n')
 f.write('   Sets and Fields (SAF) API <refman.rest/index>\n')
 f.write('   SAF Examples <examples.rest/index>\n')
