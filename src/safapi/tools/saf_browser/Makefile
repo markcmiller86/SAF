@@ -142,14 +142,14 @@ VPATH=. $(srcdir) $(top_builddir)/include $(top_srcdir)/include
 
 ## Programs
 SHELL=/bin/sh
-AUTOCONF=:
+AUTOCONF=/Users/miller86/tmp/jekyll_stuff/homebrew/bin/autoconf
 CC=gcc
 CFLAGS=-g -O2 
 CXX=
 CXXFLAGS=
-CPPFLAGS=-I. -I${srcdir} -I${top_builddir}/include -I${top_srcdir}/safapi/lib -I$(top_builddir)/sslib/lib -I$(top_srcdir)/sslib/lib -I/Users/miller86/silo/hdf5-1.8.14/build_serial/my_install/include 
-LDFLAGS=-L/Users/miller86/silo/hdf5-1.8.14/build_serial/my_install/lib
-LIBS=-lhdf5 -lz -lm 
+CPPFLAGS=-I. -I${srcdir} -I${top_builddir}/include -I${top_srcdir}/safapi/lib -I$(top_builddir)/sslib/lib -I$(top_srcdir)/sslib/lib  
+LDFLAGS=
+LIBS=-lz -lm 
 AR=
 RANLIB=ranlib
 RM=rm -f
@@ -183,14 +183,14 @@ mkdoc_sslib_meta=-c $(top_srcdir)/sslib/docs/mkdoc/SSlib-API.mkdoc
 mkdoc_phaseI_meta=-c $(top_srcdir)/sslib/docs/mkdoc/Phase-I.mkdoc
 
 ## Installation points
-prefix=/Users/miller86/Downloads/saf-2.0.2/src/my_install
-exec_prefix=/Users/miller86/Downloads/saf-2.0.2/src/my_install
+prefix=/usr/local
+exec_prefix=${prefix}
 bindir=${exec_prefix}/bin
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
-docsdir=/Users/miller86/Downloads/saf-2.0.2/src/my_install/docs
+docsdir=/usr/local/docs
 PUB_LIB=$(LIB)
 TEST_FILE_PATH=.
 
@@ -317,7 +317,7 @@ LIB_DEPS=$(top_builddir)/safapi/lib/libsafapi.la $(top_builddir)/sslib/lib/libss
 
 #new, Makefile symbols instead of autoconf symbols
 LIBSAFAPI_LA=../../lib/libsafapi.la
-LIBS=-lhdf5 -lz -lm 
+LIBS=-lz -lm 
 
 
 # Only edit past this point if you want to 
@@ -602,7 +602,7 @@ tests_here: tools_here $(DATA) $(TESTS)
 
 ## Documentation in HTML, MIF, Texinfo, GNU Info, or plain text format
 .PHONY: documentation documentation_here
-documentation_here: html_here mif_here texi_here text_here info_here
+documentation_here: html_here mif_here texi_here text_here info_here rest_here
 documentation:
 	@for d in X $(SUBDIRS); do \
 	    if test $$d != X; then \
@@ -610,6 +610,16 @@ documentation:
 	    fi; \
 	done
 	@$(MAKE) --no-print-directory documentation_here
+
+.PHONY: rest rest_here
+rest_here:
+rest:
+	@for d in X $(SUBDIRS); do \
+	    if test $$d != X; then \
+		(:; cd $$d && $(MAKE) $@) || exit 1; \
+	    fi; \
+	done
+	@$(MAKE) --no-print-directory rest_here
 
 .PHONY: html html_here
 html_here:
@@ -730,6 +740,18 @@ $(docsdir)/safdiff.html:
 	mkdir $@ && chmod 755 $@
 
 $(docsdir)/ensight_reader.html:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/sslib_refman.rest:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/refman.rest:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/examples.rest:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/safdiff.rest:
 	mkdir $@ && chmod 755 $@
 
 
@@ -996,7 +1018,8 @@ clean:
 		(:; cd $$d && $(MAKE) $@) || exit 1; \
 	    fi; \
 	done
-	-$(RM) $(MOSTLYCLEAN) $(DATACLEAN) $(DATA) $(CLEAN)
+	-$(RM) $(MOSTLYCLEAN) $(DATACLEAN) $(DATA)
+	-$(RM) -rf $(CLEAN)
 	-$(RM) $(LIB_OBJ)  $(LIB_OBJ:.lo=.o)  $(LIB_OBJ:.lo=.d)
 	-$(RM) $(TEST_OBJ) $(TEST_OBJ:.lo=.o) $(TEST_OBJ:.lo=.d) $(TEST_OBJ:.lo=.bb) $(TEST_OBJ:.lo=.bbg)
 	-$(RM) $(TOOL_OBJ) $(TOOL_OBJ:.lo=.o) $(TOOL_OBJ:.lo=.d)

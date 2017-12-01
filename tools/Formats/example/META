@@ -36,11 +36,12 @@
 	    and shall not be used for advertising or product endorsement purposes.}
 
 @corder{Larry's Use Case}
+@corder{Larry's Use Case}
 @corder{Birth and Death Use Case}
 @corder{Storagew}
 @corder{Triangle Mesh}
 
-@figdir{../../../docs/manuals/figures/example}
+@figdir{../../../src/safapi/docs/images}
 
 @substitute{SAFDOC}{http://www.engsci.sandia.gov/saf/current}
 @audience{public}

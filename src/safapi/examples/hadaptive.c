@@ -75,7 +75,7 @@ hid_t LRCIndex_h5 = -1;
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:    	H-Adaptive Use Case 
+ * Chapter:    	Hadaptive Use Case 
  * Description: This is a simple example of using SAF to represent adaptation in a parallel-decomposed mesh. The use-case
  *		is hard-coded to write the 6 mesh states illustrated in "use case 5-1.gif"
  *
@@ -88,22 +88,28 @@ hid_t LRCIndex_h5 = -1;
  *		a coordinate field, there are no other whole-mesh fields declared. This is simply due to expediency in
  *		completing this example code.
  *
- *		                                               State 0
+ *		State 0
+ *
  *		[figure use_case_5-2.gif]
  *
- *		                                               State 1
+ *		State 1
+ *
  *		[figure use_case_5-3.gif]
  *
- *		                                               State 2
+ *              State 2
+ *
  *		[figure use_case_5-4.gif]
  *
- *		                                               State 3
+ *	        State 3
+ *
  *		[figure use_case_5-5.gif]
  *
- *		                                               State 4
+ *		State 4
+ *
  *		[figure use_case_5-6.gif]
  *
- *		                                               State 5
+ *              State 5
+ *
  *		[figure use_case_5-2.gif]
  *
  *		To give elements an immutable, global ID, we use something called the /LRC/ index which is a triple of
@@ -224,7 +230,7 @@ hid_t LRCIndex_h5 = -1;
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Private
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Struct for current mesh params	
  *
  * Description:	This structure houses all the parameters for each current step of the mesh. It is divided into two
@@ -303,7 +309,7 @@ build_h5_types(void)
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Private
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Comare L,R,C Values	
  *
  * Description:	This function is used for comparing L,R,C values. It returns -1 if value A is less than value B,
@@ -346,7 +352,7 @@ CompareLRCValues(
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Private
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Comare Coordinates
  *
  * Description:	This function is used for comparing coordinates.
@@ -382,7 +388,7 @@ CompareCoords(
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Private
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Initialize mesh parameters
  *
  * Description:	This function initializes the mesh parameters (size and geometric boundaries)
@@ -417,7 +423,7 @@ InitMeshParams(
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Private
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Initialize mesh parameters
  *
  * Description:	This function sets the mesh parameters on each step. The steps are hard-coded. In each step, and for each
@@ -1257,7 +1263,7 @@ UpdateMesh(
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Public	
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Open a new database and do some prepratory work on it
  *
  * Description:	This function creates the initial database and some key objects such as the top-most aggregate set,
@@ -1308,7 +1314,7 @@ OpenDatabase(
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Public
- * Chapter:	H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case 
  * Purpose:	Write current mesh to the SAF database	
  *
  * Description:	This function does all the work of writing the current mesh, including its domain-decomposed topology relation,
@@ -1567,8 +1573,8 @@ WriteCurrentMesh(
 
 /*---------------------------------------------------------------------------------------------------------------------------------
  * Audience:	Public
- * Chapter:	H-Adaptive Use Case
- * Purpose:	Main program for H-Adaptive Use Case 
+ * Chapter:	Hadaptive Use Case
+ * Purpose:	Main program for Hadaptive Use Case 
  *
  *---------------------------------------------------------------------------------------------------------------------------------
  */

@@ -82,7 +82,7 @@ saf_declare_evaluation(SAF_ParMode pmode,
                        SAF_Db *db,
                        const char *name,                /* Name of the evaluation type */
                        const char *url,                 /* An optional URL to the evaluation documentation */
-                       SAF_Eval *buf                    /* OUT: Optional buffer to fill in and return */
+                       SAF_Eval *buf                    /* [OUT] Optional buffer to fill in and return */
                        )
 {
     SAF_ENTER(saf_declare_evaluation, NULL);
@@ -223,7 +223,7 @@ saf_find_evaluations(SAF_ParMode pmode,
 SAF_Eval *
 saf_find_one_evaluation(SAF_Db *database,               /* The database in which to search */
                         const char *name,               /* The name for which to search */
-                        SAF_Eval *buf                   /* OUT: Optional buffer to fill in and return */
+                        SAF_Eval *buf                   /* [OUT] Optional buffer to fill in and return */
                         )
 {
     SAF_ENTER(saf_find_one_evaluation,NULL);

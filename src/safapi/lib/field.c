@@ -332,7 +332,7 @@ saf_declare_field(SAF_ParMode pmode,            /* The parallel mode. */
                                                  * interleave then there may only be 1 buffer, if the field has component
                                                  * interleave then there must be num_components buffers.  The number of
                                                  * components is defined in the field template specified by FTMPL. */
-                  SAF_Field *fld                /* OUT: The optional returned field handle. If NULL is passed here then this
+                  SAF_Field *fld                /* [OUT] The optional returned field handle. If NULL is passed here then this
                                                  * function allocates the field handle before returning it. */
                   )
 {
@@ -694,7 +694,7 @@ saf_find_coords(SAF_ParMode pmode,              /* The parallel mode. */
 SAF_Field *
 saf_find_default_coords(SAF_ParMode pmode,      /* The parallel mode */
                         SAF_Set *base,          /* The set for which the default coordinate field is returned */
-                        SAF_Field *field        /* OUT: The returned field handle, if found, otherwise SAF_NOT_SET_FIELD */
+                        SAF_Field *field        /* [OUT] The returned field handle, if found, otherwise SAF_NOT_SET_FIELD */
                         )
 {
     SAF_ENTER(saf_find_default_coords, NULL);
@@ -747,37 +747,37 @@ saf_find_default_coords(SAF_ParMode pmode,      /* The parallel mode */
 int
 saf_describe_field(SAF_ParMode pmode,           /* The parallel mode. */
                    SAF_Field *field,            /* The field handle. */
-                   SAF_FieldTmpl *ftmpl,        /* OUT: The returned field template handle. Pass NULL if you do not want this
+                   SAF_FieldTmpl *ftmpl,        /* [OUT] The returned field template handle. Pass NULL if you do not want this
                                                  * value returned. */
-                   char **name,                 /* OUT: The returned name of the field. Pass NULL if you do not want this
+                   char **name,                 /* [OUT] The returned name of the field. Pass NULL if you do not want this
                                                  * value returned. (see Returned Strings). */
-		   SAF_Set *base_space,         /* OUT: The returned base space of the field. Pass NULL if you do not want
+		   SAF_Set *base_space,         /* [OUT] The returned base space of the field. Pass NULL if you do not want
                                                  * this value returned. */
-                   SAF_Unit *unit,              /* OUT: The returned unit of measure. */
-                   hbool_t *is_coord,           /* OUT: A returned boolean indicating if the field is a coordinate field. Pass
+                   SAF_Unit *unit,              /* [OUT] The returned unit of measure. */
+                   hbool_t *is_coord,           /* [OUT] A returned boolean indicating if the field is a coordinate field. Pass
                                                  * NULL if you do not want this value returned. */
                    SAF_Cat *homog_decomp,       /* NULL: If the field is homogeneous, the value returned here, if requested,
                                                  * is always SAF_SELF(). That is, SAF_EQUIV(SAF_SELF(db), homog_decomp) will
                                                  * return true. Otherwise, it will return false, the field is inhomogeneous
                                                  * and this argument is the decomposition on which the field is presumably
 						 * piecewise homogeneous. Pass NULL if you do not want this value returned. */
-                   SAF_Cat *coeff_assoc,        /* OUT: The collection with which the field coefficients are associated in an
+                   SAF_Cat *coeff_assoc,        /* [OUT] The collection with which the field coefficients are associated in an
                                                  * n:1 relationship. Pass NULL if you do not want this value returned. */
-                   int *assoc_ratio,            /* OUT: The `n' in the n:1 relationship described for the COEFF_ASSOC
+                   int *assoc_ratio,            /* [OUT] The `n' in the n:1 relationship described for the COEFF_ASSOC
                                                  * argument. Pass NULL if you do not want this value returned. */
-                   SAF_Cat *eval_coll,          /* OUT: The collection whose sets decompose the base space set and over which
+                   SAF_Cat *eval_coll,          /* [OUT] The collection whose sets decompose the base space set and over which
                                                  * the field is actually evaluated. Pass NULL if you do not want this value
                                                  * returned. */
-                   SAF_Eval *eval_func,         /* OUT: The evaluation function. Pass NULL if you do not want this value
+                   SAF_Eval *eval_func,         /* [OUT] The evaluation function. Pass NULL if you do not want this value
                                                  * returned. */
-                   hid_t *data_type,            /* OUT: The file datatype of the field. Pass NULL if you do not want this value
+                   hid_t *data_type,            /* [OUT] The file datatype of the field. Pass NULL if you do not want this value
                                                  * returned. The caller is responsible for invoking H5Tclose() when the
                                                  * datatype is no longer needed. A negative returned value indicates no
                                                  * known file datatype. */
-                   int *num_comps,              /* OUT: The number of components in the field. Pass NULL if you do not want
+                   int *num_comps,              /* [OUT] The number of components in the field. Pass NULL if you do not want
                                                  * this value returned. */
-                   SAF_Field **comp_flds,       /* OUT: The component fields. Pass NULL if you do not want this value returned. */
-                   SAF_Interleave *comp_intlv,  /* OUT: The particular fashion in which components are interleaved.  Currently
+                   SAF_Field **comp_flds,       /* [OUT] The component fields. Pass NULL if you do not want this value returned. */
+                   SAF_Interleave *comp_intlv,  /* [OUT] The particular fashion in which components are interleaved.  Currently
                                                  * there are really only two: SAF_INTERLEAVE_VECTOR and SAF_INTERLEAVE_COMPONENT.
                                                  * These represent the XYZXYZ...XYZ and the XXX...XYYY...YZZZ...Z cases.  Note that
                                                  * interleave really only deals within a single blob of storage.  In the case of a
@@ -786,7 +786,7 @@ saf_describe_field(SAF_ParMode pmode,           /* The parallel mode. */
                                                  * Interleave only has meaning on fields with storage.  In the case of a scalar
                                                  * field interleave is also meaningless, both cases degenerate to the same layout:
                                                  * XXX...X (use SAF_INTERLEAVE_NONE). */
-                   int **comp_order             /* OUT: The component ordering in the field. Pass NULL if you do not want this
+                   int **comp_order             /* [OUT] The component ordering in the field. Pass NULL if you do not want this
                                                  * value returned. */
                    )
 {
@@ -1026,7 +1026,7 @@ saf_find_fields(SAF_ParMode pmode,              /* The parallel mode. */
 int
 saf_is_self_stored_field(SAF_ParMode pmode,     /* The parallel mode. */
                          SAF_Field *field,      /* The handle of the field which is to be examined. */
-                         hbool_t *result        /* OUT: Optional pointer to memory which is to receive the result of the test:
+                         hbool_t *result        /* [OUT] Optional pointer to memory which is to receive the result of the test:
                                                  * true if the field is self stored or false if it is stored on a
                                                  * decomposition. */
                          )
@@ -1434,7 +1434,7 @@ done:
 int
 saf_data_has_been_written_to_field(SAF_ParMode pmode,   /* The parallel mode. */
 				   SAF_Field *field,    /* The field handle. */
-				   hbool_t *Presult     /* OUT: A pointer to caller supplied memory which is to receive the answer
+				   hbool_t *Presult     /* [OUT] A pointer to caller supplied memory which is to receive the answer
                                                          * to the question.  A value of true is saved at this location if the
                                                          * field has had data written to it, false if not. */
                                    )
@@ -1477,7 +1477,7 @@ saf_data_has_been_written_to_field(SAF_ParMode pmode,   /* The parallel mode. */
 int
 saf_data_has_been_written_to_comp_field(SAF_ParMode pmode,      /* The parallel mode. */
 					SAF_Field *field,       /* The field handle. */
-					hbool_t *Presult        /* OUT: A pointer to caller supplied memory which is to receive the
+					hbool_t *Presult        /* [OUT] A pointer to caller supplied memory which is to receive the
                                                                  * answer to the question.  A value of true is saved at this
                                                                  * location if the field has had data written to it, false if
 								 * not. */
@@ -1533,7 +1533,7 @@ saf_data_has_been_written_to_comp_field(SAF_ParMode pmode,      /* The parallel 
 int
 _saf_numberOfComponentsOf_field(SAF_ParMode pmode,      /* The parallel mode. */
 				SAF_Field *field,       /* The field handle. */
-				int *num_comps          /* OUT: The number of components. */
+				int *num_comps          /* [OUT] The number of components. */
                                 )
 {
     SAF_ENTER(_saf_numberOfComponentsOf_field, SAF_PRECONDITION_ERROR);
@@ -1586,10 +1586,10 @@ int
 saf_get_count_and_type_for_field(SAF_ParMode pmode,     /* The parallel mode. */
                                  SAF_Field *field,      /* The field handle. */
                                  SAF_FieldTarget *target, /* Optional field targeting information. */
-                                 size_t *Pcount,        /* OUT: The number of items that would be placed in the buffer by a
+                                 size_t *Pcount,        /* [OUT] The number of items that would be placed in the buffer by a
                                                          * call to the saf_read_field() function.  The caller may pass a value
                                                          * of NULL for this parameter if this value is not desired. */
-                                 hid_t *Ptype           /* OUT: The type of the items that would be placed in the buffer by a
+                                 hid_t *Ptype           /* [OUT] The type of the items that would be placed in the buffer by a
                                                          * call to the saf_read_field() function.  The caller may pass a value
                                                          * of NULL for this parameter if this value is not desired. The
                                                          * returned HDF5 datatype can be closed by the caller when no longer
@@ -1747,7 +1747,7 @@ saf_get_count_and_type_for_field(SAF_ParMode pmode,     /* The parallel mode. */
 SAF_Field *
 _saf_find_parent_field(SAF_ParMode pmode,
                        SAF_Field *component_field,      /* Field for which we are searching for a parent. */
-                       SAF_Field *retval                /* OUT: Optional buffer in which to store the result. If this is NULL
+                       SAF_Field *retval                /* [OUT] Optional buffer in which to store the result. If this is NULL
                                                          * then a buffer will be allocated for the return value. */
                        )
 {
@@ -2025,7 +2025,7 @@ saf_read_field(SAF_ParMode pmode,       /* The parallel mode. */
                                          * respectively, the starts, counts and strides *in*each*dimension* of the associated
                                          * collection or to a list of MEMBER_COUNT N-tuples, each one identifying a single
                                          * member of the associated collection or to NULL in the case of a SAF_TOTALITY request. */
-               void **Pbuf              /* INOUT: A pointer to a buffer pointer which is to receive the values read.  The
+               void **Pbuf              /* [IN|OUT] A pointer to a buffer pointer which is to receive the values read.  The
                                          * caller may supply a pointer to a value of NULL if this function is to allocate a
                                          * buffer.  If the caller supplies a pointer to a non-NULL pointer (to a buffer) then
                                          * it is up to the caller to ensure that the buffer is of sufficient size to hold all
@@ -2451,7 +2451,7 @@ saf_read_field(SAF_ParMode pmode,       /* The parallel mode. */
  *---------------------------------------------------------------------------------------------------------------------------------
  */
 int
-saf_target_field(SAF_FieldTarget *target,       /* OUT: The target information that will be initialized by this call. */
+saf_target_field(SAF_FieldTarget *target,       /* [OUT] The target information that will be initialized by this call. */
                  SAF_Unit *targ_units,          /* The new units. This parameter is ignored at this time. */
                  SAF_Cat *targ_storage_decomp,  /* The new storage decomposition. */
                  SAF_Cat *targ_coeff_assoc,     /* This parameter is ignored at this time. */

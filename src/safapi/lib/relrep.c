@@ -83,7 +83,7 @@ saf_declare_relrep(SAF_ParMode pmode,
                    const char *name,            /* Name of the object */
                    const char *url,             /* An optional URL to the documentation */
                    int id,                      /* A unique non-negative identification number */
-                   SAF_RelRep *buf              /* OUT: Optional handle to fill in and return */
+                   SAF_RelRep *buf              /* [OUT] Optional handle to fill in and return */
                    )
 {
     SAF_ENTER(saf_declare_relrep, NULL);
@@ -227,7 +227,7 @@ saf_find_relreps(SAF_ParMode pmode,
 SAF_RelRep *
 saf_find_one_relrep(SAF_Db *database,           /* The database in which to search */
                     const char *name,           /* The name for which to search */
-                    SAF_RelRep *buf             /* OUT: Optional buffer to initialize and return */
+                    SAF_RelRep *buf             /* [OUT] Optional buffer to initialize and return */
                     )
 {
     SAF_ENTER(saf_find_one_relrep, NULL);

@@ -84,7 +84,7 @@ saf_declare_basis(SAF_ParMode pmode,
                   SAF_Db *db,
                   const char *name,                     /* Name of the basis type */
                   const char *url,                      /* An optional URL to the basis documentation */
-                  SAF_Basis *basis                      /* OUT: Optional basis handle to initialize (and return). */
+                  SAF_Basis *basis                      /* [OUT] Optional basis handle to initialize (and return). */
                   )
 {
     SAF_ENTER(saf_declare_basis, NULL);
@@ -120,8 +120,8 @@ saf_declare_basis(SAF_ParMode pmode,
 int
 saf_describe_basis(SAF_ParMode pmode,
                    SAF_Basis *basis,             /* Basis to describe */
-                   char **name,                  /* OUT: If non-null, on return points to malloc'd basis name if any */
-                   char **url                    /* OUT: If non-null, on return points to malloc'd URL if any */
+                   char **name,                  /* [OUT] If non-null, on return points to malloc'd basis name if any */
+                   char **url                    /* [OUT] If non-null, on return points to malloc'd URL if any */
                    )
 {
     SAF_ENTER(saf_describe_basis, SAF_PRECONDITION_ERROR);
@@ -220,7 +220,7 @@ saf_find_bases(SAF_ParMode pmode,
 SAF_Basis *
 saf_find_one_basis(SAF_Db *database,                    /* The database in which to search */
                    const char *name,                    /* The name for which to search */
-                   SAF_Basis *buf                       /* OUT: Optional basis handle to initialize and return. */
+                   SAF_Basis *buf                       /* [OUT] Optional basis handle to initialize and return. */
                    )
 {
     SAF_ENTER(saf_find_one_basis, NULL);

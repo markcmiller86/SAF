@@ -123,6 +123,7 @@ refman.mif:  mif
 refman.texi: texi
 refman.text: text
 refman.info: info
+refman.rest: rest 
 
 @CONCLUDE@
 

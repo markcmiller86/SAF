@@ -121,11 +121,11 @@ saf_declare_state_tmpl(SAF_ParMode   pmode,	/* The parallel mode. */
 int
 saf_describe_state_tmpl(SAF_ParMode pmode,		/* The parallel mode. */
                         SAF_StateTmpl *stmpl,		/* The state template handle. */
-			char **name,			/* OUT: The returned name.  Pass NULL if you do not want the name
+			char **name,			/* [OUT] The returned name.  Pass NULL if you do not want the name
                                                          * returned. */                                              
-			int *num_ftmpls,		/* OUT: The returned number of field templates which comprise this state 
+			int *num_ftmpls,		/* [OUT] The returned number of field templates which comprise this state 
                                                          * template. */
-			SAF_FieldTmpl **ftmpls		/* OUT: The returned field templates. */
+			SAF_FieldTmpl **ftmpls		/* [OUT] The returned field templates. */
 			)
 {
   SAF_ENTER(saf_describe_state_tmpl, SAF_PRECONDITION_ERROR);

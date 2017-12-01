@@ -227,7 +227,7 @@ saf_declare_subset_relation(SAF_ParMode pmode,		/* The parallel mode. */
                                                          * Otherwise, the client should pass NULL here.
                                                          * As with ABUF, the client may pass also NULL here meaning the raw data
 							 * will be bound to the object during write, rather than declaration. */
-			    SAF_Rel *rel		/* OUT: Optional returned relation handle. */
+			    SAF_Rel *rel		/* [OUT] Optional returned relation handle. */
 			    )
 {
     SAF_ENTER(saf_declare_subset_relation, NULL);
@@ -488,9 +488,9 @@ saf_find_subset_relations(SAF_ParMode pmode,    /* The parallel mode. */
 int
 saf_describe_subset_relation(SAF_ParMode pmode,         /* The parallel mode. */
                              SAF_Rel *rel,              /* The relation handle. */
-                             SAF_Set *sup,              /* OUT: The superset. Pass NULL if you do not want this value returned. */
-                             SAF_Set *sub,              /* OUT: The subset. Pass NULL if you do not want this value returned. */
-                             SAF_Cat *sup_cat,          /* OUT: The collection category on the SUP set upon which the subset
+                             SAF_Set *sup,              /* [OUT] The superset. Pass NULL if you do not want this value returned. */
+                             SAF_Set *sub,              /* [OUT] The subset. Pass NULL if you do not want this value returned. */
+                             SAF_Cat *sup_cat,          /* [OUT] The collection category on the SUP set upon which the subset
                                                          * relation is defined. Note that collections of this category must
                                                          * have already been defined on SUP. Otherwise, an error is generated.
                                                          * Note that the four args SUP_CAT, SUB_CAT, SBMODE, and CBMODE are
@@ -498,22 +498,22 @@ saf_describe_subset_relation(SAF_ParMode pmode,         /* The parallel mode. */
                                                          * saf_declare_subset_relation() call, SAF_COMMON(), SAF_BOUNDARY(),
                                                          * SAF_EMBEDBND() or SAF_GENERAL(). Pass NULL if you do not want this
                                                          * value returned. */
-                             SAF_Cat *sub_cat,          /* OUT: The collection category on the SUB set upon which the subset
+                             SAF_Cat *sub_cat,          /* [OUT] The collection category on the SUB set upon which the subset
                                                          * relation is defined. Again, pass NULL if you do not want this value
                                                          * returned. */
-                             SAF_BoundMode *sbmode,     /* OUT: Indicates whether SUB is the boundary of SUP. A value of
+                             SAF_BoundMode *sbmode,     /* [OUT] Indicates whether SUB is the boundary of SUP. A value of
                                                          * SAF_BOUNDARY_TRUE, indicates that the SUB is a boundary of SUP. A
                                                          * value of SAF_BOUNDARY_FALSE indicates SUB is *not* a boundary of
                                                          * SUP. Pass NULL if you do not want this value returned. */
-                             SAF_BoundMode *cbmode,     /* OUT: Indicates whether *members* of collection on SUB are *on* the
+                             SAF_BoundMode *cbmode,     /* [OUT] Indicates whether *members* of collection on SUB are *on* the
                                                          * boundaries of members of the collection on SUP. A value of
                                                          * SAF_BOUNDARY_TRUE indicates they are. A value of SAF_BOUNDARY_FALSE
                                                          * indicates they are not. Pass NULL if you do not want this value
                                                          * returned. */
-                             SAF_RelRep *srtype,        /* OUT: The representation specification. Pass NULL if you do not want
+                             SAF_RelRep *srtype,        /* [OUT] The representation specification. Pass NULL if you do not want
                                                          * this handle returned. See saf_declare_subset_relation() for the
                                                          * meaning of values of this argument. */
-                             hid_t *data_type	        /* OUT: The data-type of the data stored with the relation. Pass NULL
+                             hid_t *data_type	        /* [OUT] The data-type of the data stored with the relation. Pass NULL
                                                          * if you do not want this value returned. */
 			     )
 {
@@ -581,7 +581,7 @@ saf_describe_subset_relation(SAF_ParMode pmode,         /* The parallel mode. */
  *---------------------------------------------------------------------------------------------------------------------------------
  */
 int
-saf_target_subset_relation(SAF_RelTarget *target,       /* OUT: Relation targeting information to be initialize herein. */
+saf_target_subset_relation(SAF_RelTarget *target,       /* [OUT] Relation targeting information to be initialize herein. */
 			   SAF_RelRep *srtype,          /* Target subset relation types. */
 			   hid_t type         	        /* Target data types. */
 			   )
@@ -964,22 +964,22 @@ int
 saf_get_count_and_type_for_subset_relation(SAF_ParMode pmode,           /* The parallel mode. */
 					   SAF_Rel *rel,                /* The relation handle. */
                                            SAF_RelTarget *target,       /* Optional relation targeting information. */
-					   size_t *abuf_sz,             /* OUT: The number of items that would be placed in
+					   size_t *abuf_sz,             /* [OUT] The number of items that would be placed in
                                                                          * the A-buffer by a call to the
                                                                          * saf_read_subset_relation() function.  The caller
                                                                          * may pass value of NULL for this parameter if this
                                                                          * value is not desired. */
-					   hid_t *abuf_type,            /* OUT: The type of the items that would be placed in
+					   hid_t *abuf_type,            /* [OUT] The type of the items that would be placed in
                                                                          * the A-buffer by a call to the
                                                                          * saf_read_subset_relation() function.  The caller
                                                                          * may pass value of NULL for this parameter if this
                                                                          * value is not desired. */
-					   size_t *bbuf_sz,             /* OUT: The number of items that would be placed in
+					   size_t *bbuf_sz,             /* [OUT] The number of items that would be placed in
                                                                          * the B-buffer by a call to the
                                                                          * saf_read_subset_relation() function.  The caller
                                                                          * may pass value of NULL for this parameter if this
                                                                          * value is not desired. */
-					   hid_t *bbuf_type             /* OUT: The type of the items that would be placed in
+					   hid_t *bbuf_type             /* [OUT] The type of the items that would be placed in
                                                                          * the B-buffer by a call to the
                                                                          * saf_read_subset_relation() function.  The caller
                                                                          * may pass value of NULL for this parameter if this
@@ -1246,7 +1246,7 @@ saf_declare_topo_relation(SAF_ParMode pmode,		/* The parallel mode. */
                           hid_t B_type,                 /* The type of the data in B_BUF. */
                           void *B_buf,                  /* The buffer. Pass NULL if you would rather provide this in
                                                          * the write call. */
-			  SAF_Rel *rel		        /* OUT: Optional memory that will be initialized (and returned) to
+			  SAF_Rel *rel		        /* [OUT] Optional memory that will be initialized (and returned) to
                                                          * point to the new relation. */
 			  )
 {
@@ -1421,16 +1421,16 @@ saf_declare_topo_relation(SAF_ParMode pmode,		/* The parallel mode. */
 int
 saf_describe_topo_relation(SAF_ParMode pmode,		/* The parallel mode. */
 			   SAF_Rel *rel,		/* The relation to be described. */
-			   SAF_Set *set,		/* OUT: The containing set of the collection that is sewn together by the
+			   SAF_Set *set,		/* [OUT] The containing set of the collection that is sewn together by the
 							 * relation. */
-			   SAF_Cat *pieces,	        /* OUT: The collection of members that are sewn together. */
+			   SAF_Cat *pieces,	        /* [OUT] The collection of members that are sewn together. */
 			   SAF_Set *range_set,
-			   SAF_Cat *range_cat, 		/* OUT: Together the RANGE_S and RANGE_C pair identifies the collection
+			   SAF_Cat *range_cat, 		/* [OUT] Together the RANGE_S and RANGE_C pair identifies the collection
 							 * used to glue the pieces together. */
-			   SAF_Cat *storage_decomp,	/* OUT: The decomposition of SET upon which the relation is actually
+			   SAF_Cat *storage_decomp,	/* [OUT] The decomposition of SET upon which the relation is actually
                                                          * stored. */
-			   SAF_RelRep *trtype,		/* OUT: The topology relation type. */
-			   hid_t *data_type		/* OUT: The type of the data. */
+			   SAF_RelRep *trtype,		/* [OUT] The topology relation type. */
+			   hid_t *data_type		/* [OUT] The type of the data. */
 			   )
 {
     SAF_ENTER(saf_describe_topo_relation, SAF_PRECONDITION_ERROR);
@@ -1498,7 +1498,7 @@ int
 saf_find_topo_relations(SAF_ParMode pmode,		/* The parallel mode. */
                         SAF_Db *db,                     /* The database in which to search for topology relations. */
 			SAF_Set *set,			/* The set whose topology is sought. */
-			SAF_Set *topo_ancestor,		/* OUT: In many cases, the topology for a given set is known only on some
+			SAF_Set *topo_ancestor,		/* [OUT] In many cases, the topology for a given set is known only on some
                                                          * ancestor of the set. This return value indicates that ancestor.  If
                                                          * SAF_EQUIV() for SET and TOPO_ANCESTOR is true, then the topology
                                                          * relations found by this call are indeed those defined on the
@@ -1571,7 +1571,7 @@ saf_find_topo_relations(SAF_ParMode pmode,		/* The parallel mode. */
 int
 saf_is_self_stored_topo_relation(SAF_ParMode pmode,     /* The parallel mode. */
 			         SAF_Rel *rel,          /* The handle of the topological relation which is to be examined. */
-				 hbool_t *Presult       /* OUT: A pointer to caller supplied memory which is to receive the
+				 hbool_t *Presult       /* [OUT] A pointer to caller supplied memory which is to receive the
                                                          * result of the test: true if the relation is self stored or false if
                                                          * it is stored on a decomposition.  Note that it is permitted for the
                                                          * caller to pass a value of NULL for this parameter. */
@@ -1605,7 +1605,7 @@ saf_is_self_stored_topo_relation(SAF_ParMode pmode,     /* The parallel mode. */
  *---------------------------------------------------------------------------------------------------------------------------------
  */
 int
-saf_target_topo_relation(SAF_RelTarget *target,         /* OUT: Relation targeting information to be initialized by this
+saf_target_topo_relation(SAF_RelTarget *target,         /* [OUT] Relation targeting information to be initialized by this
                                                          * function. */                                              
 			 SAF_Set *range_set,            /* Optional set. */
 			 SAF_Cat *range_cat,            /* Together the RANGE_SET this identifies the target collection to be
@@ -1958,22 +1958,22 @@ int
 saf_get_count_and_type_for_topo_relation(SAF_ParMode pmode,     /* The parallel mode. */
 					 SAF_Rel *rel,          /* The relation handle. */
                                          SAF_RelTarget *target, /* Targeting information. */
-					 SAF_RelRep *PrepType,  /* OUT: The mapping representation type (arbitrary, structured, or
+					 SAF_RelRep *PrepType,  /* [OUT] The mapping representation type (arbitrary, structured, or
                                                                  * unstructured). The caller may pass value of NULL for this
                                                                  * parameter if this value is not desired. */
-					 size_t *abuf_sz,       /* OUT: The number of items that would be placed in the A-buffer by
+					 size_t *abuf_sz,       /* [OUT] The number of items that would be placed in the A-buffer by
                                                                  * a call to the saf_read_topo_relation() function.  The caller
                                                                  * may pass value of NULL for this parameter if this value is not
                                                                  * desired. */
-					 hid_t *abuf_type,      /* OUT: The type of the items that would be placed in the
+					 hid_t *abuf_type,      /* [OUT] The type of the items that would be placed in the
                                                                  * A-buffer by a call to the saf_read_topo_relation()
                                                                  * function.  The caller may pass value of NULL for this
                                                                  * parameter if this value is not desired. */
-					 size_t *bbuf_sz,       /* OUT: The number of items that would be placed in the B-buffer by
+					 size_t *bbuf_sz,       /* [OUT] The number of items that would be placed in the B-buffer by
                                                                  * a call to the saf_read_topo_relation() function.  The caller
                                                                  * may pass value of NULL for this parameter if this value is not
                                                                  * desired. */
-					 hid_t *bbuf_type       /* OUT: The type of the items that would be placed in the
+					 hid_t *bbuf_type       /* [OUT] The type of the items that would be placed in the
                                                                  * B-buffer by a call to the saf_read_topo_relation()
                                                                  * function.  The caller may pass value of NULL for this
                                                                  * parameter if this value is not desired. */

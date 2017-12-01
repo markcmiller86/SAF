@@ -182,6 +182,7 @@ use Mkdoc::Html;		# HTML (Netscape) output format
 use Mkdoc::Mif;			# MIF (FrameMaker) output format
 use Mkdoc::Texi;		# TeXinfo (GNU Info) output format
 use Mkdoc::Text;		# Plain text output format
+use Mkdoc::reST;		# Plain text output format
 
 use Mkdoc::Top;			# Title page, table of contents, etc.
 use Mkdoc::Chapter;		# Chapter objects
@@ -602,6 +603,8 @@ sub parse_cmdline {
     $Output = Mkdoc::Mif->new($OutputName,%Config);
   } elsif ($OutputFmt eq 'text') {
     $Output = Mkdoc::Text->new($OutputName,%Config);
+  } elsif ($OutputFmt eq 'rest') {
+    $Output = Mkdoc::reST->new($OutputName,%Config);
   } else {
     print STDERR "not a valid output format: $OutputFmt\n";
     exit 1;

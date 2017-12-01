@@ -332,18 +332,18 @@ saf_declare_state_group(SAF_ParMode   pmode,		/* The parallel mode. */
 int
 saf_describe_state_group(SAF_ParMode   pmode,		/* The parallel mode. */
                          SAF_StateGrp  *state_grp,	/* The state group to be described. */
-                         char          **name,		/* OUT: Returned name of the state group. Pass NULL if you do not want this
+                         char          **name,		/* [OUT] Returned name of the state group. Pass NULL if you do not want this
                                                          * value returned. */
-                         SAF_Suite     *suite,          /* OUT: Returned suite the state group is associated with. */
-                         SAF_StateTmpl *stmpl,		/* OUT: Returned state template. Pass NULL if you do not want this value
+                         SAF_Suite     *suite,          /* [OUT] Returned suite the state group is associated with. */
+                         SAF_StateTmpl *stmpl,		/* [OUT] Returned state template. Pass NULL if you do not want this value
                                                          * returned. */
-                         SAF_Quantity  *quantity,       /* OUT: The returned quantity associated with the axis of the
+                         SAF_Quantity  *quantity,       /* [OUT] The returned quantity associated with the axis of the
                                                          * parametric space. For example, SAF_TIME_QUANTITY. */
-                         SAF_Unit      *unit,           /* OUT: The returned units associated with the axis of the parametric
+                         SAF_Unit      *unit,           /* [OUT] The returned units associated with the axis of the parametric
                                                          * space. */
-                         hid_t         *coord_data_type,/* OUT: The returned data type of the coordinates of the parametric
+                         hid_t         *coord_data_type,/* [OUT] The returned data type of the coordinates of the parametric
                                                          * space. */
-                         int           *num_states	/* OUT: Returned number of states that have been written to this state
+                         int           *num_states	/* [OUT] Returned number of states that have been written to this state
                                                          * group. Pass NULL if you do not want this value returned. */
                          )
 {
@@ -661,11 +661,11 @@ saf_read_state(SAF_ParMode  pmode,		/* The parallel mode */
                SAF_StateGrp *state_grp,		/* The state group from which this state will be read. */
                int          state_index,	/* An index that specifies which state within the state group will be read.
                                                  * This index is 0-based. */
-               SAF_Set      *mesh,              /* OUT: Returned ID of the mesh associated with this state. */
-               SAF_Field    *deflt_coords,      /* OUT: Returned ID of the default coordinate field of MESH; we may want to
+               SAF_Set      *mesh,              /* [OUT] Returned ID of the mesh associated with this state. */
+               SAF_Field    *deflt_coords,      /* [OUT] Returned ID of the default coordinate field of MESH; we may want to
                                                  * delete this argument since the client can call saf_find_default_coords()
                                                  * for MESH. */
-               void         *coord_data,	/* OUT: Returned coordinate of STATE_INDEX within the state group.  For
+               void         *coord_data,	/* [OUT] Returned coordinate of STATE_INDEX within the state group.  For
                                                  * instance, this is typically the time value of the state. */
 	       SAF_Field    **fields		/* The IDs of the fields (the dependent variables) to be read from this state.
                                                  * The caller may supply a pointer to a value of NULL if this function is to 
@@ -781,8 +781,8 @@ saf_find_state_groups(SAF_ParMode  pmode,		/* The parallel mode. */
                       SAF_Suite    *suite,		/* The suite within which to search. */
 		      const char   *name,		/* The name of the state group for which to search.  Pass SAF_ANY_NAME 
                                                          * if you do not want to limit your search. */
-		      int          *num_state_grps,	/* OUT: Returned number of state groups found. */
-		      SAF_StateGrp **state_grps 	/* OUT: Returned state groups found. */
+		      int          *num_state_grps,	/* [OUT] Returned number of state groups found. */
+		      SAF_StateGrp **state_grps 	/* [OUT] Returned state groups found. */
 		      )
 {
   SAF_ENTER(saf_find_state_groups, SAF_PRECONDITION_ERROR);

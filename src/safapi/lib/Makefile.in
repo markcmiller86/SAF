@@ -119,4 +119,14 @@ info_here: ../docs/refman.info/refman.info
 	mkdir -p ../docs/refman.info
 	-(cd ../docs/refman.info && makeinfo ../refman.texi) || rmdir ../docs/refman.info
 
+## reST version of the reference manual
+rest_here: ../docs/refman.rest/refman.rest.toc
+../docs/refman.rest/refman.rest.toc: $(MKDOC_SRC)
+	rm -rf ../docs/refman.rest
+	mkdir -p ../docs/refman.rest
+	cp ../docs/conf.py ../docs/refman.rest
+	FMT=rest; $(MKDOC_EXE) $(MKDOC_SRC)
+	mv ../docs/refman.rest/index.toc $@
+	(cd ../docs/refman.rest && sphinx-build -build -b html . _build -a) || rmdir ../docs/refman.rest
+
 @CONCLUDE@

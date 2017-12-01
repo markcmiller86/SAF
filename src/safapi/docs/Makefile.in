@@ -67,6 +67,9 @@ top_builddir=../..
 srcdir=@srcdir@
 @COMMENCE@
 
+CLEAN = refman.rest refman.html refman.mif refman.text \
+        examples.rest examples.html examples.mif examples.text
+
 # Subdirectories in build-order
 # I put the tools *before* the test dir so that standard types file would get generated first
 

@@ -820,13 +820,13 @@ saf_get_attribute(SAF_ParMode pmode,    /* One of the parallel modes. */
                   ss_pers_t *obj,       /* The handle to the object from which the attribute will be read. */
                   const char *name,     /* The name of the attribute. See SAF_ATT_NAMES and other reserved attribute names
 					 * for special kinds of attribute queries. */
-                  hid_t *type,          /* INOUT: If TYPE is NULL, this argument will be ignored. If TYPE points
+                  hid_t *type,          /* IN[OUT] If TYPE is NULL, this argument will be ignored. If TYPE points
                                          * to a valid datatype, then the attribute will be converted to the specified type as
                                          * it is read. If it does not, there will be *no*data*conversion* and the output value
                                          * will be the datatype of the data returned (the caller should invoke H5Tclose()). */
-                  int *count,           /* OUT: The number of items in the attribute. If COUNT is NULL, then the value of
+                  int *count,           /* [OUT] The number of items in the attribute. If COUNT is NULL, then the value of
                                          * COUNT will not be returned. */            
-                  void **value          /* INOUT: Points to an array of COUNT values each having datatype
+                  void **value          /* IN[OUT] Points to an array of COUNT values each having datatype
                                          * TYPE. If VALUE is NULL, then no attribute values will be returned. If
                                          * VALUE points to NULL, then the library will allocate the array of values which is
 					 * returned. Otherwise the library assumes that VALUE
@@ -1772,7 +1772,7 @@ extern int MPIR_Has_been_initialized;
 ss_collection_t *
 _saf_getCollection_set(SAF_Set *set,            /* Set to which the desired collection belongs. */
                        SAF_Cat *cat,            /* Category of the desired collection. */
-                       ss_collection_t *buf     /* OUT: Optional buffer to hold result. If non is supplied then one will
+                       ss_collection_t *buf     /* [OUT] Optional buffer to hold result. If non is supplied then one will
                                                  * be allocated. */
                       )
 {
@@ -1955,10 +1955,10 @@ _saf_convert(hid_t srctype,                     /* Source datatype; type of SRCB
 ss_pers_t *
 saf_allgather_handles(ss_pers_t *_pers, /* A Pointer to the handle to be exchanged.  Every participant must supply a valid
                                          * handle of the same type and in the same scope as every other participant. */
-		      int *commsize,    /* OUT: A pointer to optional caller supplied memory which is to receive the integer
+		      int *commsize,    /* [OUT] A pointer to optional caller supplied memory which is to receive the integer
                                          * number of handles returned by this function.  This is the number of participants or
                                          * the size of the communicator associated with the given database. */
-		      ss_pers_t *result /* OUT: An optional pointer to an array that will will be initialized with a handle
+		      ss_pers_t *result /* [OUT] An optional pointer to an array that will will be initialized with a handle
                                          * from each MPI task in task rank order. If this buffer is supplied then it should be
                                          * at least as large as the communicator associated with the DB argument. If not
                                          * supplied (i.e., null) then a buffer will be allocated for the return value. */

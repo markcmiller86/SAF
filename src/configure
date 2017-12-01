@@ -2453,6 +2453,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
 ac_config_headers="$ac_config_headers include/SAFconfig.h"
 
 ac_aux_dir=
@@ -3888,7 +3889,7 @@ test "$ac_cv_prog_gnu_ld" = yes && libtool_flags="$libtool_flags --with-gnu-ld"
 case "$host" in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3891 "configure"' > conftest.$ac_ext
+  echo '#line 3892 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5569,7 +5570,8 @@ if test "x$ac_cv_header_hdf5_h" = xyes; then :
 _ACEOF
 
 else
-  as_fn_error $? "HDF5 is required" "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: HDF5 is required" >&5
+$as_echo "$as_me: WARNING: HDF5 is required" >&2;}
 fi
 
 done
@@ -5612,7 +5614,8 @@ _ACEOF
   LIBS="-lhdf5 $LIBS"
 
 else
-  as_fn_error $? "HDF5 is required" "$LINENO" 5
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: HDF5 is required" >&5
+$as_echo "$as_me: WARNING: HDF5 is required" >&2;}
 fi
 
 #LIBS="-lhdf5 $LIBS"  # already done by AC_CHECK_LIB -rpm 2003-05-13

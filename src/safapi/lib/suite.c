@@ -115,7 +115,7 @@ saf_declare_suite(SAF_ParMode  pmode,		/* The parallel mode. */
                                                  * user cannot supply a list of mesh_space sets when declaring a suite */
                   SAF_Set      *param_space,    /* The set representing the parametric space, such as time.  If this is NULL,
                                                  * a set will be created with a SIL role of type TYPE. */
-		  SAF_Suite    *suite		/* OUT: Optional memory for the returned handle. If null then a new handle is
+		  SAF_Suite    *suite		/* [OUT] Optional memory for the returned handle. If null then a new handle is
                                                  * allocated by this function. */
 		  )
 {
@@ -238,13 +238,13 @@ saf_declare_suite(SAF_ParMode  pmode,		/* The parallel mode. */
 int
 saf_describe_suite(SAF_ParMode pmode,		/* The parallel mode. */
                    SAF_Suite   *suite,		/* A suite handle. */
-		   char        **name,		/* OUT: The returned name of the suite. Pass NULL if you do not want this value 
+		   char        **name,		/* [OUT] The returned name of the suite. Pass NULL if you do not want this value 
                                                  * returned. */
-                   int         *num_space_sets, /* OUT: The number of sets returned in MESH_SPACE. */
-                   SAF_Set     **mesh_space,    /* OUT: The returned array of sets representing the computational meshes associated
+                   int         *num_space_sets, /* [OUT] The number of sets returned in MESH_SPACE. */
+                   SAF_Set     **mesh_space,    /* [OUT] The returned array of sets representing the computational meshes associated
                                                  * with each state of the suite. This is the list of sets in the "SAF_SPACE_SLICE"
                                                  * collection. */
-                   SAF_Set     **param_space    /* OUT: The returned array of sets representing the parametric space, such as
+                   SAF_Set     **param_space    /* [OUT] The returned array of sets representing the parametric space, such as
                                                  * time. These are associated with the histories of the suite and are thus
                                                  * contained in the "SAF_PARAM_SLICE" collection.  This will not be
                                                  * implemented at this time. */
@@ -298,8 +298,8 @@ saf_find_suites(SAF_ParMode pmode,	/* The parallel mode. */
                 SAF_Db  *database,	/* The database in which to search. */
 		const char  *name,	/* The name to limit the search to.  The constant SAF_ANY_NAME can be passed if 
                                          * the client does not want to limit the search by name.  */
-		int         *num_suites,/* OUT: The returned number of suites. */
-		SAF_Suite   **suites	/* OUT: The returned suites. */
+		int         *num_suites,/* [OUT] The returned number of suites. */
+		SAF_Suite   **suites	/* [OUT] The returned suites. */
 		)
 {
   SAF_ENTER(saf_find_suites, SAF_PRECONDITION_ERROR);

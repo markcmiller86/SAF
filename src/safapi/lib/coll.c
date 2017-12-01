@@ -364,13 +364,13 @@ saf_describe_collection(SAF_ParMode  pmode,             /* The parallel mode. */
                                                          * argument of the SAF_ONE() macro are free to pass SAF_NULL with the
                                                          * set's database handle. */
                         SAF_Cat *cat,                   /* The collection category of the desired collection. */
-                        SAF_CellType *t,                /* OUT: The cell-type of the members of the collection. Pass NULL if
+                        SAF_CellType *t,                /* [OUT] The cell-type of the members of the collection. Pass NULL if
                                                          * this return value is not desired. */
-                        int *count,                     /* OUT: The returned count of the collection.  Pass NULL if this
+                        int *count,                     /* [OUT] The returned count of the collection.  Pass NULL if this
                                                          * return value is not desired. */
-                        SAF_IndexSpec *ispec,		/* OUT: The returned indexing specification for the collection. Pass
+                        SAF_IndexSpec *ispec,		/* [OUT] The returned indexing specification for the collection. Pass
                                                          * NULL if this return value is not desired. */
-                        SAF_DecompMode *is_decomp,      /* OUT: Whether the collection is a decomposition of the containing
+                        SAF_DecompMode *is_decomp,      /* [OUT] Whether the collection is a decomposition of the containing
                                                          * set. Pass NULL if this return value is not desired. */
                         SAF_Set **member_sets           /* If the collection is non-primitive, this argument is used to return
                                                          * the specific set handles for the sets that are in the collection.

@@ -172,7 +172,7 @@ saf_declare_alternate_indexspec(SAF_ParMode pmode,              /*The parallel m
                                                                  * Ignored for implicit specs. */
                                 hbool_t is_sorted,              /* Whether the indexing specification is sorted or not.
                                                                  * Ignored for implicit specs. */
-                                SAF_AltIndexSpec *aspec         /* OUT: The optional returned alternate index spec handle. If
+                                SAF_AltIndexSpec *aspec         /* [OUT] The optional returned alternate index spec handle. If
                                                                  * the null pointer is passed for this argument then new
                                                                  * memory is allocated and returned, otherwise this argument
                                                                  * serves as the successful return value. */
@@ -262,22 +262,22 @@ saf_declare_alternate_indexspec(SAF_ParMode pmode,              /*The parallel m
 int
 saf_describe_alternate_indexspec(SAF_ParMode pmode,             /* The parallel mode*/
                                  SAF_AltIndexSpec *aspec,       /* The alternate index spec you want the description of. */
-                                 SAF_Set *containing_set,       /* OUT: The containing set of the collection.  Pass NULL if you do
+                                 SAF_Set *containing_set,       /* [OUT] The containing set of the collection.  Pass NULL if you do
                                                                  * not want this returned. */
-                                 SAF_Cat *cat,                  /* OUT: The collection category. Pass NULL if you do not want this
+                                 SAF_Cat *cat,                  /* [OUT] The collection category. Pass NULL if you do not want this
                                                                  * returned. */
-                                 char **name,                   /* OUT: The name of this alt index spec. */
-                                 hid_t *data_type,              /* OUT: The data type used to identify members of the collection.
+                                 char **name,                   /* [OUT] The name of this alt index spec. */
+                                 hid_t *data_type,              /* [OUT] The data type used to identify members of the collection.
                                                                  * Pass NULL if you do not want this returned. */
-                                 hbool_t *is_explicit,          /* OUT: Whether the indexing specification is explicit or
+                                 hbool_t *is_explicit,          /* [OUT] Whether the indexing specification is explicit or
                                                                  * implicit. */
-                                 SAF_IndexSpec *implicit_ispec, /* OUT: The alternate indexing scheme of the collection. If the
+                                 SAF_IndexSpec *implicit_ispec, /* [OUT] The alternate indexing scheme of the collection. If the
                                                                  * index spec is explicit, then SAF_NA_INDEXSPEC will be
                                                                  * returned.  If the index spec is implicit, the implicit
                                                                  * index spec will be returned here. */
-                                 hbool_t *is_compact,           /* OUT: Whether the indexing specification is compact or not.
+                                 hbool_t *is_compact,           /* [OUT] Whether the indexing specification is compact or not.
                                                                  * Ignored for implicit specs. */
-                                 hbool_t *is_sorted             /* OUT: Whether the indexing specification is sorted or not.
+                                 hbool_t *is_sorted             /* [OUT] Whether the indexing specification is sorted or not.
                                                                  * Ignored for implicit specs. */
                                  )
 {

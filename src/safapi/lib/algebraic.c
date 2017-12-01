@@ -85,7 +85,7 @@ saf_declare_algebraic(SAF_ParMode pmode,
                       const char *name,                 /* Name of the algebraic type */
                       const char *url,                  /* An optional URL to the algebraic documentation */
                       hbool_t indirect,                 /* If true then field is indirection to another field */
-                      SAF_Algebraic *alg                /* OUT: Optional handle to initialize (and return) */
+                      SAF_Algebraic *alg                /* [OUT] Optional handle to initialize (and return) */
                       )
 {
     SAF_ENTER(saf_declare_algebraic, NULL);
@@ -232,7 +232,7 @@ saf_find_algebraics(SAF_ParMode pmode,
 SAF_Algebraic *
 saf_find_one_algebraic(SAF_Db *database,                /* The database in which to search */
                        const char *name,                /* The name for which to search */
-                       SAF_Algebraic *buf               /* OUT: Optional algebraic handle to initialize and return */
+                       SAF_Algebraic *buf               /* [OUT] Optional algebraic handle to initialize and return */
                        )
 {
     SAF_ENTER(saf_find_one_algebraic, NULL);

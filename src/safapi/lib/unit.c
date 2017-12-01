@@ -65,6 +65,11 @@
 #include <safP.h>
 #include <math.h>
 
+#define HASH_UNITS
+#ifdef HASH_UNITS /*RPM DEBUGGING 2004-09-26*/
+static SAF_HashTable *UHash;
+#endif
+
 /*--------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
  * Chapter:     Units
@@ -133,11 +138,6 @@
  *--------------------------------------------------------------------------------------------------------------------------------
  */
 
-#define HASH_UNITS
-#ifdef HASH_UNITS /*RPM DEBUGGING 2004-09-26*/
-static SAF_HashTable *UHash;
-#endif
-
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
  * Chapter:     Units
@@ -160,7 +160,7 @@ saf_declare_unit(SAF_ParMode pmode,
                  const char *name,              /* Optional singular unit name. */
                  const char *abbr,              /* Optional singular abbreviation */
                  const char *url,               /* Optional documentation URL. */
-                 SAF_Unit *unit                 /* OUT: Optional unit handle to initialize and return. */
+                 SAF_Unit *unit                 /* [OUT] Optional unit handle to initialize and return. */
                  )
 {
     SAF_ENTER(saf_declare_unit, NULL);
@@ -585,7 +585,7 @@ saf_find_units(SAF_ParMode pmode,
 SAF_Unit *
 saf_find_one_unit(SAF_Db *database,             /* The database in which to find the specified unit. */
                   const char *name,             /* The singular name of the unit to find, e.g., "meter". */
-                  SAF_Unit *buf                 /* OUT: Optional unit handle to initialize and return. */
+                  SAF_Unit *buf                 /* [OUT] Optional unit handle to initialize and return. */
                   )
 {
     SAF_ENTER(saf_find_one_unit, NULL);

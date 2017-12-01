@@ -41,6 +41,8 @@ top_builddir=../..
 srcdir=@srcdir@
 @COMMENCE@
 
+CLEAN = refman.rest refman.html refmain.mif refman.text
+
 MKDOC_XREF=-x ?refman.$$FMT/refman.$$FMT.toc -x ?../../safapi/docs/refman.$$FMT.toc
 MKDOC_EXE=$(mkdoc) $(mkdoc_phaseI_meta) $(mkdoc_flags) -f $$FMT -m -p $(srcdir) $(MKDOC_XREF)
 

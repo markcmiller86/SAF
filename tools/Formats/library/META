@@ -141,7 +141,7 @@
 # source code while `navdir' says where to look for graphics used for navigation buttons and backgrounds. Relative names are
 # with respect to the location of the configuration file in which they appear.
 #
-@figdir{../../../docs/manuals/figures/library}
+@figdir{../../../src/safapi/docs/images}
 @navdir{.}
 
 #

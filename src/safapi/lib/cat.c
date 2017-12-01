@@ -96,7 +96,7 @@ saf_declare_category(SAF_ParMode pmode,
                      const char *name,  /* The collection category name. */
                      SAF_Role *role,    /* Role of collections of this category (see Collection Roles). */
                      int tdim,          /* The maximum topological dimension of the members of collections of this category. */
-                     SAF_Cat *cat       /* OUT: The returned collection category handle. */
+                     SAF_Cat *cat       /* [OUT] The returned collection category handle. */
                      )
 {
    SAF_ENTER(saf_declare_category, NULL);
@@ -315,9 +315,9 @@ int
 saf_get_cat_att(SAF_ParMode pmode,
                 SAF_Cat *cat,                   /* Collection category owning the attribute for which we're searching. */
                 const char *name,               /* Name of the attribute. */
-                hid_t *datatype,                /* OUT: Datatype of the attribute as it is stored. */
-                int *count,                     /* OUT: Number of elements contained in the attribute. */
-                void **value                    /* OUT: On successful return this will point to an allocated array containing
+                hid_t *datatype,                /* [OUT] Datatype of the attribute as it is stored. */
+                int *count,                     /* [OUT] Number of elements contained in the attribute. */
+                void **value                    /* [OUT] On successful return this will point to an allocated array containing
                                                  * COUNT elements each of type DATATYPE. */
                 )
 {

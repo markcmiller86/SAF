@@ -64,41 +64,40 @@
  */
 #include <safP.h>
 
-/*--------------------------------------------------------------------------------------------------------------------------------
- * Audience:    Public
- * Chapter:     Quantities
- *
- * Description: A quantity in the general sense is a property ascribed to phenomena, bodies, or substances that can
- *              be quantified for, or assigned to, a particular phenomenon, body, or substance. The library defines seven
- *              basic quantities (length, mass, time, electric current, thermodynamic temperature, amount of a substance, and
- *              luminous intensity) and additional quantities can be derived as products of powers of the seven basic
- *              quantities (e.g., "volume" and "acceleration"). All quantities are unitless -- they describe what can be
- *              measured but not how to measure it.
- *
- *              Unlike many other quantity implementations, this one is able to distinguish between dimensionless things like
- *              mass fractions (mass/mass) and length fractions (length/length). It does so by canceling numerators with
- *              denominators except when the numerator and denominator are equal. That is, mass/mass is considered a different
- *              quantity than length/length.
- *
- *              The library defines the seven basic quantities whose names follow the format "SAF_QX" where "X" is
- *              replaced by one of the words LENGTH, MASS, TIME, CURRENT, TEMP, AMOUNT, or LIGHT. Additional quantities can be
- *              derived from these by first creating an empty quantity and then multiplying powers of other quantities. For
- *              instance, volume per unit time would be defined as
- *
- *                  SAF_Quantity *q_vpt = saf_declare_quantity(SAF_ALL, db, "volume per time", "vol/time", NULL);
- *                  saf_multiply_quantity(SAF_ALL, q_vpt, SAF_QLENGTH, 3);
- *                  saf_multiply_quantity(SAF_ALL, q_vpt, SAF_QTIME, -1);
- *
- *              The reader is encouraged to visit http://physics.nist.gov/cuu/Units/units.html to get more information
- *		about quantities and units.
- *--------------------------------------------------------------------------------------------------------------------------------
- */
-
-
 #define HASH_QUANTITIES
 #ifdef HASH_QUANTITIES /*RPM DEBUGGING 2004-09-26*/
 static SAF_HashTable *QHash;
 #endif
+
+/*--------------------------------------------------------------------------------------------------------------------------------
+ * Audience:    Public
+ * Chapter:     Quantities
+ * Description:
+ * A quantity in the general sense is a property ascribed to phenomena, bodies, or substances that can
+ * be quantified for, or assigned to, a particular phenomenon, body, or substance. The library defines seven
+ * basic quantities (length, mass, time, electric current, thermodynamic temperature, amount of a substance, and
+ * luminous intensity) and additional quantities can be derived as products of powers of the seven basic
+ * quantities (e.g., "volume" and "acceleration"). All quantities are unitless -- they describe what can be
+ * measured but not how to measure it.
+ *
+ * Unlike many other quantity implementations, this one is able to distinguish between dimensionless things like
+ * mass fractions (mass/mass) and length fractions (length/length). It does so by canceling numerators with
+ * denominators except when the numerator and denominator are equal. That is, mass/mass is considered a different
+ * quantity than length/length.
+ *
+ * The library defines the seven basic quantities whose names follow the format "SAF_QX" where "X" is
+ * replaced by one of the words LENGTH, MASS, TIME, CURRENT, TEMP, AMOUNT, or LIGHT. Additional quantities can be
+ * derived from these by first creating an empty quantity and then multiplying powers of other quantities. For
+ * instance, volume per unit time would be defined as
+ *
+ *     SAF_Quantity *q_vpt = saf_declare_quantity(SAF_ALL, db, "volume per time", "vol/time", NULL);
+ *     saf_multiply_quantity(SAF_ALL, q_vpt, SAF_QLENGTH, 3);
+ *     saf_multiply_quantity(SAF_ALL, q_vpt, SAF_QTIME, -1);
+ *
+ * The reader is encouraged to visit http://physics.nist.gov/cuu/Units/units.html to get more information
+ * about quantities and units.
+ *--------------------------------------------------------------------------------------------------------------------------------
+ */
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
@@ -125,7 +124,7 @@ saf_declare_quantity(SAF_ParMode pmode,
                      const char *description,   /* A short description of the new quantity (e.g., "volume per time"). */
                      const char *abbreviation,  /* An optional abbreviation or symbol name for the quantity. */
                      const char *url,           /* An optional URL to the quantity documentation. */
-                     SAF_Quantity *quant        /* OUT: Optional quantity handle to initialize (and return). */
+                     SAF_Quantity *quant        /* [OUT] Optional quantity handle to initialize (and return). */
                      )
 {
     SAF_ENTER(saf_declare_quantity, NULL);
@@ -176,7 +175,7 @@ saf_declare_quantity(SAF_ParMode pmode,
  */
 int
 saf_multiply_quantity(SAF_ParMode pmode,
-                      SAF_Quantity *quantity,                   /* INOUT: The quantity which is affected by this operation */
+                      SAF_Quantity *quantity,                   /* IN[OUT] The quantity which is affected by this operation */
                       SAF_Quantity *multiplier,                 /* What to multiply into QUANTITY */
                       int power                                 /* Number of times to multiply MULTIPLIER into QUANTITY */
                       )
@@ -378,7 +377,7 @@ saf_find_quantities(SAF_ParMode pmode,
 SAF_Quantity *
 saf_find_one_quantity(SAF_Db *database,         /* The database in which to find the specified quantity. */
                       const char *desc,         /* Quantity description to find. */
-                      SAF_Quantity *buf         /* OUT: Optional quantity handle to initialize and return. */
+                      SAF_Quantity *buf         /* [OUT] Optional quantity handle to initialize and return. */
                       )
 {
     SAF_ENTER(saf_find_one_quantity, NULL);

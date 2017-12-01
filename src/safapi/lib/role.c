@@ -84,7 +84,7 @@ saf_declare_role(SAF_ParMode pmode,                     /* The parallel mode */
                  SAF_Db *db,                            /* The database in which to create the new role */
                  const char *name,                      /* Name of the role */
                  const char *url,                       /* An optional URL to the role documentation */
-                 SAF_Role *role                         /* OUT: Optional role handle to initialize (and return) */
+                 SAF_Role *role                         /* [OUT] Optional role handle to initialize (and return) */
                  )
 {
     SAF_ENTER(saf_declare_role, NULL);
@@ -218,7 +218,7 @@ saf_find_roles(SAF_ParMode pmode,
 SAF_Role *
 saf_find_one_role(SAF_Db *database,                     /* The database in which to search */
                   const char *name,                     /* The name for which to search */
-                  SAF_Role *buf                         /* OUT: Optional role handle to initialize and return. */
+                  SAF_Role *buf                         /* [OUT] Optional role handle to initialize and return. */
                   )
 {
     SAF_ENTER(saf_find_one_role, NULL);

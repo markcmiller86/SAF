@@ -466,7 +466,7 @@ saf_setProps_ErrorLogging(SAF_LibProps *properties,	/* The library property list
  */
 static herr_t
 _saf_set_error_logging(const char *s,           /* Character representation of the mode */
-                       SAF_LibProps *q	        /* OUT: Properties */
+                       SAF_LibProps *q	        /* [OUT] Properties */
                        )
 {
     SAF_ENTER_NOINIT(_saf_set_error_logging, -1);
@@ -561,7 +561,7 @@ _saf_set_error_logging(const char *s,           /* Character representation of t
  */
 static void
 _saf_set_tracing(const char *env_var_name,      /* Name of env. variable that governs tracing */
-                 SAF_LibProps *q	        /* OUT: Properties to set */
+                 SAF_LibProps *q	        /* [OUT] Properties to set */
                  )
 {
     SAF_ENTER_NOINIT(_saf_set_tracing, /*void*/);

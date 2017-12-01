@@ -207,16 +207,16 @@ saf_declare_field_tmpl(SAF_ParMode pmode,       /* The parallel mode. */
 int
 saf_describe_field_tmpl(SAF_ParMode pmode,      /* The parallel mode. */
                         SAF_FieldTmpl *ftmpl,   /* The field template to be described. */
-                        char **name,            /* OUT: The returned name. Pass NULL if you do not want the name returned.
+                        char **name,            /* [OUT] The returned name. Pass NULL if you do not want the name returned.
 						 * (see Returned Strings). */
-                        SAF_Algebraic *alg_type,/* OUT: The returned algebraic type. Pass NULL if you do not want the type
+                        SAF_Algebraic *alg_type,/* [OUT] The returned algebraic type. Pass NULL if you do not want the type
                                                  * returned. */
-                        SAF_Basis *basis,       /* OUT: The returned basis. Pass null if you do not want the basis returned. */
-                        SAF_Quantity *quantity, /* OUT: The returned quantity. Pass null if you do not want the name returned. */
-                        int *num_comp,          /* OUT: The returned number of components. Pass NULL if you do not want the name
+                        SAF_Basis *basis,       /* [OUT] The returned basis. Pass null if you do not want the basis returned. */
+                        SAF_Quantity *quantity, /* [OUT] The returned quantity. Pass null if you do not want the name returned. */
+                        int *num_comp,          /* [OUT] The returned number of components. Pass NULL if you do not want the name
                                                  * returned. Note that if the field template is assocaited with an INhomogeneous
 						 * field, the returned value will always be SAF_NOT_APPLICABLE_INT. */
-                        SAF_FieldTmpl **ctmpl   /* OUT: The returned array of component field template handles.  Pass NULL if you
+                        SAF_FieldTmpl **ctmpl   /* [OUT] The returned array of component field template handles.  Pass NULL if you
                                                  * do not want the array returned. If the field template is associated with 
                                                  * an INhomogeneous field, the returned value, if requested, will always be
                                                  * NULL. (If the field template does not point to other field templates then

@@ -96,6 +96,15 @@ html_here: ../docs/refman.html/refman.html.toc
 	$(mkdoc) $(mkdoc_sslib_meta) $(mkdoc_flags) -o ../docs/refman.html -f html -p $(srcdir) $(PUB_HDR) $(PRIV_HDR) $(LIB_SRC)
 	mv ../docs/refman.html/index.toc $@
 
+rest_here: ../docs/refman.rest/refman.rest.toc
+../docs/refman.rest/refman.rest.toc: $(mkdoc) $(PUB_HDR) $(PRIV_HDR) $(LIB_SRC)
+	rm -rf ../docs/refman.rest
+	mkdir -p ../docs/refman.rest
+	cp ../../safapi/docs/conf.py ../docs/refman.rest
+	$(mkdoc) $(mkdoc_sslib_meta) $(mkdoc_flags) -o ../docs/refman.rest -f rest -p $(srcdir) $(PUB_HDR) $(PRIV_HDR) $(LIB_SRC)
+	mv ../docs/refman.rest/index.toc $@
+	(cd ../docs/refman.rest && sphinx-build -build -b html . _build -a) || rmdir ../docs/refman.rest
+
 ## MIF version of the reference manual
 mif_here: ../docs/refman.mif.toc
 ../docs/refman.mif.toc: $(mkdoc) $(PUB_HDR) $(PRIV_HDR) $(LIB_SRC)

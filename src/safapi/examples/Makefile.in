@@ -232,6 +232,16 @@ html_here: ../docs/examples.html/examples.html.toc
 	    -x ../docs/refman.html/refman.html.toc $(DOC_SRC)
 	mv ../docs/examples.html/index.toc $@
 
+rest_here: ../docs/examples.rest/examples.rest.toc
+../docs/examples.rest/examples.rest.toc: $(LIB_SRC) $(PUB_HDR) $(PRIV_HDR) ../docs/refman.rest/refman.rest.toc
+	rm -rf ../docs/examples.rest
+	mkdir -p ../docs/examples.rest
+	cp ../docs/conf.py ../docs/examples.rest
+	$(mkdoc) $(mkdoc_ex_meta) $(mkdoc_flags) -u -o ../docs/examples.rest -f rest -m -p $(srcdir) \
+	    -x ../docs/refman.rest/refman.rest.toc $(DOC_SRC)
+	mv ../docs/examples.rest/index.toc $@
+	(cd ../docs/examples.rest && sphinx-build -build -b html . _build -a) || rmdir ../docs/examples.rest
+
 ## MIF version of the examples documentation
 mif_here: ../docs/examples.mif.toc
 ../docs/examples.mif.toc: $(LIB_SRC) $(PUB_HDR) $(PRIV_HDR) ../docs/refman.mif.toc

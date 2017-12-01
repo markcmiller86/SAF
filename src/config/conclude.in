@@ -187,7 +187,7 @@ tests_here: tools_here $(DATA) $(TESTS)
 
 ## Documentation in HTML, MIF, Texinfo, GNU Info, or plain text format
 .PHONY: documentation documentation_here
-documentation_here: html_here mif_here texi_here text_here info_here
+documentation_here: html_here mif_here texi_here text_here info_here rest_here
 documentation:
 	@for d in X $(SUBDIRS); do \
 	    if test $$d != X; then \
@@ -195,6 +195,16 @@ documentation:
 	    fi; \
 	done
 	@$(MAKE) @NODIRS@ documentation_here
+
+.PHONY: rest rest_here
+rest_here:
+rest:
+	@for d in X $(SUBDIRS); do \
+	    if test $$d != X; then \
+		(@SETX@; cd $$d && $(MAKE) $@) || exit 1; \
+	    fi; \
+	done
+	@$(MAKE) @NODIRS@ rest_here
 
 .PHONY: html html_here
 html_here:
@@ -315,6 +325,18 @@ $(docsdir)/safdiff.html:
 	mkdir $@ && chmod 755 $@
 
 $(docsdir)/ensight_reader.html:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/sslib_refman.rest:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/refman.rest:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/examples.rest:
+	mkdir $@ && chmod 755 $@
+
+$(docsdir)/safdiff.rest:
 	mkdir $@ && chmod 755 $@
 
 
@@ -581,7 +603,8 @@ clean:
 		(@SETX@; cd $$d && $(MAKE) $@) || exit 1; \
 	    fi; \
 	done
-	-$(RM) $(MOSTLYCLEAN) $(DATACLEAN) $(DATA) $(CLEAN)
+	-$(RM) $(MOSTLYCLEAN) $(DATACLEAN) $(DATA)
+	-$(RM) -rf $(CLEAN)
 	-$(RM) $(LIB_OBJ)  $(LIB_OBJ:.lo=.o)  $(LIB_OBJ:.lo=.d)
 	-$(RM) $(TEST_OBJ) $(TEST_OBJ:.lo=.o) $(TEST_OBJ:.lo=.d) $(TEST_OBJ:.lo=.bb) $(TEST_OBJ:.lo=.bbg)
 	-$(RM) $(TOOL_OBJ) $(TOOL_OBJ:.lo=.o) $(TOOL_OBJ:.lo=.d)

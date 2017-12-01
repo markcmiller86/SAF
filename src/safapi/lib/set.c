@@ -104,7 +104,7 @@
 SAF_Set *
 saf_declare_set(SAF_ParMode pmode,	/* The parallel mode. */
 		SAF_Db *db,             /* The database handle in which to create the set. */
-		const char *name,	/* The name of the set being declared. */
+                const char *name,       /* The name of the set being declared. */
 		int max_topo_dim,	/* The topological dimension of the set. If the set will contain sets of different
                                          * topological dimensions then this must be the maximum topological dimension of any
                                          * set in the subset inclusion lattice rooted below SET. */
@@ -113,7 +113,7 @@ saf_declare_set(SAF_ParMode pmode,	/* The parallel mode. */
 					 * role. */
 		SAF_ExtendMode extmode, /* Indicates whether or not the base-space represented by the set is extendible. Possible
 					 * values are SAF_EXTENDIBLE_TRUE or SAF_EXTENDIBLE_FALSE */
-		SAF_Set *set		/* OUT: Optional memory for link to the newly declared set. */
+		SAF_Set *set		/* [OUT] Optional memory for link to the newly declared set. */
 		)
 {
     SAF_ENTER(saf_declare_set, NULL);
@@ -178,26 +178,26 @@ saf_declare_set(SAF_ParMode pmode,	/* The parallel mode. */
  *---------------------------------------------------------------------------------------------------------------------------------
  */
 int
-saf_describe_set(SAF_ParMode pmode,	/* The parallel mode. */
-		 SAF_Set *set,		/* The set to be described. */
-		 char **name,		/* OUT: The returned name of the set. Pass NULL if you do not want this information
-                                         * returned (see Returned Strings). */
-		 int *max_topo_dim,	/* OUT: The topological dimension of the set. A NULL pointer can be passed if the caller is
-					 * not interested in obtaining this information. */
-		 SAF_SilRole *role,	/* OUT: The subset inclusion lattice role of the set. A NULL pointer can be passed if the
-					 * caller is not interested in obtaining this information. */
-		 SAF_ExtendMode *extmode,/* OUT: Whether the set is extendible or not. A NULL pointer can be passed if the
-                                          * caller is not interested in obtaining this information. */
-		 SAF_TopMode *topmode,	/* OUT: Whether the set is a top-level set in the SIL or not */
-		 int *num_colls,	/* OUT: The number of collections currently defined on the set. A NULL pointer can be
-					 * passed if the caller is not interested in obtaining this information. */
-		 SAF_Cat **cats		/* OUT: The list of collection categories of the collections defined on the set. A NULL
+saf_describe_set(SAF_ParMode pmode,     /* The parallel mode. */
+                 SAF_Set *set,          /* The set to be described. */
+                 char **name,           /* [OUT] The returned name of the set. Pass NULL if you do not want this 
+                                         * information returned (see Returned Strings). */
+                 int *max_topo_dim,     /* [OUT] The topological dimension of the set. A NULL pointer can be passed if the caller is
+                                         * not interested in obtaining this information. */
+                 SAF_SilRole *role,     /* [OUT] The subset inclusion lattice role of the set. A NULL pointer can be passed if the
+                                         * caller is not interested in obtaining this information. */
+                 SAF_ExtendMode *extmode,/* [OUT] Whether the set is extendible or not. A NULL pointer can be passed if the
+                                         * caller is not interested in obtaining this information. */
+                 SAF_TopMode *topmode,  /* [OUT] Whether the set is a top-level set in the SIL or not */
+                 int *num_colls,        /* [OUT] The number of collections currently defined on the set. A NULL pointer can be
+                                         * passed if the caller is not interested in obtaining this information. */
+                 SAF_Cat **cats         /* [OUT] The list of collection categories of the collections defined on the set. A NULL
                                          * pointer can be passed if the caller is not interested in obtaining this
                                          * information. CATS should point to the NULL pointer if the client wants the library
                                          * to allocate space, otherwise CATS should point to something allocated by the
                                          * caller. In the latter case, the input value of NUM_COLLS indicates the number of
-					 * handles the CATS argument can hold. */
-		 )
+                                         * handles the CATS argument can hold. */
+                 )
 {
     SAF_ENTER(saf_describe_set, SAF_PRECONDITION_ERROR);
 
