@@ -83,17 +83,21 @@
  *	manual. This manual is organized into /Chapters/ where each chapter covers a different, top-level, set of functions
  *	(e.g. object and its supporting methods) SAF supports. 
  *
+ *      There is a decent introduction to the SAF /data model/ in this paper.
+ *      ( https://github.com/markcmiller86/SAF/blob/master/src/safapi/docs/miller001.pdf )
+ *
  *	SAF is designed first and foremost to support scalable I/O of shareable, scientific data.
  *
  *	The key words in this statement are /scalable/ and /shareable/. 
  *
  *	/Scalable/ means that SAF is designed to operate with high performance from single processor, workstation class machines,
- *	to large scale, parallel computing platforms such as are in use in the ASCI program ( http://www.lanl.gov/projects/asci/ )
+ *	to large scale, parallel computing platforms such as are in use in the ASCI program.
  *	In turn, this also demands that SAF be portable across a variety of computing platforms. Currently, SAF operates
  *	in serial and parallel on Dec, Sun, Linux, IBM-SP2, Intel TeraFlops, SGI-O2k (single box). SAF is also supported
  *	in serial on Windows. A good measure of SAF's performance and portability is derived from its use of industry 
- *	standard software components such as HDF5 ( http://hdf.ncsa.uiuc.edu/ ) and MPI ( http://www.mpi-forum.org/ ). 
- *	However, scalable I/O is just one of SAF's primary goals. Making data /shareable/ is another.
+ *	standard software components such as HDF5 ( https://support.hdfgroup.org/HDF5/doc/index.html ) and
+ *      MPI ( http://www.mpi-forum.org/ ). However, scalable I/O is just one of SAF's primary goals. Making data
+ *      /shareable/ is another.
  *
  *	/Shareable/ means that if one application uses SAF to write its data, other *wholly*independent* applications can
  *	easily read *and*interpret* that data. Of course, it is not all that impressive if one application can simply read a
