@@ -86,6 +86,8 @@ MKDOC_XREF=`[ -f ../../sslib/docs/refman.$$FMT/refman.$$FMT.toc ] && echo "-x ..
 MKDOC_SRC=$(LIB_SRC) $(PUB_HDR) $(PRIV_HDR)
 MKDOC_EXE=$(mkdoc) $(mkdoc_lib_meta) $(mkdoc_flags) -o ../docs/refman.$$FMT -f $$FMT -m -p $(srcdir) $(MKDOC_XREF)
 
+CLEAN=libsafapi.settings
+
 ## HTML version of the reference manual
 html_here: ../docs/refman.html/refman.html.toc
 ../docs/refman.html/refman.html.toc: $(MKDOC_SRC)

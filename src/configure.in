@@ -1105,10 +1105,15 @@ SAFAPI_MAKEFILES="\
     safapi/tools/safdiff/Makefile \
     safapi/tools/ensight_reader/Makefile \
     safapi/tools/create_unstr_mesh/Makefile \
-    safapi/tools/safsh/Makefile \
-    safapi/tools/saf_browser/Makefile \
     safapi/examples/Makefile \
     safapi/docs/Makefile" 
+
+if test -n "$SAF_TOOLS"; then
+    SAFAPI_MAKEFILES="\
+        $SAFAPI_MAKEFILES
+        safapi/tools/safsh/Makefile \
+        safapi/tools/saf_browser/Makefile"
+fi
 
 dnl Default places to look for files
 CPPFLAGS="-I. -I${srcdir} $CPPFLAGS"

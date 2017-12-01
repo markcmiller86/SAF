@@ -41,7 +41,6 @@
 	    those of the United States Government or the University of California
 	    and shall not be used for advertising or product endorsement purposes.}
 
-
 ####################################################################################################
 ###   C H A P T E R   O R D E R
 ####################################################################################################
@@ -76,3 +75,6 @@
 @corder{Datatypes}
 @corder{Miscellaneous}
 @corder{Notes}
+
+@figdir{../../../safapi/docs/images}
+

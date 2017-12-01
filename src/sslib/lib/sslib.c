@@ -51,9 +51,9 @@ const hbool_t   true=1;
  *
  * Description: The SAF Support Library (SSlib) grew out of experience the Sets and Fields (SAF) team had with the former
  *              Vector Bundle Tables (VBT) layer and Data Sharability Layer (DSL) and to some extent with the Hierarchical
- *              Data Format version 5 (HDF5, see http://hdf.ncsa.uiuc.edu/HDF5) library from NCSA. It was decided that in
- *              order to increase performance, generalize some underlying functionality, and improve code engineering that we
- *              would embark on an effort to rewrite most of VBT and DSL with these goals in mind:
+ *              Data Format version 5 (HDF5, see https://support.hdfgroup.org/HDF5/doc/index.html) library from NCSA. It was
+ *              decided that in order to increase performance, generalize some underlying functionality, and improve code
+ *              engineering that we would embark on an effort to rewrite most of VBT and DSL with these goals in mind:
  *
  *              * *Reduced*Communication*: We learned by experience that designing an API that requires underlying communication
  *                makes it extremely difficult to optimize for performance at a later time, and that algorithms that require
@@ -110,6 +110,33 @@ const hbool_t   true=1;
  *
  *              * *Better*HDF5*Coupling*: The DSL datatype interface (more than 12,000 lines of library code) will be replaced
  *                with the HDF5 datatype interface plus a few additional functions that may migrate into the HDF5 library.
+ *
+ *              The plots below show the before and after scalability and performance improvements achieved.
+ *
+ *              Pre-optimized raw data I/O aggregate bandwidth scalability
+ *
+ *              [figure plot01.jpg]
+ *
+ *              Pre-optimized overall I/O aggregate bandwidth scalability
+ *
+ *              [figure plot02.jpg]
+ *
+ *              Optimized raw data I/O aggregate bandwidth scalability
+ *
+ *              [figure plot03.jpg]
+ *
+ *              Optimized overall I/O aggregate bandwidth scalability
+ *
+ *              [figure plot04.jpg]
+ *
+ *              Comparison of SAF and Silo Ale3d restart file dump times
+ *
+ *              [figure plot05.jpg]
+ *
+ *              Comparison of SAF Ale3d restart file dump times by functionality
+ *
+ *              [figure plot06.jpg]
+ *
  *-------------------------------------------------------------------------------------------------------------------------------
  */
 

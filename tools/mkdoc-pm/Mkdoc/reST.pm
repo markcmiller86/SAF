@@ -72,7 +72,7 @@ sub prologue {
 
   $bodytitle =~ s/\n/ /g;
 
-  $_ .= "$bodytitle\n################n\n";
+  $_ .= "$bodytitle\n################\n";
 
   $_ .= ":ref:`Acknowledgements <acknowledgements>`\n";
 

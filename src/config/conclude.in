@@ -604,7 +604,7 @@ clean:
 	    fi; \
 	done
 	-$(RM) $(MOSTLYCLEAN) $(DATACLEAN) $(DATA)
-	-$(RM) -rf $(CLEAN)
+	-$(RM) -r $(CLEAN)
 	-$(RM) $(LIB_OBJ)  $(LIB_OBJ:.lo=.o)  $(LIB_OBJ:.lo=.d)
 	-$(RM) $(TEST_OBJ) $(TEST_OBJ:.lo=.o) $(TEST_OBJ:.lo=.d) $(TEST_OBJ:.lo=.bb) $(TEST_OBJ:.lo=.bbg)
 	-$(RM) $(TOOL_OBJ) $(TOOL_OBJ:.lo=.o) $(TOOL_OBJ:.lo=.d)
