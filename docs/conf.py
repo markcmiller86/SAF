@@ -27,7 +27,7 @@ f = open('index.rst','w')
 f.write('Hello World\n')
 f.write('###########\n\n')
 f.write('This is a test\n')
-f.write('$s\n'%lsstr)
+f.write('%s\n'%lsstr)
 f.write('.. toctree::\n\n')
 f.write('   Sets and Fields (SAF) API <refman.rest/index>\n')
 f.write('   SAF Examples <examples.rest/index>\n')
@@ -199,7 +199,7 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
