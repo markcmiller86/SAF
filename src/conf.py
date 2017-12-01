@@ -21,7 +21,7 @@ import subprocess
 # Do some work to create some rst content and see if that content will
 # build as we would ordinarily expect
 #
-lsstr = subprocess.check_output(['ls ..', '-l'])
+lsstr = subprocess.check_output(['ls', '-l'])
 
 f = open('index.rst','w')
 f.write('Foo\n')
