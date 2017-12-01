@@ -17,24 +17,98 @@ import os
 import sphinx_rtd_theme
 import subprocess
 
-#
-# Do some work to create some rst content and see if that content will
-# build as we would ordinarily expect
-#
-makeStr = subprocess.check_output(['./tools/mkdoc', '--help'])
+SSLIB_PRIV_HDR = ""
 
+SSLIB_PUB_HDR = "sslib.h sserr.h ssprop.h ssstring.h ssarray.h ssobj.h sstable.h sspers.h \
+ssscope.h ssfile.h ssval.h ssblob.h ssmpi.h sshdf5.h ssenv.h ssvers.h ssgfile.h ssattr.h \
+ssaio.h ssperstab.h ssscopetab.h ssfiletab.h ssblobtab.h ssattrtab.h sslinks.h ssdebug.h"
+
+SSLIB_LIB_SRC = "sslib.c sserr.c ssprop.c ssstring.c ssarray.c ssobj.c sstable.c sspers.c \
+ssperstab.c ssscope.c ssscopetab.c ssfile.c ssfiletab.c ssval.c ssblob.c ssblobtab.c sshdf5.c \
+ssmpi.c ssgfile.c ssattr.c ssattrtab.c ssaio.c ssdebug.c"
+
+SSLIB_META = "./src/sslib/docs/mkdoc/SSlib-API.mkdoc"
+
+SSLIB_SRC = "%s %s %s"%(SSLIB_LIB_SRC, SSLIB_PUB_HDR, SSLIB_PRIV_HDR)
+
+GEN_SOURCE = "ssblob.h sspers.h ssscope.h ssfile.h ssattr.h"
+
+# generate types and version file 
+curdir = os.getcwd()
+os.chdir('./src/sslib/lib')
+args = ['../tools/sstypegen']
+args +=  GEN_SOURCE.split(' ')
+subprocess.call(args)
+os.chdir(curdir)
+
+# run mkdoc on sslib library
+args = ['./tools/mkdoc',
+    '-c', SSLIB_META,
+    '-o', './docs/sslib_refman.rest',
+    '-f', 'rest',
+    '-m',
+    '-p', './src/sslib/lib']
+args +=  SSLIB_SRC.split(' ')
+subprocess.call(args)
+
+SAF_PUB_HDR = "saf.h SAFdb.h SAFdbprops.h SAFinfo.h SAFinit.h SAFlibprops.h SAFquant.h \
+SAFunit.h SAFrole.h SAFbasis.h SAFalgebraic.h SAFevaluation.h SAFrelrep.h"
+
+SAF_PRIV_HDR = "algebraic.h basis.h db.h dbprops.h evaluation.h libprops.h quant.h relrep.h \
+safP.h unit.h wrapper.h genreg.h hash.h"
+
+SAF_LIB_SRC = "error.c libprops.c dbprops.c fileprops.c info.c init.c db.c utils.c role.c \
+basis.c quant.c unit.c algebraic.c evaluation.c relrep.c cat.c coll.c genreg.c field.c rel.c \
+ftempl.c altindx.c suite.c stempl.c state.c set.c hash.c"
+
+SAF_META = "./tools/Formats/library/META"
+
+SAF_SRC = "%s %s %s"%(SAF_LIB_SRC, SAF_PUB_HDR, SAF_PRIV_HDR)
+
+# run mkdoc on saf library
+args = ['./tools/mkdoc',
+    '-c', SAF_META,
+    '-o', './docs/safapi_refman.rest',
+    '-f', 'rest',
+    '-m',
+    '-p', './src/safapi/lib',
+    '-x', './docs/sslib_refman.rest']
+args +=  SAF_SRC.split(' ')
+subprocess.call(args)
+
+SAFEX_PUB_HDR = ""
+
+SAFEX_PRIV_HDR = ""
+
+SAFEX_LIB_SRC = "larry1w.c exo_par_wt.c exo_basic_wt.c dyn_lb.c triangle_mesh.c storagew.c \
+birth_death_w.c birth_death_r.c exo_basic_rd.c hadaptive.c loadbalance.c loadbalance_rd.c \
+remap_n21.c exo_par_rd.c dyn_lb_rd.c exampleutil.c exampleutil.h"
+
+SAFEX_SRC = "%s %s %s"%(SAFEX_LIB_SRC, SAFEX_PUB_HDR, SAFEX_PRIV_HDR)
+
+SAFEX_META = "./tools/Formats/example/META"
+
+# run mkdoc on saf examples
+args = ['./tools/mkdoc',
+    '-c', SAFEX_META,
+    '-o', './docs/safexamples_refman.rest',
+    '-f', 'rest',
+    '-m',
+    '-p', './src/safapi/examples',
+    '-x', './docs/safapi_refman.rest']
+args +=  SAFEX_SRC.split(' ')
+subprocess.call(args)
+
+# make top-level index.rst
 f = open('index.rst','w')
-f.write('Foo\n')
-f.write('###########\n\n')
-f.write('This is a test\n')
-f.write('%s\n\n'%makeStr)
+f.write('SAF User Manuals\n')
+f.write('################\n\n')
 f.write('.. toctree::\n\n')
-f.write('   Sets and Fields (SAF) API <refman.rest/index>\n')
-f.write('   SAF Examples <examples.rest/index>\n')
-f.write('   SAF Support Library <../../sslib/docs/refman.rest/index>\n')
+f.write('   Sets and Fields (SAF) API <docs/safapi_refman.rest/index>\n')
+f.write('   SAF Examples <docs/safexamples_refman.rest/index>\n')
+f.write('   SAF Support Library <docs/sslib_refman.rest/index>\n')
 f.close()
 
-#
 # Some pre-liminary work to detect if we're running a spell check
 BuilderIsSpelling = False
 if '-b' in sys.argv and 'spelling' in sys.argv:

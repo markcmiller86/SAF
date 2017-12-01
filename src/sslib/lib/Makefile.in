@@ -60,7 +60,7 @@ LDFLAGS=@SSLIB_LDFLAGS@
 GEN_HFILES=ssblobtab.h ssperstab.h ssscopetab.h ssfiletab.h ssattrtab.h
 GEN_CFILES=$(GEN_HFILES:.h=.c)
 GEN_SOURCE=$(srcdir)/ssblob.h $(srcdir)/sspers.h $(srcdir)/ssscope.h $(srcdir)/ssfile.h $(srcdir)/ssattr.h
-MOSTLYCLEAN=$(GEN_HFILES) $(GEN_CFILES) sslib.gen sslinks.h ssvers.h
+MOSTLYCLEAN=$(GEN_HFILES) $(GEN_CFILES) sslib.gen sslinks.h
 
 ## There is a general problem with how source files are generated. The problem
 ## is that although the each one depends on some header, regenerating one source
