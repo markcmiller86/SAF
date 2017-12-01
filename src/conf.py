@@ -21,7 +21,7 @@ import subprocess
 # Do some work to create some rst content and see if that content will
 # build as we would ordinarily expect
 #
-configStr = subprocess.check_output(['configure'])
+configStr = subprocess.check_output(['./configure'])
 makeStr = subprocess.check_output(['make refman.rest'])
 
 f = open('index.rst','w')
