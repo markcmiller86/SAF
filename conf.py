@@ -100,14 +100,14 @@ args +=  SAFEX_SRC.split(' ')
 subprocess.call(args)
 
 # make top-level index.rst
-f = open('index.rst','w')
-f.write('SAF User Manuals\n')
-f.write('################\n\n')
-f.write('.. toctree::\n\n')
-f.write('   Sets and Fields (SAF) API <docs/safapi_refman.rest/index>\n')
-f.write('   SAF Examples <docs/safexamples_refman.rest/index>\n')
-f.write('   SAF Support Library <docs/sslib_refman.rest/index>\n')
-f.close()
+#f = open('index.rst','w')
+#f.write('SAF User Manuals\n')
+#f.write('################\n\n')
+#f.write('.. toctree::\n\n')
+#f.write('   Sets and Fields (SAF) API <docs/safapi_refman.rest/index>\n')
+#f.write('   SAF Examples <docs/safexamples_refman.rest/index>\n')
+#f.write('   SAF Support Library <docs/sslib_refman.rest/index>\n')
+#f.close()
 
 # Some pre-liminary work to detect if we're running a spell check
 BuilderIsSpelling = False
