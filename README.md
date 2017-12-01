@@ -14,7 +14,9 @@ to demonstrate the use of SAF as well.
 The Sets and Fields library was and still is unique among scientific data packages
 in that it combines the aims of scalable, parallel I/O with mathematically rigorous
 scientific data modeling principles. It aimes to be high performance and highly general
-it its ability to describe and store a variety of forms of scientific data.
+it its ability to describe and store a variety of forms of scientific data. In addition,
+the implementation of SAF developed here employs a number of features of
+[Smart Libraries](https://wci.llnl.gov/codes/smartlibs/index.html).
 
 [![Documentation Status](https://readthedocs.org/projects/sets-and-fields/badge/?version=latest)](http://sets-and-fields.readthedocs.io)
 
