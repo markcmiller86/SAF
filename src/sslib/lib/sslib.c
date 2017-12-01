@@ -51,7 +51,7 @@ const hbool_t   true=1;
  *
  * Description: The SAF Support Library (SSlib) grew out of experience the Sets and Fields (SAF) team had with the former
  *              Vector Bundle Tables (VBT) layer and Data Sharability Layer (DSL) and to some extent with the Hierarchical
- *              Data Format version 5 (HDF5, see https://support.hdfgroup.org/HDF5/doc/index.html) library from NCSA. It was
+ *              Data Format version 5, HDF5 ( https://support.hdfgroup.org/HDF5/doc/index.html ) library from NCSA. It was
  *              decided that in order to increase performance, generalize some underlying functionality, and improve code
  *              engineering that we would embark on an effort to rewrite most of VBT and DSL with these goals in mind:
  *

@@ -27,8 +27,6 @@ SSLIB_LIB_SRC = "sslib.c sserr.c ssprop.c ssstring.c ssarray.c ssobj.c sstable.c
 ssperstab.c ssscope.c ssscopetab.c ssfile.c ssfiletab.c ssval.c ssblob.c ssblobtab.c sshdf5.c \
 ssmpi.c ssgfile.c ssattr.c ssattrtab.c ssaio.c ssdebug.c"
 
-SSLIB_META = "./src/sslib/docs/mkdoc/SSlib-API.mkdoc"
-
 SSLIB_SRC = "%s %s %s"%(SSLIB_LIB_SRC, SSLIB_PUB_HDR, SSLIB_PRIV_HDR)
 
 GEN_SOURCE = "ssblob.h sspers.h ssscope.h ssfile.h ssattr.h"
@@ -43,7 +41,7 @@ os.chdir(curdir)
 
 # run mkdoc on sslib library
 args = ['./tools/mkdoc',
-    '-c', SSLIB_META,
+    '-c', './src/sslib/docs/mkdoc/SSlib-API.mkdoc',
     '-o', './docs/sslib_refman.rest',
     '-f', 'rest',
     '-m',
@@ -61,18 +59,16 @@ SAF_LIB_SRC = "error.c libprops.c dbprops.c fileprops.c info.c init.c db.c utils
 basis.c quant.c unit.c algebraic.c evaluation.c relrep.c cat.c coll.c genreg.c field.c rel.c \
 ftempl.c altindx.c suite.c stempl.c state.c set.c hash.c"
 
-SAF_META = "./tools/Formats/library/META"
-
 SAF_SRC = "%s %s %s"%(SAF_LIB_SRC, SAF_PUB_HDR, SAF_PRIV_HDR)
 
 # run mkdoc on saf library
 args = ['./tools/mkdoc',
-    '-c', SAF_META,
+    '-c', './tools/Formats/library/META',
     '-o', './docs/safapi_refman.rest',
     '-f', 'rest',
     '-m',
-    '-p', './src/safapi/lib',]
-#    '-x', './docs/sslib_refman.rest']
+    '-p', './src/safapi/lib',
+    '-x', './docs/sslib_refman.rest']
 args +=  SAF_SRC.split(' ')
 subprocess.call(args)
 
@@ -86,16 +82,14 @@ remap_n21.c exo_par_rd.c dyn_lb_rd.c exampleutil.c exampleutil.h"
 
 SAFEX_SRC = "%s %s %s"%(SAFEX_LIB_SRC, SAFEX_PUB_HDR, SAFEX_PRIV_HDR)
 
-SAFEX_META = "./tools/Formats/example/META"
-
 # run mkdoc on saf examples
 args = ['./tools/mkdoc',
-    '-c', SAFEX_META,
+    '-c', './tools/Formats/example/META', 
     '-o', './docs/safexamples_refman.rest',
     '-f', 'rest',
     '-m',
-    '-p', './src/safapi/examples',]
-#    '-x', './docs/safapi_refman.rest']
+    '-p', './src/safapi/examples',
+    '-x', './docs/safapi_refman.rest']
 args +=  SAFEX_SRC.split(' ')
 subprocess.call(args)
 
