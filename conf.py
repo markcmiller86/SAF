@@ -16,7 +16,6 @@ import sys
 import os
 import sphinx_rtd_theme
 import subprocess
-import time
 
 SSLIB_PRIV_HDR = ""
 
@@ -109,8 +108,6 @@ f.write('   Sets and Fields (SAF) API <docs/safapi_refman.rest/index>\n')
 f.write('   SAF Examples <docs/safexamples_refman.rest/index>\n')
 f.write('   SAF Support Library <docs/sslib_refman.rest/index>\n')
 f.close()
-
-time.sleep(60)
 
 # Some pre-liminary work to detect if we're running a spell check
 BuilderIsSpelling = False
