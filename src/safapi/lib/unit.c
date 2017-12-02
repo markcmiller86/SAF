@@ -438,8 +438,7 @@ saf_log_unit(SAF_ParMode pmode,
  * Description: Given a UNIT, this function returns any information which is known about that unit.
  *
  * Return:      A non-negative value is returned on success. Failure is indicated by a negative return value or the raising of
- *              an exception, depending on the error handling property of the library. Some returned values may be DSL
- *              wildcards, depending on how UNIT was initialized.
+ *              an exception, depending on the error handling property of the library.
  *
  * Programmer:  Robb Matzke
  *              Wednesday, March 22, 2000

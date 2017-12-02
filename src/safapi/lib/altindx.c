@@ -144,7 +144,7 @@
  *              have, so you don't need to explicitly list the collection ids.
  *              
  *
- * Issue:       The data_type is just stored as the DSL_Type data_type member of the SAF_AltIndexSpec. This
+ * Issue:       The data_type is just stored as the HDF5 data_type member of the SAF_AltIndexSpec. This
  *              is transient, in memory data, it is not written to the saf database until the saf_write_alternate_indexspec
  *              call.  This means that if you do something like: saf_declare_alternate_indexspec, then
  *              saf_find_alternate_index_spec, then saf_describe_alternate_indexspec, (with no write call yet)

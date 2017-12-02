@@ -1322,7 +1322,7 @@ _saf_is_valid_units(SAF_Unit *unit, SAF_FieldTmpl *ftmpl)
  *		However, it is sometimes the case that some given data in a client may not be characterized in terms of
  *		the data model yet the client, nonetheless, wishes to store the data to the database. The lower
  *		layers of software upon with SAF is built fully support any arbitrary data to be read/written from the
- *		client. Those layers are DSL, SAF's data storage layer, HDF5 and MPIO, when operating in parallel or
+ *		client. Those layers are SAF's data storage layer, HDF5 and MPIO, when operating in parallel or
  *		libc I/O when operating in serial.
  *
  *		Rather than re-wrapping the functions in these lower layers with some SAF equivalent functionality,
@@ -1335,7 +1335,7 @@ _saf_is_valid_units(SAF_Unit *unit, SAF_FieldTmpl *ftmpl)
  *		can potentially jeopardize the integrity of the entire database. For this reason, we provide a 
  *		/grab/and/ungrab/ methodology for accessing lower level software.
  *
- *		There is nothing to prevent a SAF client from using DSL's or HDF5's interfaces directly with /external/files/
+ *		There is nothing to prevent a SAF client from using SSlib's or HDF5's interface directly with /external/files/
  *		(that is files that are not part of a SAF database). However, if the client wishes the resultant data
  *		to, at least, reside /in/ the database, the grab and ungrab methodology described here will provide a reliable
  *		mechanism for doing this.
@@ -1343,7 +1343,6 @@ _saf_is_valid_units(SAF_Unit *unit, SAF_FieldTmpl *ftmpl)
  *		Presently, a lower level interface can be grabbed for only one file at a time over the entire library.
  *		That is, the scope of a grab is a single file out of all files of all databases the library is interacting
  *		with. Later, this will be relaxed to a database and then to specific supplemental files in a database.
- *		Furthermore only DSL *or* HDF5 can be grabbed. They cannot both be grabbed.
  *-------------------------------------------------------------------------------------------------------------------------------
  */
 

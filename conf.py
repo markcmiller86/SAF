@@ -210,6 +210,12 @@ todo_include_todos = False
 
 numfig = True
 
+# Best place to put a substitution for 'VisIt'
+# Authors should use either VisIt_ or VisIt_'s
+rst_epilog = """
+.. _SAF: https://github.com/markcmiller86/SAF
+"""
+
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

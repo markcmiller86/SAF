@@ -168,17 +168,13 @@
  *	involved have seen the value in applying this technology in several directions...
  *
  *	a) A publish/subscribe scenario for exchanging data between scientific computing clients, in-situ.
- *
  *	b) End-user tools for performing set operations and /restricting/ fields to subsets of the base space to
- *	take a closer look at portions of tera-scale data.
- *
+ *	   take a closer look at portions of tera-scale data.
  *	c) Operators which /transform/ data during exchange between clients such as changing the processor decomposition,
- *	evaluation method, node-order over elements, units, precision, etc. on a field.
- *
+ *	   evaluation method, node-order over elements, units, precision, etc. on a field.
  *	d) Data consistency checkers which confirm a given bunch of scientific data does indeed conform to the
- *	mathematical and physical description that has been ascribed to it by its model. For example, that a volume or mass
- *	fraction field is indeed between 0.0 and 1.0, everywhere in its base-space.
- *	
+ *	   mathematical and physical description that has been ascribed to it by its model. For example, that a volume or mass
+ *	   fraction field is indeed between 0.0 and 1.0, everywhere in its base-space.
  *	e) MPI-like parallel communication routines pitched in terms of /sets/ and /fields/ rather than data structures.
  *
  * 	And many others.
@@ -726,7 +722,7 @@ typedef void *SAF_VoidPtr;
  *---------------------------------------------------------------------------------------------------------------------------------
  */
 #define SAF_ATT_NAMES           ".saf_att_names"	/* If the client passes SAF_ATT_NAMES for the NAME arg in a call to
-							 * saf_get_attribute(), SAF will return a TYPE of DSL_STRING (if the TYPE
+							 * saf_get_attribute(), SAF will return a TYPE of string (if the TYPE
 							 * return value is requested), a COUNT equal to the number of attributes
 							 * (if the COUNT return value was requested), and a VALUE array
 							 * containing the names of all attributes defined for the object. */

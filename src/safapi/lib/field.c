@@ -1095,7 +1095,7 @@ saf_is_self_stored_field(SAF_ParMode pmode,     /* The parallel mode. */
  *		this call. In addition, it *really* requires decoupling the storage containers into which field's data goes
  *		from declaring and writing fields.
  *
- *		For a compound data-type on a composite field, we probably ought to confirm a) the DSL_rankOf the compound
+ *		For a compound data-type on a composite field, we probably ought to confirm a) the rank of the compound
  *		type is equal to the number of components, b) the type of each member of the compound type is equal to the
  *		type of each of the component fields (assuming both are ordered the same), and c) the names of the member
  *		types are the same as the component fields. Currently we are only checking a).

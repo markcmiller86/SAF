@@ -108,7 +108,7 @@
  *
  *              See the private function, _saf_init(), for the /real/ implementation of this function
  *
- *              Calling saf_init() after saf_final() is currently not supported due to design issues in DSL.
+ *              Calling saf_init() after saf_final() is currently not supported.
  *
  * Also:        SAF_REGISTRIES SAF_REGISTRY_SAVE
  *

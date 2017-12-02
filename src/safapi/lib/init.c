@@ -160,10 +160,10 @@ ss_indexspec_t  SAF_NOT_APPLICABLE_INDEXSPEC_g;
  *
  *		Both public and private API calls are logged along with timing information.
  *
- *		Finally, if SAF_TRACING is set to a valid value other than "none", SAF will also invoke DSL's tracing
- *		facilities. However, DSL's tracing facilities WILL NOT take effect unless the environment var DSL_TRACING is
- *		also defined in the environment. Thus, DSL's tracing can be turned on/off separately by setting or unsetting
- *		the DSL_TRACING environment variable.
+ *		Finally, if SAF_TRACING is set to a valid value other than "none", SAF will also invoke HDF5's tracing
+ *		facilities. However, HDF5's tracing facilities WILL NOT take effect unless the environment var H5_DEBUG is
+ *		also defined in the environment. Thus, HDF5's tracing can be turned on/off separately by setting or unsetting
+ *		the H5_DEBUG environment variable.
  *--------------------------------------------------------------------------------------------------------------------------------
  */
 #define SAF_TRACING	0	/* environment variable */
@@ -855,12 +855,6 @@ saf_final(void)
  *		by the client or via at_exit. An error message will be generated if SAF is able to determine that MPI_Finalize()
  *		has been called prior to calling _saf_final(). However, it will not attempt to abort in this case as MPI's abort
  *		is probably not available.
- *
- *		Note that if you are using the DSL interface apart from SAF, this call with finalize DSL also. You will need
- *		to re-init DSL's interface.
- *
- * Issue:	We should probably have an argument or property to control whether DSL_finalize is called.
- *
  *
  * Modifications:
  * 		Mark Miller, LLNL, 2000-10-06

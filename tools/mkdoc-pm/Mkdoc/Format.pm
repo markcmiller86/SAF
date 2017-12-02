@@ -410,7 +410,7 @@ sub context {
   local($_);
 
   my %abbr;
-  map {$abbr{$_}=1} qw(A API ASCI C CAD CAM CSG CVS DSL HDF HDF5 HTML I II I/O IBM-SP2 LLNL LPS MPI PATRAN POSIX SAF SEACAS SGI SNL VBT);
+  map {$abbr{$_}=1} qw(A API ASCI C CAD CAM CSG CVS DSL HDF HDF5 HTML I II I/O IBM-SP2 LLNL LPS MPI PATRAN POSIX SAF SAF_ SEACAS SGI SNL VBT);
 
   sub formal_name {#return formal name or undef
     my($vars,$word) = @_;
@@ -437,6 +437,7 @@ sub context {
     } else {
       # THIS IS PROSE
       $s = $self->escape(\@tokens,$s);                                      # Special characters
+      $s =~ s/([^\/])SAF(')?/$1SAF_$2/g;
       $s =~ s/\b([A-Z][\w\/]*)\b/
         ($abbr{$1} && _toksave \@tokens, $1) || $1/eg;                      # Non-code abbreviations
       $s =~ s/\[figure\s+(.*?)\]/
