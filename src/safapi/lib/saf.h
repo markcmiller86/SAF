@@ -120,14 +120,8 @@
  *	and/or objects to support each client's slightly different needs. The result is that these products can and have been
  *	highly successful within a *small* group of applications who either...
  *
- *      a) buy into the small menu of objects they do support 
- *
- *	or
- *
- *      b) don't require support for very many new objects (e.g. changes to the supporting library)
- *
- *	or
- *
+ *      a) buy into the small menu of objects they do support, or
+ *      b) don't require support for very many new objects (e.g. changes to the supporting library), or
  *      c) don't expect very many other applications to understand their data
  *
  *	In other words, previous approaches have succeeded in integration on the small scale but hold little promise for

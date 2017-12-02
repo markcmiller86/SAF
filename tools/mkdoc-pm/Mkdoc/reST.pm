@@ -62,7 +62,7 @@ sub prologue {
   my($self,$mkdoc_url) = @_;
   local($_);
 
-  my($bodytitle,$headtitle);
+  my($bodytitle,$headtitle, $acktag);
   if ('ARRAY' eq ref $self->{title}) {
     $bodytitle = join "\n", @{$self->{title}};
     $headtitle = $self->{title}[0];
@@ -72,14 +72,22 @@ sub prologue {
 
   $bodytitle =~ s/\n/ /g;
 
+  if ($bodytitle =~ /Examples/) {
+      $acktag = "examples";
+  } elsif ($bodytitle =~ /API/) {
+      $acktag = "safapi";
+  } elsif ($bodytitle =~ /SSlib/) {
+      $acktag = "sslib";
+  }
+
   $_ .= "$bodytitle\n################\n";
 
-  $_ .= ":ref:`Acknowledgements <acknowledgements>`\n";
+  $_ .= ":ref:`Acknowledgements <acknowledgements_$acktag>`\n";
 
   my($ackfile) = $self->outdir . "/acknowledgements.rst";
   open OUTPUT, ">$ackfile" or croak "cannot open file $ackfile";
 
-  print OUTPUT ".. _acknowledgements:\n\n";
+  print OUTPUT ".. _acknowledgements_$acktag:\n\n";
   print OUTPUT "Acknowledgements\n";
   print OUTPUT "================\n\n";
 
@@ -123,8 +131,6 @@ sub prologue {
   print OUTPUT "\n";
   close OUTPUT;
 
-  $_ .= "\nThis document was generated from the source files\n";
-  $_ .= "Using Robb Matzke's MKDOC\n";
   return $_;
 }
 
@@ -223,7 +229,7 @@ sub url {
   my($self,$url,$text) = @_;
   unless (defined $text) {
     $text = $url;
-    $text =~ s/^((http|file|ftp|mailto):(\/\/)?)//;
+    $text =~ s/^((http|https|file|ftp|mailto):(\/\/)?)//;
   }
   return "`$text <$url>`_";
 }

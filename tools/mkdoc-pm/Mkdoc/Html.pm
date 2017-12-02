@@ -224,7 +224,7 @@ sub url {
   my($self,$url,$text) = @_;
   unless (defined $text) {
     $text = $url;
-    $text =~ s/^((http|file|ftp|mailto):(\/\/)?)//;
+    $text =~ s/^((http|https|file|ftp|mailto):(\/\/)?)//;
   }
   return "<a href=\"$url\">$text</a>";
 }
