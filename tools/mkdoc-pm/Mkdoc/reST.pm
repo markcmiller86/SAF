@@ -229,7 +229,7 @@ sub url {
   my($self,$url,$text) = @_;
   unless (defined $text) {
     $text = $url;
-    $text =~ s/^((http|https|file|ftp|mailto):(\/\/)?)//;
+    $text =~ s/^((https|http|file|ftp|mailto):(\/\/)?)//;
   }
   return "`$text <$url>`_";
 }

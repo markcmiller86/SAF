@@ -70,7 +70,10 @@
  *
  * Description: Topology relations are used to define the inter-relationships between the members of a collection
  *		and how those members are knitted together to form a /mesh/. For more information, see [Relation Notes] and 
- *		saf_declare_topo_relation().
+ *		saf_declare_topo_relation(). Also, see this detailed discussion of the difference between
+ *              mapping of /degrees/of/freedom/ of a field to the members of a collection and the mapping of
+ *              the members of a collection to themselves to indicate topological relationships,
+ *              (http://github.com/markcmiller86/SAF/blob/master/src/safapi/docs/dof_maps_and_topo_rels.pdf)
  *---------------------------------------------------------------------------------------------------------------------------------
  */
 

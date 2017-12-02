@@ -443,7 +443,7 @@ sub context {
         _toksave \@tokens, $self->figure($1)/eg;                            # for pictures [figure Something]
       $s =~ s/\bFILE:([^\s()]+)/
         _toksave \@tokens, $self->code($1)/eg;                              # A file name, so slashes don't mess us up.
-      $s =~ s/\b((http|file|ftp|mailto):[^\s()]+)/
+      $s =~ s/\b((https|http|file|ftp|mailto):[^\s()]+)/
         _toksave \@tokens, $self->url($1)/eg;				    # URL
       $s =~ s/([a-z_A-Z][\w:]*)\(\)/
         _toksave \@tokens, $self->funcall($1,$current,$see_also,$exrefs)/eg;# function call
