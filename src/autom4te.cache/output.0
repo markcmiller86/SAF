@@ -5570,8 +5570,7 @@ if test "x$ac_cv_header_hdf5_h" = xyes; then :
 _ACEOF
  
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: HDF5 is required" >&5
-$as_echo "$as_me: WARNING: HDF5 is required" >&2;}
+  as_fn_error $? "HDF5 is required. Specify it via CPPFLAGS and LDFALGS" "$LINENO" 5
 fi
 
 done
@@ -5614,8 +5613,7 @@ _ACEOF
   LIBS="-lhdf5 $LIBS"
 
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: HDF5 is required" >&5
-$as_echo "$as_me: WARNING: HDF5 is required" >&2;}
+  as_fn_error $? "HDF5 is required. Specify it via CPPFLAGS and LDFALGS" "$LINENO" 5
 fi
 
 #LIBS="-lhdf5 $LIBS"  # already done by AC_CHECK_LIB -rpm 2003-05-13

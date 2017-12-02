@@ -540,8 +540,8 @@ dnl ----------------------------------------------------------------------
 dnl HDF5 is a prerequisite.  We have to check this before we check for
 dnl Asynchronous I/O support below.
 
-AC_CHECK_HEADERS(hdf5.h,,AC_MSG_WARN(HDF5 is required))
-AC_CHECK_LIB(hdf5,main,,AC_MSG_WARN(HDF5 is required))
+AC_CHECK_HEADERS(hdf5.h,,AC_MSG_ERROR(HDF5 is required. Specify it via CPPFLAGS and LDFALGS))
+AC_CHECK_LIB(hdf5,main,,AC_MSG_ERROR(HDF5 is required. Specify it via CPPFLAGS and LDFALGS))
 #LIBS="-lhdf5 $LIBS"  # already done by AC_CHECK_LIB -rpm 2003-05-13
 AC_CHECK_FUNCS(H5Eregister_class)
 
