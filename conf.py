@@ -21,7 +21,7 @@ import subprocess
 # followed by 3 invokations of `mkdoc` for SSlib, SAF library and SAF examples. In
 # addition to making this work for RTD, this also means just running `sphinx-build`
 # from the top-level directory will generate sphinx documentation without requiring
-# the library to be configured.
+# the library to be configured. 
 #
 SSLIB_PRIV_HDR = ""
 
