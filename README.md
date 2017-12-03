@@ -1,11 +1,9 @@
 # SAF
-Sets and Fields
-
 This is the Sets and Fields (SAF, pronounced "safe") project.
 
 This project was part of the
 [Accelerated Strategic Computing Initiative's](https://www.ncbi.nlm.nih.gov/books/NBK44974/)
-Data Models and Formats (ASCI-DMF) effort. Work on ASCI-DMF ceased in 2003.
+Data Models and Formats (ASCI-DMF) effort. Work on ASCI-DMF ceased in 2005.
 Nonetheless, we are hosting the software and the documentation here for posterity's
 sake. The software does indeed still build and run with current compilers and
 versions of HDF5 (as of November, 2017). There are several example applications
