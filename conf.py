@@ -151,7 +151,10 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'SAF User Manual'
-copyright = u'2005-07-01, Sandia proj 28462, 002008MLTPL00, OSTI: 1230929'
+copyright = """
+2005-07-01, Sandia proj 28462, 002008MLTPL00, OSTI: 1230929.
+This documentation was automatically generated via Robb Matzke's Mkdoc
+"""
 author = u'SNL'
 
 # The version info for the project you're documenting, acts as replacement for
