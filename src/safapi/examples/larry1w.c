@@ -67,9 +67,9 @@
 
 /*--------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  *
- * Description: This is testing code that exercises Larry's first use case. This code declares SAF objects and writes the raw
+ * Description: This is testing code that exercises Larry Schoof first use case. This code declares SAF objects and writes the raw
  *              data.
  *--------------------------------------------------------------------------------------------------------------------------------
  */
@@ -142,10 +142,10 @@ void make_time_suite(void);
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the mesh
  *
- * Description: Constructs the mesh for Larry's use case and writes it to a file.
+ * Description: Constructs the mesh for Larry use case and writes it to a file.
  *-------------------------------------------------------------------------------------------------------------------------------
  */
 void make_base_space(void)
@@ -485,7 +485,7 @@ void make_base_space(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the coordinate field
  *
  * Description: Constructs the coordinate field on the mesh.
@@ -553,7 +553,7 @@ void make_global_coord_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the displacement field
  *
  * Description: Constructs the displacement field on the mesh. The field templates for the displacement field are the same as
@@ -603,7 +603,7 @@ void make_displacement_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the distribution factors
  *
  * Description: Constructs the distribution factors field on side set 2.
@@ -645,7 +645,7 @@ void make_distribution_factors_on_ss2_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the temparature field
  *
  * Description: Constructs the temperature field on node set 1.
@@ -700,7 +700,7 @@ void make_temperature_on_ns1_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the temperature field
  *
  * Description: Constructs the temperature field on node set 1.
@@ -743,7 +743,7 @@ void make_temperature_on_cell_2_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the stress field
  *
  * Description: Construct the stress field on cell 1.
@@ -812,7 +812,7 @@ void make_stress_on_cell_1_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the stress field
  *
  * Description: Constructs the stress field on cell 1.
@@ -856,7 +856,7 @@ void make_pressure_on_ss1_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Construct the time field
  *
  * Description: Construct the time field on the time base.
@@ -917,7 +917,7 @@ void make_time_base_field(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Create initial suite
  *
  * Description: Create a suite for initial state (time step zero).
@@ -972,7 +972,7 @@ void make_init_suite(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Create time suite
  *
  * Description: Create time suite.
@@ -1059,10 +1059,10 @@ void make_time_suite(void)
 
 /*-------------------------------------------------------------------------------------------------------------------------------
  * Audience:    Public
- * Chapter:     Larry's Use Case
+ * Chapter:     Larry Use Case
  * Purpose:     Main entry point
  *
- * Description: Implementation of Larry's use case.
+ * Description: Implementation of Larry use case.
  *
  * Return:      Exit status is the number of failures.
  *-------------------------------------------------------------------------------------------------------------------------------
