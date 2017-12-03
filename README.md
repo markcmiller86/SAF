@@ -11,7 +11,7 @@ sake. The software does indeed still build and run with current compilers and
 versions of HDF5 (as of November, 2017). There are several example applications
 to demonstrate the use of SAF as well.
 
-The Sets and Fields library was and still is unique among scientific data packages
+The Sets and Fields library was and still is unique among scientific data libraries
 in that it combines the aims of scalable, parallel I/O with mathematically rigorous
 scientific data modeling principles. It aimes to be highly performant and highly general
 in its ability to describe and store a variety of scientific data. In addition,
