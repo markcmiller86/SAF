@@ -84,8 +84,10 @@
  *	(e.g. object and its supporting methods) SAF supports. 
  *
  *      There is a decent introduction to the SAF data model in this paper,
+ *         http://github.com/markcmiller86/SAF/blob/master/src/safapi/docs/miller001.pdf
  *
- *      (http://github.com/markcmiller86/SAF/blob/master/src/safapi/docs/miller001.pdf)
+ *      Various API design ideas were taken from this paper,
+ *         https://github.com/markcmiller86/SAF/blob/master/src/safapi/docs/necdc_2004_paper_30Nov04.pdf
  *
  *	SAF is designed first and foremost to support scalable I/O of shareable, scientific data.
  *
