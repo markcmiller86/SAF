@@ -14,7 +14,7 @@ in that it combines the aims of scalable, parallel I/O with mathematically rigor
 scientific data modeling principles. It aimes to be highly performant and highly general
 in its ability to describe and store a variety of scientific data. In addition,
 the implementation of SAF developed here employs a number of features of
-[Smart Libraries](https://wci.llnl.gov/codes/smartlibs/index.html).
+[Smart Libraries](https://github.com/markcmiller86/SAF/blob/master/src/safapi/docs/necdc_2004_paper_30Nov04.pdf).
 
 An introductory paper on the SAF data model can be found [here](src/safapi/docs/miller001.pdf)
 
